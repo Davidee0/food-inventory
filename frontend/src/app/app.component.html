@@ -42,10 +42,10 @@
 
 @if (formOpen) {
   <app-item-form [item]="editing" [locations]="locations" [categories]="categories"
-                 (saved)="refresh()" (closed)="formOpen = false" />
+                 [onSaved]="reload" (closed)="formOpen = false" />
 }
 @if (deleting; as item) {
-  <app-confirm-delete [item]="item" (deleted)="refresh()" (closed)="deleting = null" />
+  <app-confirm-delete [item]="item" [onDeleted]="reload" (closed)="deleting = null" />
 }
 @if (categoriesOpen) {
   <app-categories-dialog (changed)="refresh()" (closed)="categoriesOpen = false" />

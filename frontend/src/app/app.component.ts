@@ -45,6 +45,9 @@ export class AppComponent implements OnInit {
     }
   }
 
+  /** Handed to the dialogs, which stay open until the list is up to date (no stale flash after closing). */
+  readonly reload = () => this.refresh();
+
   /** Refresh without flashing the loading state (after a save/delete). */
   async refresh() {
     try {
@@ -55,8 +58,23 @@ export class AppComponent implements OnInit {
     }
   }
 
-  openAdd() { this.editing = null; this.formOpen = true; }
-  openEdit(item: Item) { this.editing = item; this.formOpen = true; }
+  async openAdd() {
+    if (!(await this.ready())) return;
+    this.editing = null;
+    this.formOpen = true;
+  }
+
+  async openEdit(item: Item) {
+    if (!(await this.ready())) return;
+    this.editing = item;
+    this.formOpen = true;
+  }
+
+  /** The form needs the locations; if the first load failed, try again before opening it. */
+  private async ready(): Promise<boolean> {
+    if (this.locations.length === 0) await this.load();
+    return this.locations.length > 0;
+  }
 
   place(item: Item) {
     return item.category_name ? `${item.location_name}, ${item.category_name}` : item.location_name;

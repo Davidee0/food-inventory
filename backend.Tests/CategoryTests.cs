@@ -28,6 +28,15 @@ public class CategoryTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task List_ignores_case_when_ordering_names()
+    {
+        foreach (var name in new[] { "banana", "Apple", "cherry" }) await Create(name);
+        var body = await TestApp.Body(await _app.Get("/categories"));
+        var names = body.EnumerateArray().Select(c => c.GetProperty("name").GetString()).ToArray();
+        Assert.Equal(new[] { "Apple", "banana", "cherry", "Dairy", "Drinks", "Fruit", "Meat and fish", "Other", "Vegetables" }, names);
+    }
+
+    [Fact]
     public async Task Create_returns_201_with_zero_count_and_trims()
     {
         var r = await _app.Post("/categories", """{"name":"  Snacks  "}""");

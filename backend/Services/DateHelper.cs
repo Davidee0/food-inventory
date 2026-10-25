@@ -6,7 +6,7 @@ namespace FoodInventory.Api.Services;
 /// <summary>Plain-date helpers. Dates are never timestamps.</summary>
 public static partial class DateHelper
 {
-    [GeneratedRegex(@"^\d{4}-\d{2}-\d{2}$")]
+    [GeneratedRegex(@"^[0-9]{4}-[0-9]{2}-[0-9]{2}\z")]
     private static partial Regex Format();
 
     /// <summary>Today's date on the machine's local clock (not UTC).</summary>

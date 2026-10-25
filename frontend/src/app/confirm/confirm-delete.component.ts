@@ -18,7 +18,8 @@ import { Item } from '../core/models';
 })
 export class ConfirmDeleteComponent implements AfterViewInit {
   item = input.required<Item>();
-  deleted = output<void>();
+  /** Called after the item is gone; the dialog stays open until it finishes (the list refresh). */
+  onDeleted = input.required<() => Promise<void>>();
   closed = output<void>();
   @ViewChild('dlg', { static: true }) dlg!: ElementRef<HTMLDialogElement>;
   error = '';
@@ -35,13 +36,13 @@ export class ConfirmDeleteComponent implements AfterViewInit {
     this.error = '';
     try {
       await this.api.deleteItem(this.item().id);
-      this.deleted.emit();
+      await this.onDeleted()();
       this.dlg.nativeElement.close();
     } catch (e) {
       const f = toFailure(e);
       if (f.status === 404) {
         // Already gone: same result the user wanted.
-        this.deleted.emit();
+        await this.onDeleted()();
         this.dlg.nativeElement.close();
       } else {
         this.error = f.network ? NETWORK_MESSAGE : `Could not delete ${this.item().name}. Try again.`;

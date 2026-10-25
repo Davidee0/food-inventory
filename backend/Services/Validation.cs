@@ -26,10 +26,10 @@ public static class Validation
     {
         var name = Name(body, ItemNameMax, errors);
 
-        int locationId = 0;
-        if (Json.TryGet(body, "location_id", out var loc) && loc.ValueKind == JsonValueKind.Number && loc.TryGetInt32(out locationId)
-            && await db.Locations.AnyAsync(l => l.Id == locationId)) { }
-        else errors["location_id"] = "Choose a storage location.";
+        var locationId = 0;
+        if (!(Json.TryGet(body, "location_id", out var loc) && Json.TryGetInt(loc, out locationId)
+              && await db.Locations.AnyAsync(l => l.Id == locationId)))
+            errors["location_id"] = "Choose a storage location.";
 
         DateOnly purchase = default;
         var purchaseOk = false;
@@ -52,7 +52,7 @@ public static class Validation
         int? categoryId = null;
         if (Json.TryGet(body, "category_id", out var cat))
         {
-            if (cat.ValueKind == JsonValueKind.Number && cat.TryGetInt32(out var cid) && await db.Categories.AnyAsync(c => c.Id == cid))
+            if (Json.TryGetInt(cat, out var cid) && await db.Categories.AnyAsync(c => c.Id == cid))
                 categoryId = cid;
             else errors["category_id"] = "Choose a category from the list.";
         }

@@ -21,6 +21,9 @@ public class DateHelperTests
     [InlineData("2026-2-3", false)]
     [InlineData("03/02/2026", false)]
     [InlineData("2026-02-03T10:00:00Z", false)]
+    [InlineData("2026-01-01\n", false)]
+    [InlineData("٢٠٢٦-٠١-٠١", false)]
+    [InlineData("0000-01-01", false)]
     [InlineData("", false)]
     [InlineData(null, false)]
     public void IsValid_checks_real_calendar_dates_in_YYYY_MM_DD(string? value, bool expected) =>

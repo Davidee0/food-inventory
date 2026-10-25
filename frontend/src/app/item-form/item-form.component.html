@@ -31,7 +31,7 @@
 
     <div class="field">
       <label for="f-purchase">Purchase date</label>
-      <input id="f-purchase" name="purchase_date" type="date" [(ngModel)]="form.purchase_date" (ngModelChange)="edited('purchase_date'); touched['best_before'] && edited('best_before')"
+      <input id="f-purchase" name="purchase_date" type="date" [(ngModel)]="form.purchase_date" (ngModelChange)="purchaseEdited()"
              (blur)="touched['purchase_date'] = true" [attr.aria-invalid]="!!error('purchase_date')" [attr.aria-describedby]="error('purchase_date') ? 'e-purchase' : null" />
       @if (error('purchase_date'); as msg) { <p class="error" id="e-purchase">{{ msg }}</p> }
     </div>

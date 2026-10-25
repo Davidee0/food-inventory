@@ -43,6 +43,28 @@ public class ItemTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Sorting_ignores_case_does_not_depend_on_the_database_and_falls_back_to_id()
+    {
+        foreach (var name in new[] { "banana", "Apple", "cherry", "Äpple", "milk", "Milk" })
+            await _app.Post("/items", $$"""{"name":"{{name}}","location_id":1,"purchase_date":"2026-01-01","best_before":"2030-01-01"}""");
+        var body = await TestApp.Body(await _app.Get("/items"));
+        var added = body.EnumerateArray().Select(i => (i.GetProperty("id").GetInt32(), i.GetProperty("name").GetString()!))
+            .Where(i => i.Item1 > 6).Select(i => i.Item2).ToArray();
+        // case-insensitive by name; "milk" and "Milk" tie, so the older one (lower id) comes first
+        Assert.Equal(new[] { "Apple", "banana", "cherry", "milk", "Milk", "Äpple" }, added);
+    }
+
+    [Fact]
+    public async Task Whole_number_ids_written_with_a_zero_fraction_are_accepted()
+    {
+        var r = await _app.Post("/items", """{"name":"Whole","location_id":1.0,"category_id":1e0,"purchase_date":"2026-01-01"}""");
+        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
+        var b = await TestApp.Body(r);
+        Assert.Equal(1, b.GetProperty("location_id").GetInt32());
+        Assert.Equal(1, b.GetProperty("category_id").GetInt32());
+    }
+
+    [Fact]
     public async Task Create_trims_name_and_returns_the_item_then_get_replace_delete()
     {
         var r = await _app.Post("/items", """{"name":"  Cheese  ","location_id":1,"category_id":1,"purchase_date":"2026-05-01","best_before":"2026-05-20"}""");

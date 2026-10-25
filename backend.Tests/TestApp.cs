@@ -8,6 +8,7 @@ using Npgsql;
 using FoodInventory.Api.Data;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FoodInventory.Api.Tests;
@@ -33,12 +34,8 @@ public class TestApp : WebApplicationFactory<Program>, IAsyncLifetime
             await admin.OpenAsync();
             await Exec(admin, $"CREATE DATABASE \"{_dbName}\"");
         }
-        await using var db = new NpgsqlConnection(ConnectionString);
-        await db.OpenAsync();
-        var dir = AppContext.BaseDirectory;
-        while (!Directory.Exists(Path.Combine(dir, "database"))) dir = Path.GetDirectoryName(dir)!;
-        foreach (var f in new[] { "create_tables.sql", "seed_data.sql" })
-            await Exec(db, await File.ReadAllTextAsync(Path.Combine(dir, "database", f)));
+        await RunScript("create_tables.sql");
+        await RunScript("seed_data.sql");
         Http = CreateClient();
     }
 
@@ -52,14 +49,34 @@ public class TestApp : WebApplicationFactory<Program>, IAsyncLifetime
         await Exec(admin, $"DROP DATABASE IF EXISTS \"{_dbName}\" WITH (FORCE)");
     }
 
-    protected override void ConfigureWebHost(IWebHostBuilder builder) =>
-        builder.ConfigureTestServices(services =>
-        {
-            foreach (var d in services.Where(d => d.ServiceType.FullName!.Contains("DbContextOptions")
-                                                  || d.ServiceType == typeof(AppDbContext)).ToList())
-                services.Remove(d);
-            services.AddDbContext<AppDbContext>(o => o.UseNpgsql(ConnectionString));
-        });
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        Quiet(builder, "Warning"); // keep SQL logging out of the test output
+        builder.ConfigureTestServices(services => UseDatabase(services, ConnectionString));
+    }
+
+    public static void Quiet(IWebHostBuilder builder, string level) =>
+        builder.ConfigureAppConfiguration((_, config) => config.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["Logging:LogLevel:Default"] = level, ["Logging:LogLevel:Microsoft.AspNetCore"] = level }));
+
+    /// <summary>Points the API at another database, replacing the one from appsettings.json.</summary>
+    public static void UseDatabase(IServiceCollection services, string connectionString)
+    {
+        foreach (var d in services.Where(d => d.ServiceType.FullName!.Contains("DbContextOptions")
+                                              || d.ServiceType == typeof(AppDbContext)).ToList())
+            services.Remove(d);
+        services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
+    }
+
+    /// <summary>Runs one of the real scripts from the /database folder against this test database.</summary>
+    public async Task RunScript(string fileName)
+    {
+        var dir = AppContext.BaseDirectory;
+        while (!Directory.Exists(Path.Combine(dir, "database"))) dir = Path.GetDirectoryName(dir)!;
+        await using var c = new NpgsqlConnection(ConnectionString);
+        await c.OpenAsync();
+        await Exec(c, await File.ReadAllTextAsync(Path.Combine(dir, "database", fileName)));
+    }
 
     static async Task Exec(NpgsqlConnection c, string sql)
     {
@@ -95,5 +112,19 @@ public class TestApp : WebApplicationFactory<Program>, IAsyncLifetime
         Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode);
         var body = await Body(r);
         return body.GetProperty("errors").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
+    }
+}
+
+
+/// <summary>The API with a database that cannot be reached, to check the 500 response.</summary>
+public class BrokenDatabaseApp : WebApplicationFactory<Program>
+{
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        TestApp.Quiet(builder, "None"); // the expected failures would only print stack traces
+        builder.ConfigureTestServices(services =>
+        {
+            TestApp.UseDatabase(services, "Host=localhost;Port=1;Database=nope;Username=nope;Password=nope;Timeout=2;Pooling=false");
+        });
     }
 }

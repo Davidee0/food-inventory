@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild, input, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService, NETWORK_MESSAGE, toFailure } from '../core/api.service';
 import { todayLocal } from '../core/date-utils';
@@ -10,12 +10,13 @@ import { ItemForm, validateItem } from '../core/validation';
   imports: [FormsModule],
   templateUrl: './item-form.component.html',
 })
-export class ItemFormComponent implements AfterViewInit {
+export class ItemFormComponent implements OnInit, AfterViewInit {
   /** Item being edited; null/undefined when adding. */
   item = input<Item | null>(null);
   locations = input.required<Location[]>();
   categories = input.required<Category[]>();
-  saved = output<void>();
+  /** Called after a successful save; the dialog stays open until it finishes (the list refresh). */
+  onSaved = input.required<() => Promise<void>>();
   closed = output<void>();
 
   @ViewChild('dlg', { static: true }) dlg!: ElementRef<HTMLDialogElement>;
@@ -29,7 +30,7 @@ export class ItemFormComponent implements AfterViewInit {
 
   constructor(private api: ApiService) {}
 
-  ngAfterViewInit() {
+  ngOnInit() {
     const i = this.item();
     if (i) {
       this.form = {
@@ -40,6 +41,9 @@ export class ItemFormComponent implements AfterViewInit {
         best_before: i.best_before ?? '',
       };
     }
+  }
+
+  ngAfterViewInit() {
     this.dlg.nativeElement.showModal();
   }
 
@@ -59,6 +63,12 @@ export class ItemFormComponent implements AfterViewInit {
     this.saveError = '';
   }
 
+  /** The best-before rule depends on the purchase date, so an old server message for it no longer applies. */
+  purchaseEdited() {
+    this.edited('purchase_date');
+    delete this.serverErrors['best_before'];
+  }
+
   async save() {
     this.submitted = true;
     if (this.saving || Object.keys(this.errors).length > 0) return;
@@ -75,7 +85,7 @@ export class ItemFormComponent implements AfterViewInit {
       const existing = this.item();
       if (existing) await this.api.updateItem(existing.id, input);
       else await this.api.createItem(input);
-      this.saved.emit();
+      await this.onSaved()();
       this.dlg.nativeElement.close();
     } catch (e) {
       const f = toFailure(e);

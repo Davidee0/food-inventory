@@ -22,6 +22,7 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
   loading = true;
   newName = '';
   newError = '';
+  newNote = '';
   adding = false;
 
   constructor(private api: ApiService) {}
@@ -47,6 +48,17 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /** Re-reads the list without a loading flash, keeping names the user has typed but not saved yet. */
+  private async reload() {
+    const cats = await this.api.categories();
+    const before = new Map(this.rows.map((r) => [r.id, r]));
+    this.rows = cats.map((c) => {
+      const old = before.get(c.id);
+      const unsaved = old && old.draft !== old.name;
+      return { id: c.id, name: c.name, draft: unsaved ? old.draft : c.name, item_count: c.item_count, error: old?.error ?? '', busy: false };
+    });
+  }
+
   countLabel(n: number) {
     return n === 1 ? '1 item' : `${n} items`;
   }
@@ -63,11 +75,13 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
     if (invalid) { this.newError = invalid; return; }
     this.adding = true;
     this.newError = '';
+    this.newNote = '';
     try {
-      await this.api.createCategory(this.newName.trim());
+      const created = await this.api.createCategory(this.newName.trim());
       this.newName = '';
+      this.newNote = `Added ${created.name}.`;
       this.changed.emit();
-      await this.load();
+      await this.reload();
     } catch (e) {
       this.newError = this.failure(e, 'Could not add the category. Try again.');
     } finally {
@@ -76,6 +90,7 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
   }
 
   async save(row: Row) {
+    this.newNote = '';
     const invalid = validateName(row.draft, CATEGORY_NAME_MAX);
     if (invalid) { row.error = invalid; return; }
     row.busy = true;
@@ -85,6 +100,7 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
       row.name = saved.name;
       row.draft = saved.name;
       this.changed.emit();
+      await this.reload();
     } catch (e) {
       row.error = this.failure(e, 'Could not save the category. Try again.');
     } finally {
@@ -93,6 +109,7 @@ export class CategoriesDialogComponent implements OnInit, AfterViewInit {
   }
 
   async remove(row: Row) {
+    this.newNote = '';
     row.busy = true;
     row.error = '';
     try {

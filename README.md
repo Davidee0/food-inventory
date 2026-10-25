@@ -15,12 +15,14 @@ Stack: PostgreSQL, ASP.NET Core Web API (.NET 8, EF Core + Npgsql), Angular 19.
 
 Prerequisites: PostgreSQL 14+, .NET 8 SDK, Node 20+.
 
-1. **Database** (once, on an empty database; the seed must not be re-run):
+1. **Database** (once, on an empty database):
    ```bash
    createdb -U postgres food_inventory
-   psql -U postgres -d food_inventory -f database/create_tables.sql
-   psql -U postgres -d food_inventory -f database/seed_data.sql
+   psql -U postgres -d food_inventory -v ON_ERROR_STOP=1 -f database/create_tables.sql
+   psql -U postgres -d food_inventory -v ON_ERROR_STOP=1 -f database/seed_data.sql
    ```
+   The seed only works on a brand-new empty database: running it again is refused and changes nothing,
+   so deleting all items never brings the sample items back.
 2. **API** - set the connection string in `backend/appsettings.json` (default: `localhost:5432`, user/password `postgres`), then:
    ```bash
    cd backend
@@ -36,10 +38,12 @@ Prerequisites: PostgreSQL 14+, .NET 8 SDK, Node 20+.
 ## Tests and builds
 
 ```bash
-dotnet build backend
-dotnet test backend.Tests     # creates and drops a throwaway database per test
-cd frontend && npx ng build
+dotnet build                  # from the repo root (FoodInventory.sln), or `dotnet build backend`
+dotnet test                   # xUnit; creates and drops a throwaway database per test
+cd frontend
+npx ng build
+npm run test:ci               # Karma/Jasmine in headless Chrome (set CHROME_BIN if Chrome is not found)
 ```
 
-Tests need a PostgreSQL server; override the admin connection with `TEST_DB_ADMIN`
+The xUnit tests need a PostgreSQL server; override the admin connection with `TEST_DB_ADMIN`
 (default `Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres`).

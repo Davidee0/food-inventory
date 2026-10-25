@@ -16,6 +16,7 @@ export function isValidDate(value: string): boolean {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   if (!match) return false;
   const [y, m, d] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  if (y < 1) return false;
   const date = new Date(y, m - 1, d);
   date.setFullYear(y); // years 0-99 would otherwise map to 1900+
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;

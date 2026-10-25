@@ -107,6 +107,7 @@ input[aria-invalid='true'], select[aria-invalid='true'] { border-color: var(--er
 .dialog {
   width: calc(100% - 24px);
   max-width: 600px;
+  max-height: calc(100vh - 24px);
   max-height: calc(100dvh - 24px);
   padding: 16px;
   border: 1px solid var(--line);

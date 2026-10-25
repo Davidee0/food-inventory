@@ -1,12 +1,18 @@
 using FoodInventory.Api.Data;
 using FoodInventory.Api.Models;
+using FoodInventory.Api.Swagger;
+using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v1", new OpenApiInfo { Title = "Food inventory API", Version = "v1" });
+    o.OperationFilter<JsonBodyOperationFilter>();
+});
 builder.Services.AddDbContext<AppDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p

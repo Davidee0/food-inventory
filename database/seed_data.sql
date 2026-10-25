@@ -1,5 +1,15 @@
 -- Seed data. Run ONCE on a brand-new database right after create_tables.sql.
 -- The app never seeds by itself, so deleting all items never brings them back.
+-- Running it again does nothing: it stops before inserting anything unless the database is empty.
+BEGIN;
+
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM locations) OR EXISTS (SELECT 1 FROM categories) OR EXISTS (SELECT 1 FROM items) THEN
+        RAISE EXCEPTION 'seed_data.sql must only be run once, on a brand-new empty database.';
+    END IF;
+END $$;
+
 INSERT INTO locations (name) VALUES ('Fridge'), ('Freezer'), ('Pantry');
 
 INSERT INTO categories (name, name_key) VALUES
@@ -24,3 +34,5 @@ FROM (VALUES
     ('Pasta',          'Pantry',  'Other',        15, NULL),
     ('Orange juice',   'Pantry',  'Drinks',        5,  30)
 ) AS v(name, loc, cat, bought, bb);
+
+COMMIT;
