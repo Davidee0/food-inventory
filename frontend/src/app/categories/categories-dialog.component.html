@@ -1,0 +1,43 @@
+<dialog #dlg class="dialog" aria-labelledby="cat-title" (cancel)="$event.preventDefault(); dlg.close()" (close)="closed.emit()">
+  <h2 id="cat-title">Categories</h2>
+
+  <form class="add-category" novalidate (ngSubmit)="add()">
+    <div class="field">
+      <label for="new-category">New category</label>
+      <div class="inline">
+        <input id="new-category" name="newName" type="text" autocomplete="off" [(ngModel)]="newName" (ngModelChange)="newError = ''"
+               [attr.aria-invalid]="!!newError" [attr.aria-describedby]="newError ? 'e-new-category' : null" />
+        <button type="submit" class="primary" [disabled]="adding">Add</button>
+      </div>
+      @if (newError) { <p class="error" id="e-new-category">{{ newError }}</p> }
+    </div>
+  </form>
+
+  @if (loading) {
+    <p>Loading…</p>
+  } @else if (loadError) {
+    <p class="error banner" role="alert">{{ loadError }}</p>
+    <button type="button" class="secondary" (click)="load()">Try again</button>
+  } @else {
+    <ul class="category-list">
+      @for (row of rows; track row.id) {
+        <li>
+          <div class="inline">
+            <input type="text" autocomplete="off" [attr.aria-label]="'Name of ' + row.name" [name]="'cat' + row.id"
+                   [(ngModel)]="row.draft" (ngModelChange)="row.error = ''" [attr.aria-invalid]="!!row.error" />
+            <span class="count">{{ countLabel(row.item_count) }}</span>
+          </div>
+          @if (row.error) { <p class="error" role="alert">{{ row.error }}</p> }
+          <div class="row-actions">
+            <button type="button" class="secondary" [disabled]="row.busy" [attr.aria-label]="'Save ' + row.name" (click)="save(row)">Save</button>
+            <button type="button" class="danger" [disabled]="row.busy" [attr.aria-label]="'Delete category ' + row.name" (click)="remove(row)">Delete</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="actions">
+    <button type="button" class="secondary" (click)="dlg.close()">Close</button>
+  </div>
+</dialog>

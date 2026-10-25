@@ -1,0 +1,53 @@
+<dialog #dlg class="dialog" aria-labelledby="item-form-title" (cancel)="onCancel($event)" (close)="closed.emit()">
+  <form novalidate (ngSubmit)="save()">
+    <h2 id="item-form-title">{{ item() ? 'Edit item' : 'Add item' }}</h2>
+
+    <div class="field">
+      <label for="f-name">Name</label>
+      <input id="f-name" name="name" type="text" autocomplete="off" [(ngModel)]="form.name" (ngModelChange)="edited('name')"
+             (blur)="touched['name'] = true" [attr.aria-invalid]="!!error('name')" [attr.aria-describedby]="error('name') ? 'e-name' : null" />
+      @if (error('name'); as msg) { <p class="error" id="e-name">{{ msg }}</p> }
+    </div>
+
+    <div class="field">
+      <label for="f-location">Storage location</label>
+      <select id="f-location" name="location_id" [(ngModel)]="form.location_id" (ngModelChange)="edited('location_id')"
+              (blur)="touched['location_id'] = true" [attr.aria-invalid]="!!error('location_id')" [attr.aria-describedby]="error('location_id') ? 'e-location' : null">
+        <option [ngValue]="null">Choose a location</option>
+        @for (l of locations(); track l.id) { <option [ngValue]="l.id">{{ l.name }}</option> }
+      </select>
+      @if (error('location_id'); as msg) { <p class="error" id="e-location">{{ msg }}</p> }
+    </div>
+
+    <div class="field">
+      <label for="f-category">Category (optional)</label>
+      <select id="f-category" name="category_id" [(ngModel)]="form.category_id" (ngModelChange)="edited('category_id')"
+              [attr.aria-invalid]="!!error('category_id')" [attr.aria-describedby]="error('category_id') ? 'e-category' : null">
+        <option [ngValue]="null">No category</option>
+        @for (c of categories(); track c.id) { <option [ngValue]="c.id">{{ c.name }}</option> }
+      </select>
+      @if (error('category_id'); as msg) { <p class="error" id="e-category">{{ msg }}</p> }
+    </div>
+
+    <div class="field">
+      <label for="f-purchase">Purchase date</label>
+      <input id="f-purchase" name="purchase_date" type="date" [(ngModel)]="form.purchase_date" (ngModelChange)="edited('purchase_date'); touched['best_before'] && edited('best_before')"
+             (blur)="touched['purchase_date'] = true" [attr.aria-invalid]="!!error('purchase_date')" [attr.aria-describedby]="error('purchase_date') ? 'e-purchase' : null" />
+      @if (error('purchase_date'); as msg) { <p class="error" id="e-purchase">{{ msg }}</p> }
+    </div>
+
+    <div class="field">
+      <label for="f-best">Best before date (optional)</label>
+      <input id="f-best" name="best_before" type="date" [(ngModel)]="form.best_before" (ngModelChange)="edited('best_before')"
+             (blur)="touched['best_before'] = true" [attr.aria-invalid]="!!error('best_before')" [attr.aria-describedby]="error('best_before') ? 'e-best' : null" />
+      @if (error('best_before'); as msg) { <p class="error" id="e-best">{{ msg }}</p> }
+    </div>
+
+    @if (saveError) { <p class="error banner" role="alert">{{ saveError }}</p> }
+
+    <div class="actions">
+      <button type="button" class="secondary" (click)="dlg.close()">Cancel</button>
+      <button type="submit" class="primary" [disabled]="saving">{{ saving ? 'Saving…' : 'Save' }}</button>
+    </div>
+  </form>
+</dialog>

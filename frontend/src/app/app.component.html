@@ -1,0 +1,52 @@
+<header class="app-header">
+  <h1>Food inventory</h1>
+  <button type="button" class="secondary" (click)="categoriesOpen = true">Categories</button>
+</header>
+
+<main class="content">
+  @if (loading) {
+    <p class="status">Loading…</p>
+  } @else if (loadError) {
+    <div class="status">
+      <p class="error banner" role="alert">{{ loadError }}</p>
+      <button type="button" class="secondary" (click)="load()">Try again</button>
+    </div>
+  } @else if (items.length === 0) {
+    <div class="status empty">
+      <p>Nothing here yet.</p>
+      <button type="button" class="primary" (click)="openAdd()">Add your first item</button>
+    </div>
+  } @else {
+    <ul class="items">
+      @for (item of items; track item.id) {
+        <li class="item">
+          <div class="item-text">
+            <h2>{{ item.name }}</h2>
+            <p>{{ place(item) }}</p>
+            <p>Bought {{ date(item.purchase_date) }}</p>
+            @if (item.best_before) { <p>Best before {{ date(item.best_before) }}</p> }
+          </div>
+          <div class="row-actions">
+            <button type="button" class="secondary" [attr.aria-label]="'Edit ' + item.name" (click)="openEdit(item)">Edit</button>
+            <button type="button" class="danger" [attr.aria-label]="'Delete ' + item.name" (click)="deleting = item">Delete</button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</main>
+
+<div class="add-bar">
+  <button type="button" class="primary add" (click)="openAdd()">Add item</button>
+</div>
+
+@if (formOpen) {
+  <app-item-form [item]="editing" [locations]="locations" [categories]="categories"
+                 (saved)="refresh()" (closed)="formOpen = false" />
+}
+@if (deleting; as item) {
+  <app-confirm-delete [item]="item" (deleted)="refresh()" (closed)="deleting = null" />
+}
+@if (categoriesOpen) {
+  <app-categories-dialog (changed)="refresh()" (closed)="categoriesOpen = false" />
+}
