@@ -1,6 +1,5 @@
 dialog {
   width: min(520px, calc(100vw - 24px));
-  max-height: calc(100vh - 24px);
   max-height: calc(100dvh - 24px);
   overflow: auto;
   padding: 20px;
@@ -33,4 +32,9 @@ h2 {
 }
 [aria-invalid='true'] {
   border-color: var(--bad);
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
 }

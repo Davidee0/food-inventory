@@ -1,5 +1,5 @@
 <dialog #dialog aria-labelledby="item-title" (close)="closed.emit()">
-  <form novalidate (ngSubmit)="save()">
+  <form (ngSubmit)="save()">
     <h2 id="item-title">{{ item() ? 'Edit item' : 'Add item' }}</h2>
     @if (message()) {
       <p class="form-error" role="alert">{{ message() }}</p>

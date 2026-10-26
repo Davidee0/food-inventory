@@ -32,9 +32,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 6;
   padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
   background: linear-gradient(to top, var(--bg) 70%, rgba(238, 244, 243, 0));
+}
+.dock .btn {
+  width: 100%;
 }
 @media (min-width: 640px) {
   .item {

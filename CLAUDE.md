@@ -33,6 +33,7 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 - **Plain dates:** `date` columns, `DateOnly`, `"YYYY-MM-DD"` strings, never timestamps. "Today" is the user's LOCAL date: `todayLocal()` builds it from local year, month and day, never `toISOString()`.
 - **Seed once:** `seed_data.sql` is one transaction and fails on a database that has data (location names are unique). The app never seeds, so deleted items never come back.
 - **Mobile:** text 16 px (iPhones zoom in on smaller form text), buttons and fields at least 44 px, no sideways scrolling at 360 px, the Add button always visible, zoom stays enabled.
+  The header is not sticky: it would cover a page's sticky `.form-error` message (e.g. a refused delete far down the category list).
 - **Add/Edit after a failed load:** the form needs the locations, so `open()` loads again first and does not open the form without them.
 
 ## Tests

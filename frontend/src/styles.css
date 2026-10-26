@@ -56,9 +56,6 @@ body {
   background: none;
   text-decoration: underline;
 }
-.btn.wide {
-  width: 100%;
-}
 .btn:disabled {
   opacity: 0.6;
   cursor: default;
@@ -86,16 +83,10 @@ label {
 .row-buttons .btn {
   padding: 0 8px;
 }
-.actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-}
-/* A message about the whole form or page. Stays in view while a long dialog scrolls. */
+/* A message about the whole form or page. Stays in view while a long dialog or page scrolls. */
 .form-error {
   position: sticky;
   top: 0;
-  z-index: 2;
   margin: 0 0 12px;
   padding: 10px 12px;
   border-radius: var(--radius);

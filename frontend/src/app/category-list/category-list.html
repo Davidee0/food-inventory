@@ -38,7 +38,7 @@
     }
   </ul>
 
-  <form novalidate (ngSubmit)="add()">
+  <form (ngSubmit)="add()">
     <label for="cat-new">New category</label>
     <div class="cat-add-row">
       <input id="cat-new" name="newName" type="text" autocomplete="off" [(ngModel)]="newName" />
