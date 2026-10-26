@@ -17,7 +17,8 @@ public abstract class ApiTest : IAsyncLifetime
     private static readonly string Admin = Environment.GetEnvironmentVariable("TEST_DB_ADMIN")
         ?? "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres";
 
-    protected static readonly string Today = DateTime.Now.ToString("yyyy-MM-dd");
+    private static readonly DateTime Now = DateTime.Now; // one reading, so a run across midnight stays consistent
+    protected static readonly string Today = AddDays(0);
 
     private readonly string _database = "food_test_" + Guid.NewGuid().ToString("N");
     private WebApplicationFactory<Program> _app = null!;
@@ -85,7 +86,9 @@ public abstract class ApiTest : IAsyncLifetime
         return item;
     }
 
-    protected static string AddDays(int days) => DateTime.Now.AddDays(days).ToString("yyyy-MM-dd");
+    protected static string AddDays(int days) => Now.AddDays(days).ToString("yyyy-MM-dd");
+
+    protected static string? Text(JsonElement body, string field) => body.GetProperty(field).GetString();
 
     private static async Task Execute(string connectionString, string sql)
     {

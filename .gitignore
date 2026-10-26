@@ -3,4 +3,6 @@ obj/
 node_modules/
 dist/
 .angular/
+coverage/
+out-tsc/
 *.user

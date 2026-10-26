@@ -9,7 +9,7 @@ Course project for *Designing and Developing Digital Business Applications* (CBS
 
 Needs PostgreSQL, the .NET 8 SDK and Node.js 20 or newer.
 
-1. **Database** (once):
+1. **Database** (once; in pgAdmin you can run the two scripts in the Query Tool instead):
    ```bash
    createdb -U postgres food_inventory
    psql -U postgres -d food_inventory -f database/create_tables.sql

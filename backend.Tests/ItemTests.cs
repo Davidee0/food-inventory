@@ -5,8 +5,6 @@ namespace FoodInventory.Api.Tests;
 
 public class ItemTests : ApiTest
 {
-    private static string? Text(JsonElement body, string field) => body.GetProperty(field).GetString();
-
     [Fact]
     public async Task Create_read_replace_and_delete_an_item()
     {

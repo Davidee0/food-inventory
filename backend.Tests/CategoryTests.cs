@@ -5,8 +5,6 @@ namespace FoodInventory.Api.Tests;
 
 public class CategoryTests : ApiTest
 {
-    private static string? Text(JsonElement body, string field) => body.GetProperty(field).GetString();
-
     [Fact]
     public async Task The_list_has_item_counts_and_is_ordered_by_name_ignoring_case()
     {
