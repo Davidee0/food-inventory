@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { Categories } from './categories/categories';
-import { Items } from './items/items';
+import { CategoryList } from './category-list/category-list';
+import { ItemList } from './item-list/item-list';
 
 export const routes: Routes = [
-  { path: '', component: Items },
-  { path: 'categories', component: Categories },
-  { path: '**', redirectTo: '' },
+  { path: 'items', component: ItemList },
+  { path: 'categories', component: CategoryList },
+  { path: '**', redirectTo: 'items' }, // the start page and unknown paths show the item list
 ];

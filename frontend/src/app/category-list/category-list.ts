@@ -1,19 +1,18 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { Api, errorMessage } from '../api';
 import { Category } from '../models';
 
 type Row = Category & { draft: string }; // a category and the name typed in its field
 
-/** The Categories page: add, rename and delete. The API checks the names and answers in plain language. */
+/** The category list: add, rename and delete. The API checks the names and answers in plain language. */
 @Component({
-  selector: 'app-categories',
-  imports: [FormsModule, RouterLink],
-  templateUrl: './categories.html',
-  styleUrl: './categories.css',
+  selector: 'app-category-list',
+  imports: [FormsModule],
+  templateUrl: './category-list.html',
+  styleUrl: './category-list.css',
 })
-export class Categories implements OnInit {
+export class CategoryList implements OnInit {
   private readonly api = inject(Api);
 
   protected readonly rows = signal<Row[]>([]);

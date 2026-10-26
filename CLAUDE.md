@@ -12,10 +12,11 @@ Less is more: build the smallest working solution, no libraries, abstractions or
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
 
 ## Frontend
-Angular 22 with the same layout as the professor's `ng new` project (CLI 22 defaults): 2025 file names (`item-form.ts`, `.html`, `.css`,
+Angular 22 with the same layout as the professor's course project (`ng new` with Angular CLI 22.2.0): 2025 file names (`item-form.ts`, `.html`, `.css`,
 class `ItemForm`), `app.ts`/`app.html`/`app.css`/`app.spec.ts`/`app.config.ts`/`app.routes.ts`, routing, zoneless, Vitest, Prettier, `.vscode`.
-Routes: `/` is the `Items` page (list, Add, Edit, Delete; the `ItemForm` dialog), `/categories` the `Categories` page. Component styles are in the
-component's `.css`; `styles.css` has only what all pages share (colours, buttons, fields).
+Like in class, `app.html` is a `<ul>` of `routerLink`s and a `<router-outlet />`, and each list is a routed page: `/items` is `ItemList` (list, Add, Edit,
+Delete; the `ItemForm` dialog), `/categories` is `CategoryList`; any other path goes to `/items`. Component styles are in the component's `.css`;
+`styles.css` has only what all pages share (colours, buttons, fields).
 Zoneless means no zone.js: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render.
 Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 

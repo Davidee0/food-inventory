@@ -1,4 +1,4 @@
-/* Global styles: colours, page width, buttons and fields. Each component has its own .css file for the rest. */
+/* You can add global styles to this file, and also import other style files */
 :root {
   --bg: #eef4f3;
   --paper: #fff;

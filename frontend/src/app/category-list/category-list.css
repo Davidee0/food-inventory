@@ -26,6 +26,6 @@ h2 {
   grid-template-columns: 1fr auto;
   gap: 8px;
 }
-.actions {
+form {
   padding-bottom: 24px;
 }

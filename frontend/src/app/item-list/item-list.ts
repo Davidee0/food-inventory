@@ -3,14 +3,14 @@ import { Api, NETWORK_ERROR, errorMessage } from '../api';
 import { ItemForm } from '../item-form/item-form';
 import { Category, Item, Location } from '../models';
 
-/** The start page: the items (the API sorts them, soonest best before date first), Add, Edit and Delete. */
+/** The item list (the start page): the items (the API sorts them, soonest best before date first), Add, Edit and Delete. */
 @Component({
-  selector: 'app-items',
+  selector: 'app-item-list',
   imports: [ItemForm],
-  templateUrl: './items.html',
-  styleUrl: './items.css',
+  templateUrl: './item-list.html',
+  styleUrl: './item-list.css',
 })
-export class Items implements OnInit {
+export class ItemList implements OnInit {
   private readonly api = inject(Api);
 
   protected readonly items = signal<Item[]>([]);
