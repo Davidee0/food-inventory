@@ -1,7 +1,6 @@
+using System.Linq.Expressions;
 using FoodInventory.Api.Data;
 using FoodInventory.Api.Models;
-using FoodInventory.Api.Services;
-using FoodInventory.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,100 +10,76 @@ namespace FoodInventory.Api.Controllers;
 [Route("items")]
 public class ItemsController(AppDbContext db) : ControllerBase
 {
-    private const string ItemExample =
-        """{"name":"Milk","location_id":1,"category_id":1,"purchase_date":"2026-01-15","best_before":"2026-01-22"}""";
+    private static readonly Expression<Func<Item, ItemDto>> ToDto = i => new ItemDto(i.Id, i.Name, i.PurchaseDate, i.BestBefore,
+        i.LocationId, i.Location.Name, i.CategoryId, i.Category == null ? null : i.Category.Name);
 
-    private static readonly MessageDto NotFoundBody = new("Item not found.");
-    private static readonly MessageDto BadJsonBody = new("The request body is not valid JSON.");
+    private NotFoundObjectResult NotFoundMessage() => NotFound(new { message = "Item not found." });
 
-    private static IQueryable<ItemDto> ToDtos(IQueryable<Item> items) => items.Select(i => new ItemDto(
-        i.Id, i.Name, i.PurchaseDate, i.BestBefore, i.LocationId, i.Location.Name, i.CategoryId,
-        i.Category == null ? null : i.Category.Name));
-
-    private Task<ItemDto?> Find(int id) => ToDtos(db.Items.AsNoTracking().Where(i => i.Id == id)).FirstOrDefaultAsync();
-
+    // Soonest best before date first, items without a date last, ties by name ignoring case.
     [HttpGet]
-    [ProducesResponseType(typeof(List<ItemDto>), StatusCodes.Status200OK)]
-    public async Task<List<ItemDto>> List()
-    {
-        // Sorted here, not in SQL, so the order does not depend on the database collation.
-        var items = await ToDtos(db.Items.AsNoTracking()).ToListAsync();
-        return items
-            .OrderBy(i => i.BestBefore is null)
-            .ThenBy(i => i.BestBefore)
-            .ThenBy(i => NameKeys.Of(i.Name), StringComparer.Ordinal)
-            .ThenBy(i => i.Id)
-            .ToList();
-    }
+    public Task<List<ItemDto>> List() => db.Items
+        .OrderBy(i => i.BestBefore == null).ThenBy(i => i.BestBefore).ThenBy(i => i.Name.ToLower()).ThenBy(i => i.Id)
+        .Select(ToDto).ToListAsync();
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(string id)
-    {
-        if (!Ids.TryParse(id, out var n)) return NotFound(NotFoundBody);
-        var item = await Find(n);
-        return item is null ? NotFound(NotFoundBody) : Ok(item);
-    }
+    public async Task<IActionResult> Get(string id) =>
+        int.TryParse(id, out var n) && await Dto(n) is { } item ? Ok(item) : NotFoundMessage();
 
     [HttpPost]
-    [JsonBody(typeof(ItemRequest), ItemExample)]
-    [ProducesResponseType(typeof(ItemDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorsDto), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(ItemRequest request)
     {
-        var body = await Json.ReadObject(Request);
-        if (body is null) return BadRequest(BadJsonBody);
-        var errors = new Dictionary<string, string>();
-        var input = await Validation.Item(body.Value, db, errors);
-        if (input is null) return BadRequest(new ErrorsDto(errors));
-
-        var item = new Item
-        {
-            Name = input.Name, LocationId = input.LocationId, CategoryId = input.CategoryId,
-            PurchaseDate = input.PurchaseDate, BestBefore = input.BestBefore,
-        };
+        var errors = await Check(request);
+        if (errors.Count > 0) return BadRequest(new { errors });
+        var item = new Item();
+        Copy(request, item);
         db.Items.Add(item);
         await db.SaveChangesAsync();
-        return Created($"/items/{item.Id}", await Find(item.Id));
+        return Created($"/items/{item.Id}", await Dto(item.Id));
     }
 
+    // PUT replaces the whole item: send every field.
     [HttpPut("{id}")]
-    [JsonBody(typeof(ItemRequest), ItemExample)]
-    [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorsDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Replace(string id)
+    public async Task<IActionResult> Replace(string id, ItemRequest request)
     {
-        if (!Ids.TryParse(id, out var n)) return NotFound(NotFoundBody);
-        var item = await db.Items.FirstOrDefaultAsync(i => i.Id == n);
-        if (item is null) return NotFound(NotFoundBody);
-
-        var body = await Json.ReadObject(Request);
-        if (body is null) return BadRequest(BadJsonBody);
-        var errors = new Dictionary<string, string>();
-        var input = await Validation.Item(body.Value, db, errors);
-        if (input is null) return BadRequest(new ErrorsDto(errors));
-
-        item.Name = input.Name;
-        item.LocationId = input.LocationId;
-        item.CategoryId = input.CategoryId;
-        item.PurchaseDate = input.PurchaseDate;
-        item.BestBefore = input.BestBefore;
+        if (await Find(id) is not { } item) return NotFoundMessage();
+        var errors = await Check(request);
+        if (errors.Count > 0) return BadRequest(new { errors });
+        Copy(request, item);
         await db.SaveChangesAsync();
-        return Ok(await Find(n));
+        return Ok(await Dto(item.Id));
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(string id)
     {
-        if (!Ids.TryParse(id, out var n)) return NotFound(NotFoundBody);
-        var item = await db.Items.FirstOrDefaultAsync(i => i.Id == n);
-        if (item is null) return NotFound(NotFoundBody);
+        if (await Find(id) is not { } item) return NotFoundMessage();
         db.Items.Remove(item);
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    // A non-numeric id ("abc") is simply not found.
+    private async Task<Item?> Find(string id) => int.TryParse(id, out var n) ? await db.Items.FindAsync(n) : null;
+
+    private Task<ItemDto?> Dto(int id) => db.Items.Where(i => i.Id == id).Select(ToDto).FirstOrDefaultAsync();
+
+    // The item rules, then what only the database knows: the chosen location and category exist.
+    private async Task<Dictionary<string, string>> Check(ItemRequest r)
+    {
+        var errors = Rules.Item(r);
+        if (!errors.ContainsKey("location_id") && !await db.Locations.AnyAsync(l => l.Id == r.LocationId))
+            errors["location_id"] = Rules.Location;
+        if (r.CategoryId is not null && !await db.Categories.AnyAsync(c => c.Id == r.CategoryId))
+            errors["category_id"] = Rules.Category;
+        return errors;
+    }
+
+    private static void Copy(ItemRequest r, Item item)
+    {
+        item.Name = r.Name!.Trim();
+        item.LocationId = r.LocationId!.Value;
+        item.CategoryId = r.CategoryId;
+        item.PurchaseDate = Rules.Date(r.PurchaseDate)!.Value;
+        item.BestBefore = Rules.Date(r.BestBefore);
     }
 }

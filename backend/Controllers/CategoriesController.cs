@@ -1,107 +1,64 @@
 using FoodInventory.Api.Data;
 using FoodInventory.Api.Models;
-using FoodInventory.Api.Services;
-using FoodInventory.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 namespace FoodInventory.Api.Controllers;
 
+// Names are unique ignoring case through name_key, the lower-case copy (also for Æ, Ø and Å).
 [ApiController]
 [Route("categories")]
 public class CategoriesController(AppDbContext db) : ControllerBase
 {
-    private const string CategoryExample = """{"name":"Snacks"}""";
-
-    private static readonly MessageDto NotFoundBody = new("Category not found.");
-    private static readonly MessageDto BadJsonBody = new("The request body is not valid JSON.");
-
-    private ConflictObjectResult Duplicate(string name) => Conflict(new MessageDto($"{name} already exists."));
-
-    private static bool IsViolation(DbUpdateException e, string sqlState) =>
-        e.InnerException is PostgresException pg && pg.SqlState == sqlState;
+    private NotFoundObjectResult NotFoundMessage() => NotFound(new { message = "Category not found." });
 
     [HttpGet]
-    [ProducesResponseType(typeof(List<CategoryDto>), StatusCodes.Status200OK)]
-    public async Task<List<CategoryDto>> List()
-    {
-        var list = await db.Categories.AsNoTracking()
-            .Select(c => new CategoryDto(c.Id, c.Name, db.Items.Count(i => i.CategoryId == c.Id)))
-            .ToListAsync();
-        return list.OrderBy(c => NameKeys.Of(c.Name), StringComparer.Ordinal).ThenBy(c => c.Id).ToList();
-    }
+    public Task<List<CategoryDto>> List() => db.Categories
+        .OrderBy(c => c.Name.ToLower()).ThenBy(c => c.Id)
+        .Select(c => new CategoryDto(c.Id, c.Name, db.Items.Count(i => i.CategoryId == c.Id)))
+        .ToListAsync();
 
     [HttpPost]
-    [JsonBody(typeof(CategoryRequest), CategoryExample)]
-    [ProducesResponseType(typeof(CategoryDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ErrorsDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(CategoryRequest request)
     {
-        var body = await Json.ReadObject(Request);
-        if (body is null) return BadRequest(BadJsonBody);
-        var errors = new Dictionary<string, string>();
-        var name = Validation.Name(body.Value, Validation.CategoryNameMax, errors);
-        if (name is null) return BadRequest(new ErrorsDto(errors));
-
-        var key = NameKeys.Of(name);
-        if (await db.Categories.AnyAsync(c => c.NameKey == key)) return Duplicate(name);
-        var category = new Category { Name = name, NameKey = key };
+        if (await CheckName(request, 0) is { } answer) return answer;
+        var name = request.Name!.Trim();
+        var category = new Category { Name = name, NameKey = name.ToLowerInvariant() };
         db.Categories.Add(category);
-        try { await db.SaveChangesAsync(); }
-        catch (DbUpdateException e) when (IsViolation(e, PostgresErrorCodes.UniqueViolation)) { return Duplicate(name); }
-        return Created($"/categories/{category.Id}", new CategoryDto(category.Id, category.Name, 0));
+        await db.SaveChangesAsync();
+        return Created($"/categories/{category.Id}", new CategoryDto(category.Id, name, 0));
     }
 
     [HttpPut("{id}")]
-    [JsonBody(typeof(CategoryRequest), CategoryExample)]
-    [ProducesResponseType(typeof(CategoryRefDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorsDto), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Rename(string id)
+    public async Task<IActionResult> Rename(string id, CategoryRequest request)
     {
-        if (!Ids.TryParse(id, out var n)) return NotFound(NotFoundBody);
-        var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == n);
-        if (category is null) return NotFound(NotFoundBody);
-
-        var body = await Json.ReadObject(Request);
-        if (body is null) return BadRequest(BadJsonBody);
-        var errors = new Dictionary<string, string>();
-        var name = Validation.Name(body.Value, Validation.CategoryNameMax, errors);
-        if (name is null) return BadRequest(new ErrorsDto(errors));
-
-        var key = NameKeys.Of(name);
-        if (await db.Categories.AnyAsync(c => c.NameKey == key && c.Id != n)) return Duplicate(name);
-        category.Name = name;
-        category.NameKey = key;
-        try { await db.SaveChangesAsync(); }
-        catch (DbUpdateException e) when (IsViolation(e, PostgresErrorCodes.UniqueViolation)) { return Duplicate(name); }
-        return Ok(new CategoryRefDto(category.Id, category.Name));
+        if (await Find(id) is not { } category) return NotFoundMessage();
+        if (await CheckName(request, category.Id) is { } answer) return answer;
+        category.Name = request.Name!.Trim();
+        category.NameKey = category.Name.ToLowerInvariant();
+        await db.SaveChangesAsync();
+        return Ok(new { category.Id, category.Name });
     }
 
     [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(MessageDto), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(InUseDto), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(string id)
     {
-        if (!Ids.TryParse(id, out var n)) return NotFound(NotFoundBody);
-        var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == n);
-        if (category is null) return NotFound(NotFoundBody);
-
-        var count = await db.Items.CountAsync(i => i.CategoryId == n);
-        if (count > 0) return InUse(category.Name, count);
+        if (await Find(id) is not { } category) return NotFoundMessage();
+        var n = await db.Items.CountAsync(i => i.CategoryId == category.Id);
+        if (n > 0) return Conflict(new InUseDto($"{category.Name} is used by {n} {(n == 1 ? "item" : "items")} and cannot be deleted.", n));
         db.Categories.Remove(category);
-        try { await db.SaveChangesAsync(); }
-        catch (DbUpdateException e) when (IsViolation(e, PostgresErrorCodes.ForeignKeyViolation))
-        {
-            return InUse(category.Name, await db.Items.CountAsync(i => i.CategoryId == n));
-        }
+        await db.SaveChangesAsync();
         return NoContent();
     }
 
-    private ConflictObjectResult InUse(string name, int count) =>
-        Conflict(new InUseDto($"{name} is used by {count} {(count == 1 ? "item" : "items")} and cannot be deleted.", count));
+    private async Task<Category?> Find(string id) => int.TryParse(id, out var n) ? await db.Categories.FindAsync(n) : null;
+
+    // The 400 or 409 answer for a bad name, or null when the name can be saved (on the category with this id).
+    private async Task<IActionResult?> CheckName(CategoryRequest request, int id)
+    {
+        if (Rules.Name(request.Name, 30) is { } error) return BadRequest(new { errors = new { name = error } });
+        var name = request.Name!.Trim();
+        var key = name.ToLowerInvariant();
+        return await db.Categories.AnyAsync(c => c.NameKey == key && c.Id != id) ? Conflict(new { message = $"{name} already exists." }) : null;
+    }
 }

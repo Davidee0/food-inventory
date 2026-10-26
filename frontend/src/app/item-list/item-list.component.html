@@ -1,0 +1,16 @@
+<ul class="list">
+  @for (item of items(); track item.id) {
+    <li class="item">
+      <h2 class="name">{{ item.name }}</h2>
+      <p class="facts">{{ item.location_name }}{{ item.category_name ? ', ' + item.category_name : '' }}</p>
+      <p class="facts">Bought {{ niceDate(item.purchase_date) }}</p>
+      @if (item.best_before) {
+        <p class="facts">Best before {{ niceDate(item.best_before) }}</p>
+      }
+      <div class="row-buttons">
+        <button type="button" class="btn quiet" [attr.aria-label]="'Edit ' + item.name" (click)="edit.emit(item)">Edit</button>
+        <button type="button" class="btn quiet" [attr.aria-label]="'Delete ' + item.name" (click)="remove.emit(item)">Delete</button>
+      </div>
+    </li>
+  }
+</ul>

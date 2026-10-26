@@ -1,108 +1,66 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, input, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApiService, NETWORK_MESSAGE, toFailure } from '../core/api.service';
-import { todayLocal } from '../core/date-utils';
-import { Category, FieldErrors, Item, Location } from '../core/models';
-import { ItemForm, validateItem } from '../core/validation';
+import { ApiService, errorMessage, fieldErrors } from '../core/api.service';
+import { Category, Errors, Item, ItemInput, Location } from '../core/models';
+import { todayLocal, validateItem } from '../core/rules';
 
+/** The Add item / Edit item dialog. The fields are two-way bound to `form`. */
 @Component({
   selector: 'app-item-form',
   imports: [FormsModule],
   templateUrl: './item-form.component.html',
 })
 export class ItemFormComponent implements OnInit, AfterViewInit {
-  /** Item being edited; null/undefined when adding. */
+  private api = inject(ApiService);
+
+  /** The item to edit, or null to add a new one. */
   item = input<Item | null>(null);
   locations = input.required<Location[]>();
   categories = input.required<Category[]>();
-  /** Called after a successful save; the dialog stays open until it finishes (the list refresh). */
-  onSaved = input.required<() => Promise<void>>();
-  closed = output<void>();
+  saved = output();
+  closed = output();
 
-  @ViewChild('dlg', { static: true }) dlg!: ElementRef<HTMLDialogElement>;
+  @ViewChild('dialog', { static: true }) dialog!: ElementRef<HTMLDialogElement>;
 
-  form: ItemForm = { name: '', location_id: null, category_id: null, purchase_date: todayLocal(), best_before: '' };
-  touched: Record<string, boolean> = {};
-  submitted = false;
-  serverErrors: FieldErrors = {};
-  saveError = '';
+  form: ItemInput = { name: '', location_id: null, category_id: null, purchase_date: todayLocal(), best_before: '' };
+  errors: Errors = {};
+  message = '';
   saving = false;
 
-  constructor(private api: ApiService) {}
-
   ngOnInit() {
-    const i = this.item();
-    if (i) {
-      this.form = {
-        name: i.name,
-        location_id: i.location_id,
-        category_id: i.category_id,
-        purchase_date: i.purchase_date,
-        best_before: i.best_before ?? '',
-      };
+    const item = this.item();
+    if (item) {
+      const { name, location_id, category_id, purchase_date, best_before } = item;
+      this.form = { name, location_id, category_id, purchase_date, best_before: best_before ?? '' };
     }
   }
 
   ngAfterViewInit() {
-    this.dlg.nativeElement.showModal();
+    this.dialog.nativeElement.showModal();
   }
 
-  get errors(): FieldErrors {
-    return validateItem(this.form, this.locations().map((l) => l.id), this.categories().map((c) => c.id));
-  }
-
-  /** Client-side message, or the server's message for that field. */
-  error(field: string): string | null {
-    const shown = this.submitted || this.touched[field];
-    return (shown && this.errors[field]) || this.serverErrors[field] || null;
-  }
-
-  edited(field: string) {
-    this.touched[field] = true;
-    delete this.serverErrors[field];
-    this.saveError = '';
-  }
-
-  /** The best-before rule depends on the purchase date, so an old server message for it no longer applies. */
-  purchaseEdited() {
-    this.edited('purchase_date');
-    delete this.serverErrors['best_before'];
-  }
-
+  /** Nothing is sent while the form is invalid. If saving fails, what was typed stays in the form. */
   async save() {
-    this.submitted = true;
-    if (this.saving || Object.keys(this.errors).length > 0) return;
+    if (this.saving) return;
+    this.message = '';
+    this.errors = validateItem(this.form);
+    if (Object.keys(this.errors).length) return this.focusFirstError();
+
     this.saving = true;
-    this.saveError = '';
-    const input = {
-      name: this.form.name.trim(),
-      location_id: this.form.location_id,
-      category_id: this.form.category_id,
-      purchase_date: this.form.purchase_date,
-      best_before: this.form.best_before || null,
-    };
     try {
-      const existing = this.item();
-      if (existing) await this.api.updateItem(existing.id, input);
-      else await this.api.createItem(input);
-      await this.onSaved()();
-      this.dlg.nativeElement.close();
-    } catch (e) {
-      const f = toFailure(e);
-      if (f.status === 400 && f.errors) {
-        this.serverErrors = f.errors;
-        const known = ['name', 'location_id', 'category_id', 'purchase_date', 'best_before'];
-        if (!Object.keys(f.errors).some((k) => known.includes(k))) this.saveError = 'Could not save the item. Check the details and try again.';
-      } else if (f.network) this.saveError = NETWORK_MESSAGE;
-      else if (f.status === 404) this.saveError = 'This item no longer exists. Close this window and refresh the list.';
-      else this.saveError = 'Could not save the item. Try again.';
+      await this.api.saveItem(this.form, this.item()?.id);
+      this.saved.emit();
+      this.dialog.nativeElement.close();
+    } catch (error) {
+      this.errors = fieldErrors(error) ?? {};
+      if (Object.keys(this.errors).length) this.focusFirstError();
+      else this.message = errorMessage(error);
     } finally {
       this.saving = false;
     }
   }
 
-  onCancel(event: Event) {
-    event.preventDefault();
-    this.dlg.nativeElement.close();
+  private focusFirstError() {
+    setTimeout(() => this.dialog.nativeElement.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
   }
 }

@@ -1,0 +1,32 @@
+<dialog #dialog aria-labelledby="categories-title" (close)="closed.emit()">
+  <h2 id="categories-title">Categories</h2>
+  @if (message) {
+    <p class="form-error" role="alert">{{ message }}</p>
+  }
+
+  <ul class="cat-list">
+    @for (row of rows; track row.id) {
+      <li>
+        <input type="text" class="cat-name" autocomplete="off" [attr.aria-label]="'Name of category ' + row.name"
+               [(ngModel)]="row.draft" (keydown.enter)="rename(row)">
+        <span class="count">{{ row.item_count }} {{ row.item_count === 1 ? 'item' : 'items' }}</span>
+        <div class="row-buttons">
+          <button type="button" class="btn" [attr.aria-label]="'Save name of ' + row.name" (click)="rename(row)">Save</button>
+          <button type="button" class="btn quiet" [attr.aria-label]="'Delete category ' + row.name" (click)="remove(row)">Delete</button>
+        </div>
+      </li>
+    }
+  </ul>
+
+  <form novalidate (ngSubmit)="add()">
+    <label for="cat-new">New category</label>
+    <div class="cat-add-row">
+      <input id="cat-new" name="newName" type="text" autocomplete="off" [(ngModel)]="newName">
+      <button type="submit" class="btn primary">Add category</button>
+    </div>
+  </form>
+
+  <div class="actions">
+    <button type="button" class="btn" (click)="dialog.close()">Done</button>
+  </div>
+</dialog>

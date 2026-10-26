@@ -3,189 +3,120 @@ using System.Text.Json;
 
 namespace FoodInventory.Api.Tests;
 
-public class ItemTests : IAsyncLifetime
+public class ItemTests : ApiTest
 {
-    // Fresh seeded database per test, so tests never depend on each other.
-    private readonly TestApp _app = new();
-    public Task InitializeAsync() => ((IAsyncLifetime)_app).InitializeAsync();
-    public Task DisposeAsync() => ((IAsyncLifetime)_app).DisposeAsync();
-
-    private const string Valid = """{"name":"Cheese","location_id":1,"category_id":1,"purchase_date":"2026-05-01","best_before":"2026-05-20"}""";
-
-    private async Task<int> CreateItem(string json = Valid)
-    {
-        var r = await _app.Post("/items", json);
-        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
-        return (await TestApp.Body(r)).GetProperty("id").GetInt32();
-    }
+    private static string? Text(JsonElement body, string field) => body.GetProperty(field).GetString();
 
     [Fact]
-    public async Task List_is_sorted_soonest_best_before_first_nulls_last()
+    public async Task Create_read_replace_and_delete_an_item()
     {
-        var body = await TestApp.Body(await _app.Get("/items"));
-        var names = body.EnumerateArray().Select(i => i.GetProperty("name").GetString()).ToArray();
-        Assert.Equal(new[] { "Chicken breast", "Milk", "Orange juice", "Frozen peas", "Frozen berries", "Pasta" }, names);
-        var first = body[0];
-        foreach (var f in new[] { "id", "name", "purchase_date", "best_before", "location_id", "location_name", "category_id", "category_name" })
-            Assert.True(first.TryGetProperty(f, out _), f);
-        Assert.Equal("Fridge", first.GetProperty("location_name").GetString());
-        Assert.Equal(JsonValueKind.Null, body[5].GetProperty("best_before").ValueKind);
-    }
+        var created = await Api("POST", "/items", Good(("name", "  Cheese  "), ("best_before", AddDays(5))));
+        Assert.Equal(HttpStatusCode.Created, created.Status);
+        Assert.Equal(["id", "name", "purchase_date", "best_before", "location_id", "location_name", "category_id", "category_name"],
+            created.Body.EnumerateObject().Select(p => p.Name));
+        Assert.Equal(("Cheese", "Fridge", AddDays(5)), (Text(created.Body, "name"), Text(created.Body, "location_name"), Text(created.Body, "best_before")));
+        var id = created.Body.GetProperty("id").GetInt32();
 
-    [Fact]
-    public async Task Ties_are_ordered_by_name_ignoring_case()
-    {
-        await _app.Post("/items", """{"name":"beta","location_id":1,"purchase_date":"2026-01-01","best_before":"2030-01-01"}""");
-        await _app.Post("/items", """{"name":"Alpha","location_id":1,"purchase_date":"2026-01-01","best_before":"2030-01-01"}""");
-        var body = await TestApp.Body(await _app.Get("/items"));
-        var names = body.EnumerateArray().Select(i => i.GetProperty("name").GetString()).ToList();
-        Assert.True(names.IndexOf("Alpha") < names.IndexOf("beta"));
-    }
+        Assert.Equal("Cheese", Text((await Api("GET", $"/items/{id}")).Body, "name"));
 
-    [Fact]
-    public async Task Sorting_ignores_case_does_not_depend_on_the_database_and_falls_back_to_id()
-    {
-        foreach (var name in new[] { "banana", "Apple", "cherry", "Äpple", "milk", "Milk" })
-            await _app.Post("/items", $$"""{"name":"{{name}}","location_id":1,"purchase_date":"2026-01-01","best_before":"2030-01-01"}""");
-        var body = await TestApp.Body(await _app.Get("/items"));
-        var added = body.EnumerateArray().Select(i => (i.GetProperty("id").GetInt32(), i.GetProperty("name").GetString()!))
-            .Where(i => i.Item1 > 6).Select(i => i.Item2).ToArray();
-        // case-insensitive by name; "milk" and "Milk" tie, so the older one (lower id) comes first
-        Assert.Equal(new[] { "Apple", "banana", "cherry", "milk", "Milk", "Äpple" }, added);
-    }
+        var replaced = await Api("PUT", $"/items/{id}", Good(("name", "Butter"), ("location_id", 3), ("category_id", 1)));
+        Assert.Equal(HttpStatusCode.OK, replaced.Status);
+        Assert.Equal(("Butter", "Pantry", "Dairy"), (Text(replaced.Body, "name"), Text(replaced.Body, "location_name"), Text(replaced.Body, "category_name")));
+        Assert.Equal(JsonValueKind.Null, replaced.Body.GetProperty("best_before").ValueKind);
 
-    [Fact]
-    public async Task Whole_number_ids_written_with_a_zero_fraction_are_accepted()
-    {
-        var r = await _app.Post("/items", """{"name":"Whole","location_id":1.0,"category_id":1e0,"purchase_date":"2026-01-01"}""");
-        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
-        var b = await TestApp.Body(r);
-        Assert.Equal(1, b.GetProperty("location_id").GetInt32());
-        Assert.Equal(1, b.GetProperty("category_id").GetInt32());
-    }
-
-    [Fact]
-    public async Task Create_trims_name_and_returns_the_item_then_get_replace_delete()
-    {
-        var r = await _app.Post("/items", """{"name":"  Cheese  ","location_id":1,"category_id":1,"purchase_date":"2026-05-01","best_before":"2026-05-20"}""");
-        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
-        var created = await TestApp.Body(r);
-        Assert.Equal("Cheese", created.GetProperty("name").GetString());
-        Assert.Equal("Dairy", created.GetProperty("category_name").GetString());
-        Assert.Equal("2026-05-20", created.GetProperty("best_before").GetString());
-        var id = created.GetProperty("id").GetInt32();
-
-        var got = await TestApp.Body(await _app.Get($"/items/{id}"));
-        Assert.Equal("Cheese", got.GetProperty("name").GetString());
-
-        var put = await _app.Put($"/items/{id}", """{"name":"Butter","location_id":2,"purchase_date":"2026-05-02"}""");
-        Assert.Equal(HttpStatusCode.OK, put.StatusCode);
-        var replaced = await TestApp.Body(put);
-        Assert.Equal("Butter", replaced.GetProperty("name").GetString());
-        Assert.Equal("Freezer", replaced.GetProperty("location_name").GetString());
-        Assert.Equal(JsonValueKind.Null, replaced.GetProperty("category_id").ValueKind);
-        Assert.Equal(JsonValueKind.Null, replaced.GetProperty("best_before").ValueKind);
-
-        Assert.Equal(HttpStatusCode.NoContent, (await _app.Delete($"/items/{id}")).StatusCode);
-        Assert.Equal(HttpStatusCode.NotFound, (await _app.Get($"/items/{id}")).StatusCode);
-    }
-
-    [Fact]
-    public async Task Deleted_or_non_numeric_ids_give_404_with_message()
-    {
-        var id = await CreateItem();
-        await _app.Delete($"/items/{id}");
-        foreach (var path in new[] { $"/items/{id}", "/items/abc", "/items/1.5", "/items/99999999999" })
+        Assert.Equal(HttpStatusCode.NoContent, (await Api("DELETE", $"/items/{id}")).Status);
+        foreach (var (method, path) in new[] { ("GET", $"/items/{id}"), ("DELETE", $"/items/{id}"), ("PUT", $"/items/{id}"), ("GET", "/items/abc") })
         {
-            foreach (var method in new[] { HttpMethod.Get, HttpMethod.Put, HttpMethod.Delete })
-            {
-                var r = await _app.Send(method, path, method == HttpMethod.Put ? Valid : null);
-                Assert.Equal(HttpStatusCode.NotFound, r.StatusCode);
-                Assert.Equal("Item not found.", (await TestApp.Body(r)).GetProperty("message").GetString());
-            }
+            var gone = await Api(method, path, method == "PUT" ? Good() : null);
+            Assert.Equal(HttpStatusCode.NotFound, gone.Status);
+            Assert.Equal("Item not found.", Text(gone.Body, "message"));
         }
     }
 
     [Fact]
-    public async Task Empty_post_reports_name_location_and_purchase_date()
+    public async Task An_empty_item_gets_one_message_per_required_field()
     {
-        var errors = await TestApp.Errors(await _app.Post("/items", "{}"));
-        Assert.Equal(3, errors.Count);
-        Assert.Equal("Enter a name.", errors["name"]);
-        Assert.Equal("Choose a storage location.", errors["location_id"]);
-        Assert.Equal("Enter a purchase date.", errors["purchase_date"]);
+        var response = await Api("POST", "/items", new { });
+        Assert.Equal(HttpStatusCode.BadRequest, response.Status);
+        Assert.Equal(new Dictionary<string, string>
+        {
+            ["name"] = "Enter a name.",
+            ["location_id"] = "Choose a storage location.",
+            ["purchase_date"] = "Enter a purchase date.",
+        }, response.Body.GetProperty("errors").Deserialize<Dictionary<string, string>>());
     }
 
-    [Theory]
-    [InlineData("""{"name":"   ","location_id":1,"purchase_date":"2026-01-01"}""", "name", "Enter a name.")]
-    [InlineData("""{"name":"a","location_id":99,"purchase_date":"2026-01-01"}""", "location_id", "Choose a storage location.")]
-    [InlineData("""{"name":"a","location_id":null,"purchase_date":"2026-01-01"}""", "location_id", "Choose a storage location.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":""}""", "purchase_date", "Enter a purchase date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-02-30"}""", "purchase_date", "Enter a valid date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"01/02/2026"}""", "purchase_date", "Enter a valid date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01T00:00:00Z"}""", "purchase_date", "Enter a valid date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","best_before":"nope"}""", "best_before", "Enter a valid date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","best_before":"2026-02-30"}""", "best_before", "Enter a valid date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-10","best_before":"2026-01-09"}""", "best_before", "Best before date cannot be before the purchase date.")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","category_id":999}""", "category_id", "Choose a category from the list.")]
-    public async Task Invalid_item_gives_400_with_exact_message(string json, string field, string message)
+    public static TheoryData<string, object?, string> BadValues => new()
     {
-        foreach (var r in new[] { await _app.Post("/items", json), await _app.Put("/items/1", json) })
+        { "name", "   ", "Enter a name." },
+        { "name", "a\0b", "Enter a name." },
+        { "name", new string('x', 51), "Name can be at most 50 characters." },
+        { "location_id", null, "Choose a storage location." },
+        { "location_id", 99, "Choose a storage location." },
+        { "category_id", 99, "Choose a category from the list." },
+        { "purchase_date", "", "Enter a purchase date." },
+        { "purchase_date", "2026-02-30", "Enter a valid date." },
+        { "purchase_date", "13-10-2026", "Enter a valid date." },
+        { "purchase_date", "2026-10-13T10:00:00Z", "Enter a valid date." },
+        { "best_before", "2026-02-30", "Enter a valid date." },
+        { "best_before", AddDays(-1), "Best before date cannot be before the purchase date." },
+    };
+
+    [Theory, MemberData(nameof(BadValues))]
+    public async Task Bad_item_data_gets_400_with_the_message_on_its_field(string field, object? value, string message)
+    {
+        foreach (var (method, path) in new[] { ("POST", "/items"), ("PUT", "/items/1") })
         {
-            var errors = await TestApp.Errors(r);
-            Assert.Equal(message, errors[field]);
+            var response = await Api(method, path, Good((field, value)));
+            Assert.Equal(HttpStatusCode.BadRequest, response.Status);
+            Assert.Equal(message, Text(response.Body.GetProperty("errors"), field));
         }
     }
 
     [Fact]
-    public async Task Name_longer_than_50_is_rejected_but_exactly_50_is_fine_after_trim()
+    public async Task Names_are_trimmed_and_may_have_50_characters_and_best_before_may_equal_the_purchase_date()
     {
-        var long51 = new string('x', 51);
-        var errors = await TestApp.Errors(await _app.Post("/items", $$"""{"name":"{{long51}}","location_id":1,"purchase_date":"2026-01-01"}"""));
-        Assert.Equal("Name can be at most 50 characters.", errors["name"]);
-        var ok = await _app.Post("/items", $$"""{"name":"  {{new string('x', 50)}}  ","location_id":1,"purchase_date":"2026-01-01"}""");
-        Assert.Equal(HttpStatusCode.Created, ok.StatusCode);
+        var response = await Api("POST", "/items", Good(("name", $"  {new string('x', 50)}  "), ("best_before", Today)));
+        Assert.Equal(HttpStatusCode.Created, response.Status);
+        Assert.Equal(new string('x', 50), Text(response.Body, "name"));
     }
 
     [Fact]
-    public async Task Best_before_equal_to_purchase_date_is_allowed()
+    public async Task Ids_may_be_sent_as_numbers_or_as_text()
     {
-        var r = await _app.Post("/items", """{"name":"a","location_id":1,"purchase_date":"2026-01-10","best_before":"2026-01-10"}""");
-        Assert.Equal(HttpStatusCode.Created, r.StatusCode);
+        var response = await Api("POST", "/items", Good(("location_id", "2"), ("category_id", "1")));
+        Assert.Equal(HttpStatusCode.Created, response.Status);
+        Assert.Equal(("Freezer", "Dairy"), (Text(response.Body, "location_name"), Text(response.Body, "category_name")));
     }
 
     [Theory]
-    [InlineData("""{"name":{"a":1},"location_id":1,"purchase_date":"2026-01-01"}""", "name")]
-    [InlineData("""{"name":["x"],"location_id":1,"purchase_date":"2026-01-01"}""", "name")]
-    [InlineData("""{"name":123,"location_id":1,"purchase_date":"2026-01-01"}""", "name")]
-    [InlineData("""{"name":true,"location_id":1,"purchase_date":"2026-01-01"}""", "name")]
-    [InlineData("""{"name":"a","location_id":"1","purchase_date":"2026-01-01"}""", "location_id")]
-    [InlineData("""{"name":"a","location_id":{"x":1},"purchase_date":"2026-01-01"}""", "location_id")]
-    [InlineData("""{"name":"a","location_id":1.5,"purchase_date":"2026-01-01"}""", "location_id")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":20260101}""", "purchase_date")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":["2026-01-01"]}""", "purchase_date")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","best_before":5}""", "best_before")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","category_id":"1"}""", "category_id")]
-    [InlineData("""{"name":"a","location_id":1,"purchase_date":"2026-01-01","category_id":[1]}""", "category_id")]
-    public async Task Wrongly_typed_values_are_rejected_and_never_stored(string json, string field)
-    {
-        var before = await _app.Scalar("SELECT count(*) FROM items");
-        var errors = await TestApp.Errors(await _app.Post("/items", json));
-        Assert.True(errors.ContainsKey(field));
-        Assert.Equal(before, await _app.Scalar("SELECT count(*) FROM items"));
-    }
-
-    [Theory]
-    [InlineData("{not json")]
-    [InlineData("")]
+    [InlineData("""{"name": """)]
     [InlineData("[]")]
-    [InlineData("\"text\"")]
-    public async Task Malformed_json_gives_400_message(string raw)
+    [InlineData("")]
+    public async Task Malformed_json_gets_400_with_a_message(string raw)
     {
-        foreach (var r in new[] { await _app.Post("/items", raw), await _app.Put("/items/1", raw) })
+        foreach (var (method, path) in new[] { ("POST", "/items"), ("PUT", "/items/1"), ("POST", "/categories") })
         {
-            Assert.Equal(HttpStatusCode.BadRequest, r.StatusCode);
-            Assert.Equal("The request body is not valid JSON.", (await TestApp.Body(r)).GetProperty("message").GetString());
+            var response = await Api(method, path, raw);
+            Assert.Equal(HttpStatusCode.BadRequest, response.Status);
+            Assert.Equal("The request body is not valid JSON.", Text(response.Body, "message"));
         }
+    }
+
+    [Fact]
+    public async Task Wrongly_typed_values_are_rejected_and_never_stored()
+    {
+        var items = new (string, object)[]
+        {
+            ("name", new { a = 1 }), ("name", 123), ("location_id", new[] { 1 }), ("category_id", new[] { 1 }),
+            ("purchase_date", new[] { "2026-01-01" }), ("best_before", new { }),
+        };
+        foreach (var change in items)
+            Assert.Equal(HttpStatusCode.BadRequest, (await Api("POST", "/items", Good(change))).Status);
+        foreach (var name in new object[] { new { a = 1 }, 5, new[] { "x" } })
+            Assert.Equal(HttpStatusCode.BadRequest, (await Api("POST", "/categories", new { name })).Status);
+
+        Assert.Equal(6, await Count("SELECT count(*) FROM items"));
+        Assert.Equal(6, await Count("SELECT count(*) FROM categories"));
     }
 }

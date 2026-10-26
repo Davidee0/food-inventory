@@ -2,44 +2,16 @@ using System.Text.Json.Serialization;
 
 namespace FoodInventory.Api.Models;
 
-public record LocationDto(
-    [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("name")] string Name);
+// What the API receives and returns. Property names become snake_case JSON (see Program.cs).
+// Request fields are nullable so a missing field reaches the validation rules instead of failing.
 
-public record ItemDto(
-    [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("purchase_date")] DateOnly PurchaseDate,
-    [property: JsonPropertyName("best_before")] DateOnly? BestBefore,
-    [property: JsonPropertyName("location_id")] int LocationId,
-    [property: JsonPropertyName("location_name")] string LocationName,
-    [property: JsonPropertyName("category_id")] int? CategoryId,
-    [property: JsonPropertyName("category_name")] string? CategoryName);
+public record ItemRequest(string? Name, int? LocationId, int? CategoryId, string? PurchaseDate, string? BestBefore);
 
-public record CategoryDto(
-    [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("item_count")] int ItemCount);
+public record CategoryRequest(string? Name);
 
-public record CategoryRefDto(
-    [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("name")] string Name);
+public record ItemDto(int Id, string Name, DateOnly PurchaseDate, DateOnly? BestBefore,
+    int LocationId, string LocationName, int? CategoryId, string? CategoryName);
 
-public record MessageDto([property: JsonPropertyName("message")] string Message);
+public record CategoryDto(int Id, string Name, int ItemCount);
 
-public record ErrorsDto([property: JsonPropertyName("errors")] Dictionary<string, string> Errors);
-
-public record InUseDto(
-    [property: JsonPropertyName("message")] string Message,
-    [property: JsonPropertyName("itemCount")] int ItemCount);
-
-/// <summary>Documentation-only shape of the item request body (controllers read the raw JSON so wrong types give 400).</summary>
-public record ItemRequest(
-    [property: JsonPropertyName("name")] string Name,
-    [property: JsonPropertyName("location_id")] int LocationId,
-    [property: JsonPropertyName("category_id")] int? CategoryId,
-    [property: JsonPropertyName("purchase_date")] DateOnly PurchaseDate,
-    [property: JsonPropertyName("best_before")] DateOnly? BestBefore);
-
-/// <summary>Documentation-only shape of the category request body.</summary>
-public record CategoryRequest([property: JsonPropertyName("name")] string Name);
+public record InUseDto(string Message, [property: JsonPropertyName("itemCount")] int ItemCount);

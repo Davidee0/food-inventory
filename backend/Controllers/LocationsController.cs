@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FoodInventory.Api.Controllers;
 
+// The storage locations are a fixed list (Fridge, Freezer, Pantry), so they can only be read.
 [ApiController]
 [Route("locations")]
 public class LocationsController(AppDbContext db) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<LocationDto>>> List() =>
-        await db.Locations.OrderBy(l => l.Id).Select(l => new LocationDto(l.Id, l.Name)).ToListAsync();
+    public Task<List<Location>> List() => db.Locations.OrderBy(l => l.Id).ToListAsync();
 }

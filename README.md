@@ -1,49 +1,55 @@
 # Food inventory
 
-Private food inventory: register groceries when bought, delete them when used up. No login; one shared inventory.
+Track the food you have at home: register groceries when you buy them and delete them when they are used up.
+No login: everyone who opens the app shares one inventory.
 
-Stack: PostgreSQL, ASP.NET Core Web API (.NET 8, EF Core + Npgsql), Angular 19.
-
-| Folder | Contents |
-|---|---|
-| `database/` | `create_tables.sql`, `seed_data.sql` |
-| `backend/` | ASP.NET Core Web API (Swagger at `/swagger`) |
-| `backend.Tests/` | xUnit integration tests (real PostgreSQL) |
-| `frontend/` | Angular app (mobile-first) |
+Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 8) and Angular.
 
 ## Run it
 
-Prerequisites: PostgreSQL 14+, .NET 8 SDK, Node 20+.
+Needs PostgreSQL, the .NET 8 SDK and Node.js 20 or newer.
 
-1. **Database** (once, on an empty database):
+1. **Database** (once):
    ```bash
    createdb -U postgres food_inventory
-   psql -U postgres -d food_inventory -v ON_ERROR_STOP=1 -f database/create_tables.sql
-   psql -U postgres -d food_inventory -v ON_ERROR_STOP=1 -f database/seed_data.sql
+   psql -U postgres -d food_inventory -f database/create_tables.sql
+   psql -U postgres -d food_inventory -f database/seed_data.sql
    ```
-   The seed only works on a brand-new empty database: running it again is refused and changes nothing,
-   so deleting all items never brings the sample items back.
-2. **API** - set the connection string in `backend/appsettings.json` (default: `localhost:5432`, user/password `postgres`), then:
-   ```bash
-   cd backend
-   dotnet run          # http://localhost:5000, Swagger: http://localhost:5000/swagger
-   ```
-3. **Frontend**:
-   ```bash
-   cd frontend
-   npm install
-   npx ng serve        # http://localhost:4200
-   ```
+2. **API**: check the connection string in `backend/appsettings.json`, then run `dotnet run` in `backend/`.
+   It listens on http://localhost:5000, with Swagger at http://localhost:5000/swagger.
+3. **App**: in `frontend/` run `npm install`, then `npx ng serve`, and open http://localhost:4200.
 
-## Tests and builds
+## Tests
 
-```bash
-dotnet build                  # from the repo root (FoodInventory.sln), or `dotnet build backend`
-dotnet test                   # xUnit; creates and drops a throwaway database per test
-cd frontend
-npx ng build
-npm run test:ci               # Karma/Jasmine in headless Chrome (set CHROME_BIN if Chrome is not found)
-```
+- `dotnet test` in the repo root: the API against a brand-new PostgreSQL database per test, built from the scripts in `database/`.
+  Set `TEST_DB_ADMIN` if PostgreSQL is not on localhost with user and password `postgres`.
+- `npx ng test --watch=false` in `frontend/`: the form's validation rules and date helpers (Karma in Chrome).
 
-The xUnit tests need a PostgreSQL server; override the admin connection with `TEST_DB_ADMIN`
-(default `Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres`).
+## Where things are
+
+| Folder | What is in it |
+|---|---|
+| `database/` | `create_tables.sql` (3 related tables, primary and foreign keys), `seed_data.sql` (15 example records) |
+| `backend/Models/` | `Entities.cs` (one class per table), `Dtos.cs` (the JSON in and out), `Rules.cs` (validation rules and messages) |
+| `backend/Data/` | `AppDbContext.cs` (Entity Framework Core on PostgreSQL) |
+| `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
+| `backend.Tests/` | xUnit tests of the API |
+| `frontend/src/app/` | components `app` (the page), `item-list`, `item-form`, `categories`; `core/` has the API service, the models and the rules |
+
+## API
+
+- Items: `GET /items`, `GET /items/{id}`, `POST /items` (201), `PUT /items/{id}` (send the whole item), `DELETE /items/{id}` (204).
+- Categories: `GET /categories`, `POST /categories` (201), `PUT /categories/{id}`, `DELETE /categories/{id}` (204).
+- Locations: `GET /locations` (Fridge, Freezer, Pantry).
+- Errors: 400 invalid data (one message per field) or malformed JSON, 404 unknown id, 409 duplicate category name or category in use, 500 server error.
+
+## Demo script (at phone width)
+
+1. See the 6 example items, soonest best before date first.
+2. Add an item: try an empty form first (messages appear under the fields), then save a valid one.
+3. Edit it, then delete it after the confirmation.
+4. Open Categories: add one, try a duplicate name, rename it, try to delete Dairy (blocked, with the item count), delete the new one.
+
+## Submission zip
+
+`git archive --format=zip -o food-inventory.zip HEAD` packs the code and SQL scripts only (no `node_modules`, `bin` or `obj`).
