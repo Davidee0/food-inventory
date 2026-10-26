@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontend": {
+    "FoodInventory.NG": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -54,10 +54,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend:build:production"
+              "buildTarget": "FoodInventory.NG:build:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development"
+              "buildTarget": "FoodInventory.NG:build:development"
             }
           },
           "defaultConfiguration": "development"

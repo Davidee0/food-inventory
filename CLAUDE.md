@@ -12,7 +12,7 @@ Less is more: build the smallest working solution, no libraries, abstractions or
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
 
 ## Frontend
-Angular 22 with the same layout as the professor's course project (`ng new` with Angular CLI 22.2.0): 2025 file names (`item-form.ts`, `.html`, `.css`,
+Angular 22 with the same layout as the professor's course project (`ng new` with Angular CLI 22.2.0; project `FoodInventory.NG` like his `CourseAdminSystem.NG`): 2025 file names (`item-form.ts`, `.html`, `.css`,
 class `ItemForm`), `app.ts`/`app.html`/`app.css`/`app.spec.ts`/`app.config.ts`/`app.routes.ts`, routing, zoneless, Vitest, Prettier, `.vscode`.
 Like in class, `app.html` is a `<ul>` of `routerLink`s and a `<router-outlet />`, and each list is a routed page: `/items` is `ItemList` (list, Add, Edit,
 Delete; the `ItemForm` dialog), `/categories` is `CategoryList`; any other path goes to `/items`. Component styles are in the component's `.css`;

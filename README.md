@@ -34,7 +34,7 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which
 | `backend/Data/` | `AppDbContext.cs` (Entity Framework Core on PostgreSQL) |
 | `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
 | `backend.Tests/` | xUnit tests of the API |
-| `frontend/` | the Angular project, made with Angular CLI 22.2.0 like the course project (`ng new`) |
+| `frontend/` | the Angular project `FoodInventory.NG`, made with Angular CLI 22.2.0 like the course project (`ng new`) |
 | `frontend/src/app/` | `app.*`: the frame (title, links to the two lists, `<router-outlet />`), the routes `/items` and `/categories`, the config; the pages `item-list/` and `category-list/`; the Add/Edit dialog `item-form/`; `api.ts` (the service for the API), `models.ts`, `rules.ts` |
 
 Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).

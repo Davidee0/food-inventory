@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "food-inventory.ng",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
