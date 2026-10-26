@@ -10,15 +10,16 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Api, errorMessage, fieldErrors } from '../core/api';
-import { Category, Errors, Item, ItemInput, Location } from '../core/models';
-import { todayLocal, validateItem } from '../core/rules';
+import { Api, errorMessage, fieldErrors } from '../api';
+import { Category, Errors, Item, ItemInput, Location } from '../models';
+import { todayLocal, validateItem } from '../rules';
 
 /** The Add item / Edit item dialog. The fields are two-way bound to `form`. */
 @Component({
   selector: 'app-item-form',
   imports: [FormsModule],
   templateUrl: './item-form.html',
+  styleUrl: './item-form.css',
 })
 export class ItemForm implements OnInit, AfterViewInit {
   private readonly api = inject(Api);

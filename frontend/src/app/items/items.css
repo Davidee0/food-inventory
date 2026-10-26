@@ -1,0 +1,43 @@
+.state {
+  padding: 32px 0;
+  text-align: center;
+}
+.state p {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 96px;
+}
+.item {
+  padding: 14px 16px;
+  margin: 0 -16px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.name {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.facts {
+  margin: 0;
+  color: var(--muted);
+}
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--bg) 70%, rgba(238, 244, 243, 0));
+}
+@media (min-width: 640px) {
+  .item {
+    margin: 0;
+  }
+}

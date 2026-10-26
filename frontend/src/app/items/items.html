@@ -1,0 +1,60 @@
+<main class="wrap">
+  @if (loadError()) {
+    <div class="state">
+      <p>{{ loadError() }}</p>
+      <button type="button" class="btn primary" (click)="load()">Try again</button>
+    </div>
+  } @else if (loaded() && !items().length) {
+    <div class="state">
+      <p>Nothing here yet.</p>
+      <button type="button" class="btn primary" (click)="open(null)">Add your first item</button>
+    </div>
+  }
+
+  <ul class="list">
+    @for (item of items(); track item.id) {
+      <li class="item">
+        <h2 class="name">{{ item.name }}</h2>
+        <p class="facts">{{ place(item) }}</p>
+        <p class="facts">Bought {{ niceDate(item.purchase_date) }}</p>
+        @if (item.best_before) {
+          <p class="facts">Best before {{ niceDate(item.best_before) }}</p>
+        }
+        <div class="row-buttons">
+          <button
+            type="button"
+            class="btn quiet"
+            [attr.aria-label]="'Edit ' + item.name"
+            (click)="open(item)"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            class="btn quiet"
+            [attr.aria-label]="'Delete ' + item.name"
+            (click)="remove(item)"
+          >
+            Delete
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</main>
+
+<div class="dock">
+  <div class="wrap">
+    <button type="button" class="btn primary wide" (click)="open(null)">Add item</button>
+  </div>
+</div>
+
+@if (editing() !== undefined) {
+  <app-item-form
+    [item]="editing() ?? null"
+    [locations]="locations()"
+    [categories]="categories()"
+    (saved)="load()"
+    (closed)="editing.set(undefined)"
+  />
+}

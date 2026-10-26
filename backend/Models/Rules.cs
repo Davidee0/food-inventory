@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace FoodInventory.Api.Models;
 
-// The validation rules and messages. The Angular form uses the same ones (frontend/src/app/core/rules.ts).
+// The validation rules and messages. The Angular form uses the same ones (frontend/src/app/rules.ts).
 public static class Rules
 {
     public const string Location = "Choose a storage location.";

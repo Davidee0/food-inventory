@@ -1,30 +1,20 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  inject,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Api, errorMessage } from '../core/api';
-import { Category } from '../core/models';
+import { RouterLink } from '@angular/router';
+import { Api, errorMessage } from '../api';
+import { Category } from '../models';
 
 type Row = Category & { draft: string }; // a category and the name typed in its field
 
-/** The Categories dialog: add, rename and delete. The API checks the names and answers in plain language. */
+/** The Categories page: add, rename and delete. The API checks the names and answers in plain language. */
 @Component({
   selector: 'app-categories',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './categories.html',
+  styleUrl: './categories.css',
 })
-export class Categories implements OnInit, AfterViewInit {
+export class Categories implements OnInit {
   private readonly api = inject(Api);
-  readonly closed = output();
-
-  private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
   protected readonly rows = signal<Row[]>([]);
   protected readonly newName = signal('');
@@ -35,10 +25,6 @@ export class Categories implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.run();
-  }
-
-  ngAfterViewInit() {
-    this.dialog().nativeElement.showModal();
   }
 
   protected async add() {

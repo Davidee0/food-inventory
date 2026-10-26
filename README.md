@@ -34,7 +34,8 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which
 | `backend/Data/` | `AppDbContext.cs` (Entity Framework Core on PostgreSQL) |
 | `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
 | `backend.Tests/` | xUnit tests of the API |
-| `frontend/src/app/` | components `app` (the page), `item-list`, `item-form`, `categories` (e.g. `item-form.ts` + `item-form.html`); `core/` has `api.ts` (the API service), `models.ts` and `rules.ts` |
+| `frontend/` | the Angular CLI project, same layout as the course's `ng new` project |
+| `frontend/src/app/` | `app.*`: the frame with the header, the routes (`/` items, `/categories`) and the config; pages `items/` and `categories/`; the dialog `item-form/`; `api.ts` (the service for the API), `models.ts`, `rules.ts` |
 
 Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).
 

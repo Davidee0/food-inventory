@@ -12,7 +12,10 @@ Less is more: build the smallest working solution, no libraries, abstractions or
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
 
 ## Frontend
-Angular 22 as set up in the course (CLI 22 defaults): 2025 file names (`item-form.ts` + `item-form.html`, class `ItemForm`), zoneless, Vitest, Prettier.
+Angular 22 with the same layout as the professor's `ng new` project (CLI 22 defaults): 2025 file names (`item-form.ts`, `.html`, `.css`,
+class `ItemForm`), `app.ts`/`app.html`/`app.css`/`app.spec.ts`/`app.config.ts`/`app.routes.ts`, routing, zoneless, Vitest, Prettier, `.vscode`.
+Routes: `/` is the `Items` page (list, Add, Edit, Delete; the `ItemForm` dialog), `/categories` the `Categories` page. Component styles are in the
+component's `.css`; `styles.css` has only what all pages share (colours, buttons, fields).
 Zoneless means no zone.js: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render.
 Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
@@ -20,7 +23,7 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 - Paths: `/locations`, `/items`, `/items/{id}`, `/categories`, `/categories/{id}`. JSON is snake_case through the naming policy in `Program.cs`; only `itemCount` in the delete-in-use 409 is not.
 - Codes: 201 create, 200 replace/rename, 204 delete, 404 `{message}` (also for a non-numeric id), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
 - Request bodies bind to `ItemRequest` / `CategoryRequest` (all fields nullable). Malformed JSON or a wrongly typed value (a number as name, an array as id) fails binding and gets 400 `{message:"The request body is not valid JSON."}`, so it is never stored. Ids may also be sent as text ("1").
-- `Models/Rules.cs` has the rules and messages; `frontend/src/app/core/rules.ts` has the same ones for the form. Change both together.
+- `Models/Rules.cs` has the rules and messages; `frontend/src/app/rules.ts` has the same ones for the form. Change both together.
 - `GET /items`: `best_before` ascending, nulls last, then name ignoring case.
 
 ## Traps

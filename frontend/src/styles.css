@@ -1,3 +1,4 @@
+/* Global styles: colours, page width, buttons and fields. Each component has its own .css file for the rest. */
 :root {
   --bg: #eef4f3;
   --paper: #fff;
@@ -28,26 +29,12 @@ body {
   margin: 0 auto;
   padding: 0 16px;
 }
-.top {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-}
-.bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 56px;
-}
-h1 {
-  margin: 0;
-  font-size: 1.4rem;
-}
 
 /* Buttons and fields are at least 44 px high. Text is 16 px: smaller text makes iPhones zoom in. */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
   min-width: 44px;
   padding: 0 16px;
@@ -57,6 +44,7 @@ h1 {
   color: var(--ink);
   font: inherit;
   font-weight: 700;
+  text-decoration: none;
   cursor: pointer;
 }
 .btn.primary {
@@ -86,35 +74,10 @@ input {
   color: var(--ink);
   font: inherit;
 }
-
-.state {
-  padding: 32px 0;
-  text-align: center;
-}
-.state p {
-  margin: 0 0 14px;
-  font-size: 1.1rem;
+label {
+  display: block;
+  margin-bottom: 4px;
   font-weight: 700;
-}
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 96px;
-}
-.item {
-  padding: 14px 16px;
-  margin: 0 -16px;
-  background: var(--paper);
-  border-bottom: 1px solid var(--line);
-}
-.name {
-  margin: 0;
-  font-size: 1.05rem;
-  overflow-wrap: anywhere;
-}
-.facts {
-  margin: 0;
-  color: var(--muted);
 }
 .row-buttons {
   display: flex;
@@ -123,58 +86,12 @@ input {
 .row-buttons .btn {
   padding: 0 8px;
 }
-.dock {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
-  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--bg) 70%, rgba(238, 244, 243, 0));
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
 }
-
-dialog {
-  width: min(520px, calc(100vw - 24px));
-  max-height: calc(100vh - 24px);
-  max-height: calc(100dvh - 24px);
-  overflow: auto;
-  padding: 20px;
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--paper);
-  color: var(--ink);
-}
-dialog::backdrop {
-  background: rgba(23, 67, 63, 0.55);
-}
-dialog h2 {
-  margin: 0 0 12px;
-  font-size: 1.25rem;
-}
-.field {
-  margin-bottom: 14px;
-}
-label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 700;
-}
-.hint {
-  font-weight: 400;
-  color: var(--muted);
-}
-.err {
-  margin: 4px 0 0;
-  color: var(--bad);
-  font-weight: 600;
-}
-.err:empty {
-  display: none;
-}
-[aria-invalid='true'] {
-  border-color: var(--bad);
-}
-/* Stays in view while a long dialog scrolls. */
+/* A message about the whole form or page. Stays in view while a long dialog scrolls. */
 .form-error {
   position: sticky;
   top: 0;
@@ -185,40 +102,4 @@ label {
   background: var(--bad-bg);
   color: var(--bad);
   font-weight: 600;
-}
-.actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 18px;
-}
-
-.cat-list {
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
-.cat-list li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 8px;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--line);
-}
-.cat-list .cat-name {
-  grid-column: 1 / -1;
-}
-.cat-list .count {
-  color: var(--muted);
-}
-.cat-add-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-}
-
-@media (min-width: 640px) {
-  .item {
-    margin: 0;
-  }
 }

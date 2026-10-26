@@ -1,5 +1,5 @@
-<dialog #dialog aria-labelledby="categories-title" (close)="closed.emit()">
-  <h2 id="categories-title">Categories</h2>
+<main class="wrap">
+  <h2>Categories</h2>
   @if (message()) {
     <p class="form-error" role="alert">{{ message() }}</p>
   }
@@ -47,6 +47,6 @@
   </form>
 
   <div class="actions">
-    <button type="button" class="btn" (click)="dialog.close()">Done</button>
+    <a class="btn" routerLink="/">Done</a>
   </div>
-</dialog>
+</main>
