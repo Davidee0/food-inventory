@@ -1,0 +1,40 @@
+<header class="top">
+  <div class="wrap bar">
+    <h1>Food inventory</h1>
+    <button type="button" class="btn quiet" (click)="categoriesOpen.set(true)">Categories</button>
+  </div>
+</header>
+
+<main class="wrap">
+  @if (loadError()) {
+    <div class="state">
+      <p>{{ loadError() }}</p>
+      <button type="button" class="btn primary" (click)="load()">Try again</button>
+    </div>
+  } @else if (loaded() && !items().length) {
+    <div class="state">
+      <p>Nothing here yet.</p>
+      <button type="button" class="btn primary" (click)="open(null)">Add your first item</button>
+    </div>
+  }
+  <app-item-list [items]="items()" (edit)="open($event)" (remove)="remove($event)" />
+</main>
+
+<div class="dock">
+  <div class="wrap">
+    <button type="button" class="btn primary wide" (click)="open(null)">Add item</button>
+  </div>
+</div>
+
+@if (editing() !== undefined) {
+  <app-item-form
+    [item]="editing() ?? null"
+    [locations]="locations()"
+    [categories]="categories()"
+    (saved)="load()"
+    (closed)="editing.set(undefined)"
+  />
+}
+@if (categoriesOpen()) {
+  <app-categories (closed)="categoriesOpen.set(false); load()" />
+}

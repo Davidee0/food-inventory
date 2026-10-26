@@ -5,11 +5,16 @@ Built: US1-US8. Optional US9-US13 (quantity, filters, highlights, sort toggle, l
 It is a port of a Node reference app: same API paths, status codes, messages and tests.
 
 ## Commands
-`dotnet build` and `dotnet test` in the root (needs PostgreSQL, see `TEST_DB_ADMIN`) · `cd frontend && npx ng build` · `cd frontend && npx ng test --watch=false`.
+`dotnet build` and `dotnet test` in the root (needs PostgreSQL, see `TEST_DB_ADMIN`) · in `frontend/` (Node 22.22.3+): `npx ng build`, `npx ng test --watch=false` (Vitest), `npx prettier --write src`.
 
 ## How to work
 Less is more: build the smallest working solution, no libraries, abstractions or files a story does not need. Keep the course guide's
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
+
+## Frontend
+Angular 22 as set up in the course (CLI 22 defaults): 2025 file names (`item-form.ts` + `item-form.html`, class `ItemForm`), zoneless, Vitest, Prettier.
+Zoneless means no zone.js: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render.
+Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
 ## API decisions
 - Paths: `/locations`, `/items`, `/items/{id}`, `/categories`, `/categories/{id}`. JSON is snake_case through the naming policy in `Program.cs`; only `itemCount` in the delete-in-use 409 is not.
@@ -27,7 +32,7 @@ requirements: CRUD for two entities (items, categories), at least four Angular c
 - **Add/Edit after a failed load:** the form needs the locations, so `open()` loads again first and does not open the form without them.
 
 ## Tests
-Every xUnit test gets its own brand-new database from the real scripts (`ApiTest.cs`). The Karma spec checks the rules; run it in another zone too
+Every xUnit test gets its own brand-new database from the real scripts (`ApiTest.cs`). The Vitest spec checks the rules; run it in another zone too
 (`TZ=Pacific/Auckland npx ng test --watch=false`), because in UTC a `toISOString()` bug would not show.
 
 ## Colours

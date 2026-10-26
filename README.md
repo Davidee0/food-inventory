@@ -3,11 +3,11 @@
 Track the food you have at home: register groceries when you buy them and delete them when they are used up.
 No login: everyone who opens the app shares one inventory.
 
-Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 8) and Angular.
+Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 8) and Angular 22.
 
 ## Run it
 
-Needs PostgreSQL, the .NET 8 SDK and Node.js 20 or newer.
+Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which Angular 22 requires.
 
 1. **Database** (once; in pgAdmin you can run the two scripts in the Query Tool instead):
    ```bash
@@ -23,7 +23,7 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 20 or newer.
 
 - `dotnet test` in the repo root: the API against a brand-new PostgreSQL database per test, built from the scripts in `database/`.
   Set `TEST_DB_ADMIN` if PostgreSQL is not on localhost with user and password `postgres`.
-- `npx ng test --watch=false` in `frontend/`: the form's validation rules and date helpers (Karma in Chrome).
+- `npx ng test --watch=false` in `frontend/`: the form's validation rules and date helpers (Vitest, no browser needed).
 
 ## Where things are
 
@@ -34,7 +34,9 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 20 or newer.
 | `backend/Data/` | `AppDbContext.cs` (Entity Framework Core on PostgreSQL) |
 | `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
 | `backend.Tests/` | xUnit tests of the API |
-| `frontend/src/app/` | components `app` (the page), `item-list`, `item-form`, `categories`; `core/` has the API service, the models and the rules |
+| `frontend/src/app/` | components `app` (the page), `item-list`, `item-form`, `categories` (e.g. `item-form.ts` + `item-form.html`); `core/` has `api.ts` (the API service), `models.ts` and `rules.ts` |
+
+Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).
 
 ## API
 

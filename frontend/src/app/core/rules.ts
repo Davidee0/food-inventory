@@ -5,13 +5,19 @@ import { Errors, ItemInput } from './models';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Today from the LOCAL year, month and day. toISOString() would give the UTC day, which is wrong around midnight. */
-export const todayLocal = (now = new Date()) => `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+export const todayLocal = (now = new Date()) =>
+  `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
 /** A real calendar date written as YYYY-MM-DD (2026-02-30 is not). */
 export function isValidDate(text: string): boolean {
   const [y, m, d] = text.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return /^\d{4}-\d{2}-\d{2}$/.test(text) && date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+  return (
+    /^\d{4}-\d{2}-\d{2}$/.test(text) &&
+    date.getFullYear() === y &&
+    date.getMonth() === m - 1 &&
+    date.getDate() === d
+  );
 }
 
 /** One message per field; empty when the item can be saved. Text is trimmed first. */
