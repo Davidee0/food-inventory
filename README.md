@@ -16,19 +16,19 @@ Tests: `npx ng test --watch=false` in `frontend/` (the form's rules and dates, t
 
 | Where | What |
 |---|---|
-| `database.sql` | tables `location`, `category`, `item` with primary and foreign keys, and 15 example rows |
-| `backend/FoodInventory.Model` | `Entities/` (one class per table), `Repositories/` (SQL through Npgsql, on the course's `BaseRepository`) |
-| `backend/FoodInventory.API` | `Controllers/`: `/api/Item` and `/api/Category` (GET, GET `{id}`, POST, PUT, DELETE `{id}`), `/api/Location` (GET); `Program.cs` |
-| `frontend/src/app` | design U8: pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `user-form/`, `category-list/`; parts `top-bar/`, `icon/`; `api.ts` (calls to the API), `inventory.ts` (shared data, message bar), `models.ts`, `rules.ts` |
+| `database.sql` | tables `storage_location`, `category`, `food_item` with primary and foreign keys, and 15 example rows |
+| `backend/FoodInventory.Model` | `Entities/` (one class per table, with the validation rules), `Repositories/` (SQL through Npgsql, on the course's `BaseRepository`) |
+| `backend/FoodInventory.API` | `Controllers/`: `/api/FoodItem` and `/api/Category` (GET, GET `{id}`, POST, PUT, DELETE `{id}`), `/api/StorageLocation` (GET); `Program.cs` |
+| `frontend/src/app` | design U8: pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `category-list/`; parts `top-bar/`, `icon/`; `model/` (interfaces), `services/` (calls to the API), `inventory.ts` (shared data, message bar), `rules.ts` (form rules, dates) |
 | `prototype-frontend/` | Kilian's Node prototype the U8 design comes from (reference only) |
 
 ## Demo script (at phone width)
 
-1. Inventory: the example items grouped by category, expiring ones on top with a yellow warning sign. Search for "fridge".
+1. Inventory: the example items grouped by category, expiring ones on top with a yellow warning sign. Filter by Dairy, add Freezer (nothing matches), then Clear filters.
 2. Add: try an empty form first (messages appear under the fields), then save a valid one.
-3. Tap the item to edit it, then delete it after the confirmation.
-4. Ate it: tap "Ate it" on an item, then Undo in the message bar.
-5. Settings (gear) → Categories: add one, rename it, delete it. Deleting a category keeps its items, under "No category".
+3. Tap the item to edit it (change the quantity), then delete it after the confirmation.
+4. Ate it: tap "Ate it" on an item and confirm.
+5. Gear → Categories: add one, rename it, try to delete Drinks (refused: it still has food), delete the new one.
 
 ## Submission zip
 

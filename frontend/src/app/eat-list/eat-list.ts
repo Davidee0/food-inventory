@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Inventory, shapeOf } from '../inventory';
-import { Item } from '../models';
+import { FoodItem } from '../model/food-item';
 import { leftText } from '../rules';
 import { TopBar } from '../top-bar/top-bar';
 
-/** "Ate it": a quick way to take eaten food off the list. The message bar offers Undo. */
+/** "Ate it": a quick way to take eaten food off the list ("used up"), after a confirmation. */
 @Component({
   selector: 'app-eat-list',
   imports: [TopBar],
@@ -23,10 +23,12 @@ export class EatList implements OnInit {
     this.inventory.load();
   }
 
-  protected meta = (item: Item) =>
-    [item.category_name, leftText(item.best_before)].filter(Boolean).join(' · ');
+  protected meta = (item: FoodItem) =>
+    [item.categoryName, `Qty ${item.quantity}`, leftText(item.bestBeforeDate)]
+      .filter(Boolean)
+      .join(' · ');
 
-  protected async ate(item: Item) {
+  protected async ate(item: FoodItem) {
     if (this.busy().includes(item.id)) return;
     this.busy.update((ids) => [...ids, item.id]);
     await this.inventory.remove(item, 'eaten');

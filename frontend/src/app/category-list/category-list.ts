@@ -1,13 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Api, errorMessage } from '../api';
-import { Inventory } from '../inventory';
-import { Category } from '../models';
+import { firstValueFrom } from 'rxjs';
+import { Inventory, errorMessage } from '../inventory';
+import { Category } from '../model/category';
+import { CategoryService } from '../services/category-service';
 import { TopBar } from '../top-bar/top-bar';
 
 type Row = Category & { draft: string }; // a category and the name typed in its field
 
-/** Categories, opened from Settings: add, rename and delete. The API checks the names and answers in plain language. */
+/** Categories, opened from the gear: add, rename and delete. The API checks the names and answers in plain language. */
 @Component({
   selector: 'app-category-list',
   imports: [FormsModule, TopBar],
@@ -15,15 +16,18 @@ type Row = Category & { draft: string }; // a category and the name typed in its
   styleUrl: './category-list.css',
 })
 export class CategoryList implements OnInit {
-  private readonly api = inject(Api);
-  private readonly inventory = inject(Inventory);
+  private readonly categoryService = inject(CategoryService);
+  protected readonly inventory = inject(Inventory);
 
   protected readonly rows = signal<Row[]>([]);
   protected readonly newName = signal('');
   protected readonly message = signal('');
 
   /** "Used by 1 item", "Used by 2 items". */
-  protected count = (n: number) => `Used by ${n} ${n === 1 ? 'item' : 'items'}`;
+  protected count = (row: Row) => {
+    const n = this.inventory.items().filter((i) => i.categoryId === row.id).length;
+    return `Used by ${n} ${n === 1 ? 'item' : 'items'}`;
+  };
 
   ngOnInit() {
     this.run();
@@ -31,19 +35,31 @@ export class CategoryList implements OnInit {
 
   protected async add() {
     const name = this.newName().trim();
-    if (await this.run(() => this.api.addCategory(name), `${name} added`)) this.newName.set('');
+    const added = await this.run(
+      () => firstValueFrom(this.categoryService.addCategory({ id: 0, name })),
+      `${name} added`,
+    );
+    if (added) this.newName.set('');
   }
 
   protected rename(row: Row) {
-    this.run(() => this.api.renameCategory(row.id, row.draft), `${row.draft.trim()} saved`);
+    const name = row.draft.trim();
+    this.run(
+      () => firstValueFrom(this.categoryService.updateCategory({ id: row.id, name })),
+      `${name} saved`,
+    );
   }
 
+  /** A category that still has food in it is refused by the API, which says why. */
   protected remove(row: Row) {
     if (!confirm(`Delete the category ${row.name}?`)) return;
-    this.run(() => this.api.deleteCategory(row.id), `${row.name} deleted`);
+    this.run(
+      () => firstValueFrom(this.categoryService.deleteCategory(row.id)),
+      `${row.name} deleted`,
+    );
   }
 
-  /** Runs a change, then loads everything again. A refused change (e.g. a category in use) shows the API's message. */
+  /** Runs a change, then loads everything again. A refused change shows the API's message. */
   private async run(change?: () => Promise<unknown>, done = ''): Promise<boolean> {
     try {
       await change?.();

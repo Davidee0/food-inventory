@@ -1,6 +1,7 @@
 using FoodInventory.Model.Entities;
 using FoodInventory.Model.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
@@ -45,7 +46,15 @@ public class CategoryController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteCategory([FromRoute] int id)
     {
-        if (Repository.GetCategoryById(id) == null) return NotFound($"Category with id {id} not found");
-        return Repository.DeleteCategory(id) ? NoContent() : BadRequest($"Unable to delete category with id {id}");
+        Category? category = Repository.GetCategoryById(id);
+        if (category == null) return NotFound($"Category with id {id} not found");
+        try
+        {
+            return Repository.DeleteCategory(id) ? NoContent() : BadRequest($"Unable to delete category with id {id}");
+        }
+        catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+        {
+            return Conflict($"{category.Name} still has food in it, so it cannot be deleted.");
+        }
     }
 }

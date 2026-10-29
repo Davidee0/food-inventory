@@ -1,4 +1,4 @@
-<app-top-bar eyebrow="Setup" title="Categories" back="/settings" />
+<app-top-bar eyebrow="Setup" title="Categories" [back]="inventory.lastMain" />
 
 <div class="body">
   @if (message()) {
@@ -30,7 +30,7 @@
           [(ngModel)]="row.draft"
           (keydown.enter)="rename(row)"
         />
-        <p class="meta">{{ count(row.item_count) }}</p>
+        <p class="meta">{{ count(row) }}</p>
         <div class="rowbtns">
           <button
             type="button"

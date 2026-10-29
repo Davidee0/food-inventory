@@ -1,8 +1,8 @@
 namespace FoodInventory.Model.Entities;
 
-public class Location
+public class StorageLocation
 {
-    public Location(int id) { Id = id; }
+    public StorageLocation(int id) { Id = id; }
     public int Id { get; set; }
     public string Name { get; set; } = "";
 }

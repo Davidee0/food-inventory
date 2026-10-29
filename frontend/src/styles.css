@@ -203,13 +203,6 @@ select {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.group-title {
-  margin: 26px 0 10px;
-  font: 700 12px var(--mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #444;
-}
 
 /* Item outlines: small drawn shapes, picked by item id (shapeOf in inventory.ts). */
 .slot {

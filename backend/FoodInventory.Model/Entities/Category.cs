@@ -6,6 +6,7 @@ public class Category
 {
     public Category(int id) { Id = id; }
     public int Id { get; set; }
-    [Required] // also refuses "" and spaces
+
+    [Required(ErrorMessage = "Enter a name."), StringLength(30, ErrorMessage = "Name can be at most 30 characters.")]
     public string Name { get; set; } = "";
 }

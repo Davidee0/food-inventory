@@ -1,6 +1,9 @@
-// Validation rules and date helpers for the form. The API checks the same rules with the same
-// messages (backend/Models/Rules.cs). Dates are plain "YYYY-MM-DD" strings, never timestamps.
-import { Errors, ItemInput } from './models';
+// The form's rules and the dates. The API checks the same rules with the same messages
+// (data annotations in backend/FoodInventory.Model/Entities/FoodItem.cs). Dates are plain "YYYY-MM-DD" strings.
+import { FoodItem } from './model/food-item';
+
+/** One message per field, e.g. { name: 'Enter a name.' }. */
+export type Errors = Record<string, string>;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -8,35 +11,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export const todayLocal = (now = new Date()) =>
   `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
-/** A real calendar date written as YYYY-MM-DD (2026-02-30 is not). */
-export function isValidDate(text: string): boolean {
-  const [y, m, d] = text.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  return (
-    /^\d{4}-\d{2}-\d{2}$/.test(text) &&
-    date.getFullYear() === y &&
-    date.getMonth() === m - 1 &&
-    date.getDate() === d
-  );
-}
-
-/** One message per field; empty when the item can be saved. Text is trimmed first. */
-export function validateItem(item: ItemInput): Errors {
+/** One message per field; empty when the item can be saved. The name is trimmed first. */
+export function validateItem(item: FoodItem): Errors {
   const errors: Errors = {};
   const name = item.name.trim();
   if (!name) errors['name'] = 'Enter a name.';
   else if (name.length > 50) errors['name'] = 'Name can be at most 50 characters.';
 
-  if (item.location_id == null) errors['location_id'] = 'Choose a storage location.';
+  const quantity = item.quantity ?? 0;
+  if (!Number.isInteger(quantity) || quantity < 1)
+    errors['quantity'] = 'Quantity must be at least 1.';
 
-  const purchase = item.purchase_date.trim();
-  if (!purchase) errors['purchase_date'] = 'Enter a purchase date.';
-  else if (!isValidDate(purchase)) errors['purchase_date'] = 'Enter a valid date.';
+  if (item.storageLocationId == null) errors['storageLocationId'] = 'Choose a storage location.';
 
-  const bestBefore = item.best_before.trim();
-  if (bestBefore && !isValidDate(bestBefore)) errors['best_before'] = 'Enter a valid date.';
-  else if (bestBefore && isValidDate(purchase) && bestBefore < purchase)
-    errors['best_before'] = 'Best before date cannot be before the purchase date.';
+  if (!item.purchaseDate) errors['purchaseDate'] = 'Enter a purchase date.';
+  else if (item.bestBeforeDate && item.bestBeforeDate < item.purchaseDate)
+    errors['bestBeforeDate'] = 'Best before date cannot be before the purchase date.';
   return errors;
 }
 
@@ -54,9 +44,9 @@ export function statusOf(bestBefore: string | null, today = todayLocal()): Statu
   return bestBefore <= addDays(today, 3) ? 'soon' : null;
 }
 
-/** "Expired", "Today", "1 day left", "5 days left" or "No expiry date". */
+/** "Expired", "Today", "1 day left", "5 days left" or "No best before date". */
 export function leftText(bestBefore: string | null, today = todayLocal()): string {
-  if (!bestBefore) return 'No expiry date';
+  if (!bestBefore) return 'No best before date';
   const [y, m, d] = bestBefore.split('-').map(Number);
   const [ty, tm, td] = today.split('-').map(Number);
   const n = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 86400000);
