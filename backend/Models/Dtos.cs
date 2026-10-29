@@ -9,9 +9,13 @@ public record ItemRequest(string? Name, int? LocationId, int? CategoryId, string
 
 public record CategoryRequest(string? Name);
 
+public record LocationRequest(string? Name);
+
 public record ItemDto(int Id, string Name, DateOnly PurchaseDate, DateOnly? BestBefore,
     int LocationId, string LocationName, int? CategoryId, string? CategoryName);
 
 public record CategoryDto(int Id, string Name, int ItemCount);
+
+public record LocationDto(int Id, string Name, int ItemCount);
 
 public record InUseDto(string Message, [property: JsonPropertyName("itemCount")] int ItemCount);

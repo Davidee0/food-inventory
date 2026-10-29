@@ -1,17 +1,7 @@
 <app-top-bar eyebrow="U8 preferences" title="Settings" [back]="inventory.lastMain" />
 
 <div class="body">
-  <p class="group-title first">Account</p>
-  <div class="group">
-    <a class="srow" routerLink="/settings/user">
-      <span>User</span>
-      <span class="val"
-        >{{ inventory.user().username || 'Not set' }} <app-icon name="chev" [size]="18"
-      /></span>
-    </a>
-  </div>
-
-  <p class="group-title">Notifications</p>
+  <p class="group-title first">Notifications</p>
   <div class="group">
     <div class="srow">
       <span>Expiry reminders</span>
@@ -40,12 +30,12 @@
         >{{ inventory.categories().length }} <app-icon name="chev" [size]="18"
       /></span>
     </a>
-    <div class="srow">
+    <a class="srow" routerLink="/settings/locations">
       <span>Storage locations</span>
       <span class="val"
         >{{ inventory.locations().length }} <app-icon name="chev" [size]="18"
       /></span>
-    </div>
+    </a>
     <div class="srow">
       <span>Units</span>
       <span class="val">Metric <app-icon name="chev" [size]="18" /></span>

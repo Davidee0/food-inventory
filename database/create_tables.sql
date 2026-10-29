@@ -1,6 +1,6 @@
 -- Food inventory schema for PostgreSQL. Run once on an empty database, then run seed_data.sql.
 
--- Fixed list: Fridge, Freezer, Pantry.
+-- Storage locations, e.g. Fridge, Freezer, Pantry. The API keeps names unique ignoring case.
 CREATE TABLE locations (
     id   SERIAL PRIMARY KEY,
     name VARCHAR(30) NOT NULL UNIQUE
@@ -13,7 +13,7 @@ CREATE TABLE categories (
     name_key VARCHAR(30) NOT NULL UNIQUE
 );
 
--- Dates are plain dates. A category that is still used by an item cannot be deleted (RESTRICT).
+-- Dates are plain dates. A location or category that is still used by an item cannot be deleted.
 CREATE TABLE items (
     id            SERIAL PRIMARY KEY,
     name          VARCHAR(50) NOT NULL,

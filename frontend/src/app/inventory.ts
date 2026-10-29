@@ -2,14 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Api, NETWORK_ERROR, errorMessage } from './api';
 import { Category, Item, ItemInput, Location } from './models';
 
-export interface User {
-  username: string;
-  email: string;
-}
-const USER_KEY = 'u8-user';
-
 /**
- * What all pages share: the data from the API, the message bar at the bottom, and the user.
+ * What all pages share: the data from the API and the message bar at the bottom.
  * After every change the pages call load(), so every page shows the same, fresh data.
  */
 @Injectable({ providedIn: 'root' })
@@ -28,8 +22,6 @@ export class Inventory {
 
   /** Where the back arrow in Settings goes: the last main tab that was open. */
   lastMain = '/items';
-
-  readonly user = signal<User>(readUser());
 
   /** Gets locations, categories and items again. False when it failed. */
   async load(): Promise<boolean> {
@@ -82,25 +74,6 @@ export class Inventory {
     } catch {
       this.say(`Could not undo. Add ${item.name} again.`);
     }
-  }
-
-  /** The database has a users table, but the API has no users route yet, so the user is kept in this browser. */
-  saveUser(user: User): boolean {
-    try {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-      this.user.set(user);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-}
-
-function readUser(): User {
-  try {
-    return { username: '', email: '', ...JSON.parse(localStorage.getItem(USER_KEY) ?? '{}') };
-  } catch {
-    return { username: '', email: '' };
   }
 }
 

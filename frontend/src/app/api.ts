@@ -11,6 +11,10 @@ export class Api {
   private readonly http = inject(HttpClient);
 
   locations = () => firstValueFrom(this.http.get<Location[]>(`${API}/locations`));
+  addLocation = (name: string) => firstValueFrom(this.http.post(`${API}/locations`, { name }));
+  renameLocation = (id: number, name: string) =>
+    firstValueFrom(this.http.put(`${API}/locations/${id}`, { name }));
+  deleteLocation = (id: number) => firstValueFrom(this.http.delete(`${API}/locations/${id}`));
   items = () => firstValueFrom(this.http.get<Item[]>(`${API}/items`));
   /** Adds the item, or replaces item `id` (PUT sends every field). */
   saveItem = (item: ItemInput, id?: number) =>

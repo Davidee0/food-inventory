@@ -3,6 +3,7 @@
 export interface Location {
   id: number;
   name: string;
+  item_count: number;
 }
 
 export interface Category {

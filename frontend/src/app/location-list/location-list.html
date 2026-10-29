@@ -1,0 +1,55 @@
+<app-top-bar eyebrow="Setup" title="Storage locations" back="/settings" />
+
+<div class="body">
+  @if (message()) {
+    <p class="form-error" role="alert">{{ message() }}</p>
+  }
+
+  <form novalidate (ngSubmit)="add()">
+    <label class="lbl" for="cat-new">New location</label>
+    <div class="rowbtns">
+      <input
+        id="cat-new"
+        name="newName"
+        class="text-input"
+        autocomplete="off"
+        placeholder="e.g. Cellar"
+        [(ngModel)]="newName"
+      />
+      <button type="submit" class="small dark">Add</button>
+    </div>
+  </form>
+
+  <ul class="cat-list">
+    @for (row of rows(); track row.id) {
+      <li class="cat">
+        <input
+          class="text-input"
+          autocomplete="off"
+          [attr.aria-label]="'Name of location ' + row.name"
+          [(ngModel)]="row.draft"
+          (keydown.enter)="rename(row)"
+        />
+        <p class="meta">{{ count(row.item_count) }}</p>
+        <div class="rowbtns">
+          <button
+            type="button"
+            class="small"
+            [attr.aria-label]="'Save name of ' + row.name"
+            (click)="rename(row)"
+          >
+            Save name
+          </button>
+          <button
+            type="button"
+            class="small danger"
+            [attr.aria-label]="'Delete location ' + row.name"
+            (click)="remove(row)"
+          >
+            Delete
+          </button>
+        </div>
+      </li>
+    }
+  </ul>
+</div>

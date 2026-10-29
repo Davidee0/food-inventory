@@ -32,10 +32,10 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which
 | `database/` | `create_tables.sql` (3 related tables, primary and foreign keys), `seed_data.sql` (15 example records) |
 | `backend/Models/` | `Entities.cs` (one class per table), `Dtos.cs` (the JSON in and out), `Rules.cs` (validation rules and messages) |
 | `backend/Data/` | `AppDbContext.cs` (Entity Framework Core on PostgreSQL) |
-| `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
+| `backend/Controllers/` | `ItemsController`, `CategoriesController` and `LocationsController` (full CRUD) |
 | `backend.Tests/` | xUnit tests of the API |
 | `frontend/` | the Angular project `FoodInventory.NG`, made with Angular CLI 22.2.0 like the course project (`ng new`) |
-| `frontend/src/app/` | `app.*`: the frame (page, message bar, tab bar Add / Inventory / Ate it), the routes, the config; the pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `user-form/`, `category-list/`; the parts `top-bar/` and `icon/`; `api.ts` (the service for the API), `inventory.ts` (the shared data and message bar), `models.ts`, `rules.ts` |
+| `frontend/src/app/` | `app.*`: the frame (page, message bar, tab bar Add / Inventory / Ate it), the routes, the config; the pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `category-list/`, `location-list/`; the parts `top-bar/` and `icon/`; `api.ts` (the service for the API), `inventory.ts` (the shared data and message bar), `models.ts`, `rules.ts` |
 
 Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).
 
@@ -43,8 +43,8 @@ Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src`
 
 - Items: `GET /items`, `GET /items/{id}`, `POST /items` (201), `PUT /items/{id}` (send the whole item), `DELETE /items/{id}` (204).
 - Categories: `GET /categories`, `POST /categories` (201), `PUT /categories/{id}`, `DELETE /categories/{id}` (204).
-- Locations: `GET /locations` (Fridge, Freezer, Pantry).
-- Errors: 400 invalid data (one message per field) or malformed JSON, 404 unknown id, 409 duplicate category name or category in use, 500 server error.
+- Locations: `GET /locations`, `POST /locations` (201), `PUT /locations/{id}`, `DELETE /locations/{id}` (204).
+- Errors: 400 invalid data (one message per field) or malformed JSON, 404 unknown id, 409 duplicate name, or category or location in use, 500 server error.
 
 ## Demo script (at phone width)
 
@@ -53,6 +53,7 @@ Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src`
 3. Tap the item to edit it, then delete it after the confirmation.
 4. Ate it: tap "Ate it" on an item, then Undo in the message bar.
 5. Settings (gear) → Categories: add one, try a duplicate name, rename it, try to delete Dairy (blocked, with the item count), delete the new one.
+6. Settings → Storage locations: add "Cellar", rename it, try to delete Fridge (blocked, it holds items), delete Cellar.
 
 ## Submission zip
 
