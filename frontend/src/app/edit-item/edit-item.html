@@ -1,0 +1,36 @@
+<h2>{{ id ? 'Edit item' : 'Add item' }}</h2>
+<form #itemForm="ngForm" (ngSubmit)="saveItem()">
+  <label>
+    Name
+    <input name="name" [(ngModel)]="item.name" required maxlength="50" />
+  </label>
+  <label>
+    Storage location
+    <select name="locationId" [(ngModel)]="item.locationId" required>
+      @for (location of locations; track location.id) {
+        <option [ngValue]="location.id">{{ location.name }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Category
+    <select name="categoryId" [(ngModel)]="item.categoryId">
+      <option [ngValue]="null">No category</option>
+      @for (category of categories; track category.id) {
+        <option [ngValue]="category.id">{{ category.name }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Purchase date
+    <input type="date" name="purchaseDate" [(ngModel)]="item.purchaseDate" required />
+  </label>
+  <label>
+    Best before (optional)
+    <input type="date" name="bestBefore" [(ngModel)]="item.bestBefore" />
+  </label>
+  @if (itemForm.invalid) {
+    <p class="error">Name, storage location and purchase date are required.</p>
+  }
+  <button type="submit" [disabled]="itemForm.invalid">Save</button>
+</form>

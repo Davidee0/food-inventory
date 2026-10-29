@@ -1,53 +1,48 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Api, errorMessage } from '../api';
-import { Category } from '../models';
+import { Category } from '../model/category';
+import { CategoryService } from '../services/category-service';
 
-type Row = Category & { draft: string }; // a category and the name typed in its field
-
-/** The category list: add, rename and delete. The API checks the names and answers in plain language. */
 @Component({
   selector: 'app-category-list',
   imports: [FormsModule],
   templateUrl: './category-list.html',
-  styleUrl: './category-list.css',
 })
 export class CategoryList implements OnInit {
-  private readonly api = inject(Api);
+  categories: Category[] = [];
+  newName = '';
 
-  protected readonly rows = signal<Row[]>([]);
-  protected readonly newName = signal('');
-  protected readonly message = signal('');
+  constructor(
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  /** "1 item", "2 items". */
-  protected count = (n: number) => `${n} ${n === 1 ? 'item' : 'items'}`;
-
-  ngOnInit() {
-    this.run();
+  ngOnInit(): void {
+    this.getCategories();
   }
 
-  protected async add() {
-    if (await this.run(() => this.api.addCategory(this.newName()))) this.newName.set('');
+  getCategories(): void {
+    this.categoryService.getCategories().subscribe((categories) => {
+      this.categories = categories;
+      this.cdr.markForCheck();
+    });
   }
 
-  protected rename(row: Row) {
-    this.run(() => this.api.renameCategory(row.id, row.draft));
+  addCategory(): void {
+    this.categoryService.addCategory({ id: 0, name: this.newName }).subscribe(() => {
+      this.newName = '';
+      this.getCategories();
+    });
   }
 
-  protected remove(row: Row) {
-    if (confirm(`Delete ${row.name}?`)) this.run(() => this.api.deleteCategory(row.id));
+  updateCategory(category: Category): void {
+    this.categoryService.updateCategory(category).subscribe(() => this.getCategories());
   }
 
-  /** Runs a change, then reloads the list. A refused change (e.g. a category in use) shows the API's message. */
-  private async run(change?: () => Promise<unknown>): Promise<boolean> {
-    try {
-      await change?.();
-      this.rows.set((await this.api.categories()).map((c) => ({ ...c, draft: c.name })));
-      this.message.set('');
-      return true;
-    } catch (error) {
-      this.message.set(errorMessage(error));
-      return false;
+  // Its items stay, without a category (on delete set null in the database).
+  deleteCategory(category: Category): void {
+    if (confirm(`Delete ${category.name}?`)) {
+      this.categoryService.deleteCategory(category.id).subscribe(() => this.getCategories());
     }
   }
 }

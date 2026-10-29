@@ -1,69 +1,41 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { Api, errorMessage } from '../api';
-import { ItemForm } from '../item-form/item-form';
-import { Category, Item, Location } from '../models';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
+import { Item } from '../model/item';
+import { ItemService } from '../services/item-service';
 
-/** The item list (the start page): the items (the API sorts them, soonest best before date first), Add, Edit and Delete. */
 @Component({
   selector: 'app-item-list',
-  imports: [ItemForm],
+  imports: [DatePipe, RouterLink],
   templateUrl: './item-list.html',
-  styleUrl: './item-list.css',
 })
 export class ItemList implements OnInit {
-  private readonly api = inject(Api);
+  items: Item[] = [];
 
-  protected readonly items = signal<Item[]>([]);
-  protected readonly locations = signal<Location[]>([]);
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly loaded = signal(false);
-  protected readonly loadError = signal('');
-  /** The item in the form: null to add a new one, undefined while the form is closed. */
-  protected readonly editing = signal<Item | null | undefined>(undefined);
+  constructor(
+    private itemService: ItemService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  ngOnInit() {
-    this.load();
+  ngOnInit(): void {
+    this.getItems();
   }
 
-  protected async load() {
-    try {
-      const [locations, categories, items] = await Promise.all([
-        this.api.locations(),
-        this.api.categories(),
-        this.api.items(),
-      ]);
-      this.locations.set(locations);
-      this.categories.set(categories);
-      this.items.set(items);
-      this.loadError.set('');
-    } catch (error) {
-      this.items.set([]);
-      this.loadError.set(errorMessage(error));
-    }
-    this.loaded.set(true);
-  }
-
-  /** Opens the form. It needs the storage locations, so if loading failed, try again first. */
-  protected async open(item: Item | null) {
-    if (!this.locations().length) await this.load();
-    if (this.locations().length) this.editing.set(item);
-  }
-
-  protected async remove(item: Item) {
-    if (!confirm(`Delete ${item.name}?`)) return;
-    await this.api.deleteItem(item.id).catch((error) => alert(errorMessage(error)));
-    this.load();
-  }
-
-  /** "Fridge, Dairy", or only "Fridge" when the item has no category. */
-  protected place = (item: Item) =>
-    [item.location_name, item.category_name].filter(Boolean).join(', ');
-
-  /** "3 Oct 2026" in the user's language. T00:00 makes it local midnight, not UTC. */
-  protected niceDate = (date: string) =>
-    new Date(`${date}T00:00`).toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+  getItems(): void {
+    this.itemService.getItems().subscribe((items) => {
+      this.items = items;
+      this.cdr.markForCheck();
     });
+  }
+
+  // Reloads also when the delete fails, e.g. the item was already deleted on another phone.
+  deleteItem(item: Item): void {
+    if (confirm(`Delete ${item.name}?`)) {
+      this.itemService
+        .deleteItem(item.id)
+        .pipe(finalize(() => this.getItems()))
+        .subscribe();
+    }
+  }
 }

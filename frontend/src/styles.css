@@ -1,96 +1,63 @@
-/* You can add global styles to this file, and also import other style files */
-:root {
-  --bg: #eef4f3;
-  --paper: #fff;
-  --ink: #17433f;
-  --line: #c9dad6;
-  --muted: #4d6662;
-  --bad: #8f1d14;
-  --bad-bg: #ffd9d4;
-  --radius: 6px;
-}
-* {
-  box-sizing: border-box;
-}
+/* Mobile first: 16 px text (smaller makes iPhones zoom in), 44 px buttons and fields, at most 640 px wide. */
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font:
-    16px/1.45 system-ui,
-    sans-serif;
-}
-:focus-visible {
-  outline: 3px solid #0b6bcb;
-  outline-offset: 2px;
-}
-.wrap {
   max-width: 640px;
   margin: 0 auto;
   padding: 0 16px;
+  background: #eef4f3;
+  color: #17433f;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
 }
-
-/* Buttons and fields are at least 44 px high. Text is 16 px: smaller text makes iPhones zoom in. */
-.btn {
+ul {
+  position: sticky; /* Add item stays in view */
+  top: 0;
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #eef4f3;
+}
+a,
+button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-.btn.primary {
-  background: var(--ink);
-  color: #fff;
-}
-.btn.quiet {
-  border-color: transparent;
-  background: none;
-  text-decoration: underline;
-}
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-select,
-input {
-  width: 100%;
   min-height: 44px;
   padding: 0 12px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper);
-  color: var(--ink);
+  color: inherit;
+  font: inherit;
+  font-weight: bold;
+}
+ul a {
+  padding: 0;
+}
+input,
+select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
   font: inherit;
 }
 label {
   display: block;
-  margin-bottom: 4px;
-  font-weight: 700;
+  margin-bottom: 12px;
 }
-.row-buttons {
+.card {
+  margin-bottom: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #fff;
+}
+.card h2,
+.card p {
+  margin: 4px 0;
+}
+.row {
   display: flex;
-  margin: 4px 0 0 -8px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
-.row-buttons .btn {
-  padding: 0 8px;
-}
-/* A message about the whole form or page. Stays in view while a long dialog or page scrolls. */
-.form-error {
-  position: sticky;
-  top: 0;
-  margin: 0 0 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  background: var(--bad-bg);
-  color: var(--bad);
-  font-weight: 600;
+.error {
+  color: #8f1d14;
 }
