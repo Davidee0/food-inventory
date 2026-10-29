@@ -4,7 +4,7 @@ import { FoodItem } from '../model/food-item';
 import { leftText } from '../rules';
 import { TopBar } from '../top-bar/top-bar';
 
-/** "Ate it": a quick way to take eaten food off the list ("used up"), after a confirmation. */
+/** "Ate it": one tap = one eaten (5 oranges become 4), with Undo in the message bar. */
 @Component({
   selector: 'app-eat-list',
   imports: [TopBar],
@@ -31,7 +31,7 @@ export class EatList implements OnInit {
   protected async ate(item: FoodItem) {
     if (this.busy().includes(item.id)) return;
     this.busy.update((ids) => [...ids, item.id]);
-    await this.inventory.remove(item, 'eaten');
+    await this.inventory.eatOne(item);
     this.busy.update((ids) => ids.filter((id) => id !== item.id));
   }
 }

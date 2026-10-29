@@ -68,3 +68,12 @@
 .toast-text {
   flex: 1;
 }
+.toast button {
+  min-height: 44px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  color: #fff;
+  font: 600 15px var(--sans);
+  text-decoration: underline;
+}

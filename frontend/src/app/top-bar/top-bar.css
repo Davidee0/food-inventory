@@ -1,3 +1,10 @@
+:host {
+  /* The top bar stays at the top of the screen, like the tab bar at the bottom. */
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: block;
+}
 .top {
   display: grid;
   grid-template-columns: 56px 1fr 56px;

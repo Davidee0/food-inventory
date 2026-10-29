@@ -19,8 +19,8 @@ Built: US1-US10 (add, view, edit, delete with confirmation, validation, mobile, 
 ## Frontend: design "U8" (Kilian's prototype)
 `ng new` project FoodInventory.NG (Angular CLI 22.2.0, zoneless, Vitest, Prettier). `app.html`: `<router-outlet />`, the message bar and a bottom tab bar (Add / Inventory / Ate it).
 Pages: `/items` ItemList (filters by category and storage location, grouped by category, expiring first with a warning sign), `/add` and `/edit/:id` ItemForm (`:id` arrives as an input through `withComponentInputBinding`),
-`/eat` EatList ("Ate it" deletes after a confirmation), `/settings` Settings (the gear in the top bar) with `/settings/categories` CategoryList and `/settings/locations` LocationList. Parts: TopBar, Icon.
-Data as in class: `model/` (interfaces), `services/` (one per controller; HttpClient, Observables). `inventory.ts` keeps the loaded data as signals for all pages, with `load()`, `remove()` and the message bar.
+`/eat` EatList ("Ate it" = one eaten: quantity - 1, the last one deletes the item; Undo in the message bar, no confirmation), `/settings` Settings (the gear in the top bar) with `/settings/categories` CategoryList and `/settings/locations` LocationList. Parts: TopBar, Icon.
+Data as in class: `model/` (interfaces), `services/` (one per controller; HttpClient, Observables). `inventory.ts` keeps the loaded data as signals for all pages, with `load()`, `remove()` (Delete in the form, after a confirmation), `eatOne()` and the message bar (with an optional Undo). The top bar and the tab bar are sticky.
 "Today" is the LOCAL date (`todayLocal()`, never `toISOString()`); "soon" = best before within 3 days, "past" = before today.
 Zoneless: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render. Form fields stay two-way bound with `[(ngModel)]`.
 Mobile: 16 px text, 44 px buttons and fields, no sideways scrolling at 360 px, the tab bar always visible.

@@ -27,7 +27,7 @@ Tests: `npx ng test --watch=false` in `frontend/` (the form's rules and dates, t
 1. Inventory: the example items grouped by category, expiring ones on top with a yellow warning sign. Filter by Dairy, add Freezer (nothing matches), then Clear filters.
 2. Add: try an empty form first (messages appear under the fields), then save a valid one.
 3. Tap the item to edit it (change the quantity), then delete it after the confirmation.
-4. Ate it: tap "Ate it" on an item and confirm.
+4. Ate it: tap "Ate it" on Pasta (3 → 2: one less each tap, the last one takes it off the list), then Undo in the message bar. Scroll: the top bar and the tab bar stay.
 5. Gear → Settings → Categories: add one, rename it, try to delete Drinks (refused: it still has food), delete the new one.
 6. Settings → Storage locations: add "Cellar", rename it, try to delete Fridge (refused: it still has food), delete Cellar.
 

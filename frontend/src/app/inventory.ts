@@ -24,8 +24,8 @@ export class Inventory {
   readonly loaded = signal(false);
   readonly loadError = signal('');
 
-  /** The message bar. */
-  readonly toast = signal('');
+  /** The message bar. With an undo function it shows an Undo button. */
+  readonly toast = signal<{ text: string; undo?: () => void } | null>(null);
   private toastTimer?: ReturnType<typeof setTimeout>;
 
   /** Where the back arrow of the Settings page goes: the last main tab that was open. */
@@ -52,14 +52,48 @@ export class Inventory {
     }
   }
 
-  say(text: string) {
+  say(text: string, undo?: () => void) {
     clearTimeout(this.toastTimer);
-    this.toast.set(text);
-    if (text) this.toastTimer = setTimeout(() => this.toast.set(''), 3000);
+    this.toast.set(text ? { text, undo } : null);
+    if (text) this.toastTimer = setTimeout(() => this.toast.set(null), undo ? 6000 : 3000);
+  }
+
+  /** "Ate it": one less (5 oranges become 4); the last one takes the item off the list. Undo puts it back. */
+  async eatOne(item: FoodItem) {
+    const left = (item.quantity ?? 1) - 1;
+    try {
+      await firstValueFrom(
+        left > 0
+          ? this.foodItemService.updateFoodItem({ ...item, quantity: left })
+          : this.foodItemService.deleteFoodItem(item.id),
+      );
+      this.say(left > 0 ? `1 ${item.name} eaten, ${left} left` : `${item.name} eaten`, () =>
+        this.putBack(item),
+      );
+    } catch (error) {
+      this.say(errorMessage(error));
+    }
+    await this.load();
+  }
+
+  /** Undo for "Ate it": one more again, or the item back on the list when it was the last one. */
+  private async putBack(item: FoodItem) {
+    this.say('');
+    const now = this.items().find((i) => i.id === item.id);
+    try {
+      await firstValueFrom(
+        now
+          ? this.foodItemService.updateFoodItem({ ...now, quantity: (now.quantity ?? 0) + 1 })
+          : this.foodItemService.addFoodItem({ ...item, quantity: 1 }),
+      );
+    } catch (error) {
+      this.say(errorMessage(error));
+    }
+    await this.load();
   }
 
   /**
-   * Deletes the item ("Ate it" or Delete) after a confirmation. Loads again also when it fails,
+   * Deletes the item (Delete in the edit form) after a confirmation. Loads again also when it fails,
    * e.g. because the item was already deleted on another phone.
    */
   async remove(item: FoodItem, done: string): Promise<boolean> {
