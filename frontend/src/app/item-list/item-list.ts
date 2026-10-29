@@ -1,41 +1,72 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
-import { Item } from '../model/item';
-import { ItemService } from '../services/item-service';
+import { Icon } from '../icon/icon';
+import { Inventory, shapeOf } from '../inventory';
+import { Item } from '../models';
+import { leftText, statusOf } from '../rules';
+import { TopBar } from '../top-bar/top-bar';
 
+const NO_CATEGORY = 'No category';
+
+/** The inventory (the start page): search, then all items grouped by category, expiring ones first. Tap an item to edit it. */
 @Component({
   selector: 'app-item-list',
-  imports: [DatePipe, RouterLink],
+  imports: [FormsModule, RouterLink, Icon, TopBar],
   templateUrl: './item-list.html',
+  styleUrl: './item-list.css',
 })
 export class ItemList implements OnInit {
-  items: Item[] = [];
+  protected readonly inventory = inject(Inventory);
+  protected readonly search = signal('');
 
-  constructor(
-    private itemService: ItemService,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  protected readonly shapeOf = shapeOf;
+  protected readonly leftText = (item: Item) => leftText(item.best_before);
+  protected readonly expiring = (item: Item) => statusOf(item.best_before) !== null;
 
-  ngOnInit(): void {
-    this.getItems();
+  /** "6 items · 2 expiring" */
+  protected readonly countText = computed(() => {
+    const items = this.inventory.items();
+    const warnings = items.filter(this.expiring).length;
+    return `${items.length} ${items.length === 1 ? 'item' : 'items'}${warnings ? ` · ${warnings} expiring` : ''}`;
+  });
+
+  /** The search looks in the item name, the category name and the storage location. */
+  private readonly shown = computed(() => {
+    const q = this.search().trim().toLowerCase();
+    return this.inventory
+      .items()
+      .filter(
+        (i) =>
+          !q ||
+          [i.name, i.category_name, i.location_name].some((t) =>
+            (t ?? '').toLowerCase().includes(q),
+          ),
+      );
+  });
+
+  /** One group per category in the categories' order, then "No category". Expiring items go on top. */
+  protected readonly groups = computed(() =>
+    [...this.inventory.categories().map((c) => c.name), NO_CATEGORY]
+      .map((name) => ({
+        name,
+        items: this.shown()
+          .filter((i) => (i.category_name ?? NO_CATEGORY) === name)
+          // the rest keep the API's order: soonest best before date first
+          .sort((a, b) => Number(this.expiring(b)) - Number(this.expiring(a))),
+      }))
+      .filter((group) => group.items.length),
+  );
+
+  protected readonly noMatch = computed(
+    () => this.inventory.items().length > 0 && this.shown().length === 0,
+  );
+
+  ngOnInit() {
+    this.inventory.lastMain = '/items';
+    this.inventory.load();
   }
 
-  getItems(): void {
-    this.itemService.getItems().subscribe((items) => {
-      this.items = items;
-      this.cdr.markForCheck();
-    });
-  }
-
-  // Reloads also when the delete fails, e.g. the item was already deleted on another phone.
-  deleteItem(item: Item): void {
-    if (confirm(`Delete ${item.name}?`)) {
-      this.itemService
-        .deleteItem(item.id)
-        .pipe(finalize(() => this.getItems()))
-        .subscribe();
-    }
-  }
+  protected meta = (item: Item) =>
+    [item.location_name, this.leftText(item)].filter(Boolean).join(' · ');
 }

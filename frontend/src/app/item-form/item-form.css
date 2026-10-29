@@ -1,0 +1,11 @@
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+/* Two selects side by side are narrow at 360 px: less padding, so "No category" fits. */
+.two select {
+  padding-left: 12px;
+  padding-right: 32px !important;
+  background-position: right 8px center;
+}

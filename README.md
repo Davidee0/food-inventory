@@ -10,6 +10,8 @@ CBS course project (Designing and Developing Digital Business Applications): Pos
    The API is on http://localhost:5050 and Swagger on http://localhost:5050/swagger.
 3. **Frontend:** in `frontend/` run `npm install`, then `ng serve`, and open http://localhost:4200 (Angular 22 needs Node.js 22.22.3+ or 24.15+).
 
+Tests: `npx ng test --watch=false` in `frontend/` (the form's rules and dates, the tab bar).
+
 ## Structure
 
 | Where | What |
@@ -17,4 +19,17 @@ CBS course project (Designing and Developing Digital Business Applications): Pos
 | `database.sql` | tables `location`, `category`, `item` with primary and foreign keys, and 15 example rows |
 | `backend/FoodInventory.Model` | `Entities/` (one class per table), `Repositories/` (SQL through Npgsql, on the course's `BaseRepository`) |
 | `backend/FoodInventory.API` | `Controllers/`: `/api/Item` and `/api/Category` (GET, GET `{id}`, POST, PUT, DELETE `{id}`), `/api/Location` (GET); `Program.cs` |
-| `frontend/src/app` | `model/` (interfaces), `services/` (calls to the API), pages `item-list/`, `edit-item/` (add and edit), `category-list/` |
+| `frontend/src/app` | design U8: pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `user-form/`, `category-list/`; parts `top-bar/`, `icon/`; `api.ts` (calls to the API), `inventory.ts` (shared data, message bar), `models.ts`, `rules.ts` |
+| `prototype-frontend/` | Kilian's Node prototype the U8 design comes from (reference only) |
+
+## Demo script (at phone width)
+
+1. Inventory: the example items grouped by category, expiring ones on top with a yellow warning sign. Search for "fridge".
+2. Add: try an empty form first (messages appear under the fields), then save a valid one.
+3. Tap the item to edit it, then delete it after the confirmation.
+4. Ate it: tap "Ate it" on an item, then Undo in the message bar.
+5. Settings (gear) → Categories: add one, rename it, delete it. Deleting a category keeps its items, under "No category".
+
+## Submission zip
+
+`git archive --format=zip -o food-inventory.zip HEAD` packs the code and the SQL script only (no `node_modules`, `bin` or `obj`).

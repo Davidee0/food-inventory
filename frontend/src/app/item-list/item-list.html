@@ -1,14 +1,54 @@
-@for (item of items; track item.id) {
-  <div class="card">
-    <h2>{{ item.name }}</h2>
-    <p>{{ item.locationName }}{{ item.categoryName ? ', ' + item.categoryName : '' }}</p>
-    <p>Bought {{ item.purchaseDate | date }}</p>
-    @if (item.bestBefore) {
-      <p>Best before {{ item.bestBefore | date }}</p>
+<app-top-bar [eyebrow]="inventory.loaded() ? countText() : ''" title="My food" />
+
+<div class="body">
+  <label class="search">
+    <app-icon name="search" [size]="22" />
+    <input
+      type="search"
+      name="search"
+      placeholder="Items, categories, locations"
+      autocomplete="off"
+      aria-label="Search items, categories and storage locations"
+      [(ngModel)]="search"
+    />
+  </label>
+
+  @for (group of groups(); track group.name) {
+    <div class="cat-head">
+      <span>{{ group.name }}</span
+      ><span>{{ group.items.length }}</span>
+    </div>
+    @for (item of group.items; track item.id) {
+      <a
+        class="irow"
+        [routerLink]="['/edit', item.id]"
+        [attr.aria-label]="'Edit ' + item.name + (expiring(item) ? ', ' + leftText(item) : '')"
+      >
+        <span class="slot"
+          ><span class="shape {{ shapeOf(item) }}" [class.dashed]="expiring(item)"></span
+        ></span>
+        <span class="itext">
+          <strong class="name">{{ item.name }}</strong>
+          <span class="meta">{{ meta(item) }}</span>
+        </span>
+        @if (expiring(item)) {
+          <app-icon class="warn-sign" name="warn" [size]="28" />
+        }
+        <app-icon class="pencil" name="pencil" [size]="20" />
+      </a>
     }
-    <a [routerLink]="['/edit-item', item.id]">Edit</a>
-    <button (click)="deleteItem(item)">Delete</button>
+  }
+
+  <div class="list-state">
+    @if (inventory.loadError()) {
+      <p>{{ inventory.loadError() }}</p>
+      <button type="button" class="small" (click)="inventory.load()">Try again</button>
+    } @else if (inventory.loaded() && !inventory.items().length) {
+      <p>No items yet. Tap "Add" and start with what you have at home.</p>
+      <a class="small" routerLink="/add">Add item</a>
+    } @else if (noMatch()) {
+      <p>No items match</p>
+      <button type="button" class="small" (click)="search.set('')">Clear search</button>
+    }
   </div>
-} @empty {
-  <p>No items yet.</p>
-}
+</div>

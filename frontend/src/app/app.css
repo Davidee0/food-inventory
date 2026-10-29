@@ -1,0 +1,79 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--paper);
+}
+@media (min-width: 431px) {
+  .app {
+    border-inline: 2px solid var(--line);
+  }
+}
+.page {
+  flex: 1;
+}
+
+/* The tab bar stays at the bottom of the screen, so Add is always in reach. */
+.tabbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+  background: var(--band);
+  border-top: 2px solid var(--line);
+}
+.tabbar ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 64px;
+  border-radius: 10px 10px 0 0;
+  color: var(--muted);
+  font: 500 13px var(--sans);
+}
+.tab.active {
+  background: var(--tab);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--line);
+}
+
+/* The message bar, just above the tab bar. */
+.toast {
+  position: fixed;
+  bottom: calc(100px + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 5;
+  width: min(398px, calc(100% - 32px));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 5px 5px 0 var(--shadow);
+  font-weight: 700;
+}
+.toast-text {
+  flex: 1;
+}
+.toast button {
+  min-height: 44px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  color: #fff;
+  font: 600 15px var(--sans);
+  text-decoration: underline;
+}

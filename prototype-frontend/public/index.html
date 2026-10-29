@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- phone width; zoom stays enabled -->
+  <title>U8 Food inventory</title>
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+<div id="app">
+
+  <!-- Inventory: the first screen. Search on top, then everything grouped by category. -->
+  <section id="view-items" class="screen">
+    <header class="top">
+      <span class="logo">U8</span>
+      <div class="titles"><p class="eyebrow" id="item-count"></p><h1>My food</h1></div>
+      <button class="square gear" data-goto="settings" aria-label="Settings" data-icon="gear"></button>
+    </header>
+    <div class="body">
+      <label class="search"><span data-icon="search" data-size="22"></span><input id="search" type="search" placeholder="Items, categories, locations" autocomplete="off" aria-label="Search items, categories and storage locations"></label>
+      <div id="groups"></div>
+      <div id="list-state" class="list-state"><p id="state-text"></p><button id="state-btn" class="small" hidden></button></div>
+    </div>
+  </section>
+
+  <!-- Add / edit an item -->
+  <section id="view-form" class="screen" hidden>
+    <header class="top">
+      <span class="logo">U8</span>
+      <div class="titles"><p class="eyebrow">Food inventory</p><h1 id="form-title">Add new item</h1></div>
+      <button class="square gear" data-goto="settings" aria-label="Settings" data-icon="gear"></button>
+    </header>
+    <form id="item-form" class="body" novalidate> <!-- novalidate: our own messages show under each field -->
+      <label class="field"><span class="lbl">Item name <b>*</b></span>
+        <input id="f-name" autocomplete="off" placeholder="e.g. Greek yogurt"></label>
+      <p class="error" aria-live="polite" id="e-name"></p>
+
+      <div class="two">
+        <div>
+          <label class="field"><span class="lbl">Quantity</span>
+            <input id="f-quantity" type="number" inputmode="numeric" min="1" max="999" value="1"></label>
+          <p class="error" aria-live="polite" id="e-quantity"></p>
+        </div>
+        <div>
+          <label class="field"><span class="lbl">Category</span>
+            <select id="f-category_id"></select></label>
+          <p class="error" aria-live="polite" id="e-category_id"></p>
+        </div>
+      </div>
+
+      <label class="field"><span class="lbl">Date purchased <b>*</b></span>
+        <input id="f-purchase_date" type="date"></label>
+      <p class="error" aria-live="polite" id="e-purchase_date"></p>
+
+      <label class="field"><span class="lbl">Expiry date</span>
+        <input id="f-best_before" type="date"></label>
+      <p class="error" aria-live="polite" id="e-best_before"></p>
+
+      <label class="field"><span class="lbl">Storage location <b>*</b></span>
+        <select id="f-location"></select></label>
+      <p class="error" aria-live="polite" id="e-location"></p>
+
+      <button id="btn-save" class="cta"><span id="cta-icon" data-icon="plus" data-size="22"></span><span id="cta-label">Add item</span></button>
+      <button type="button" id="btn-save-another" class="ghost">Save and add another</button>
+      <button type="button" id="btn-cancel" class="ghost" hidden>Cancel</button>
+    </form>
+  </section>
+
+  <!-- Ate it: quick remove -->
+  <section id="view-eat" class="screen" hidden>
+    <header class="top">
+      <span class="logo">U8</span>
+      <div class="titles"><p class="eyebrow">Quick remove</p><h1>What did you eat?</h1></div>
+      <button class="square gear" data-goto="settings" aria-label="Settings" data-icon="gear"></button>
+    </header>
+    <div class="body">
+      <p class="hint-box">Tap “Ate it” to eat one. Swipe an item left to eat all of it.</p>
+      <ul id="eat-list"></ul>
+      <p id="eat-empty" class="list-state" hidden>Nothing in stock right now.</p>
+    </div>
+  </section>
+
+  <!-- Settings (the User and Categories rows are real, the other rows are for show) -->
+  <section id="view-settings" class="screen" hidden>
+    <header class="top">
+      <button id="back-main" class="square" aria-label="Back" data-icon="back"></button>
+      <div class="titles"><p class="eyebrow">U8 preferences</p><h1>Settings</h1></div>
+    </header>
+    <div class="body">
+      <p class="group-title">Account</p>
+      <div class="group">
+        <button id="go-user" class="srow"><span>User</span><span class="val"><span id="user-name"></span> <span data-icon="chev" data-size="18"></span></span></button>
+      </div>
+      <p class="group-title">Notifications</p>
+      <div class="group">
+        <div class="srow"><span>Expiry reminders</span><button id="toggle" class="toggle" role="switch" aria-checked="true" aria-label="Expiry reminders"><i></i></button></div>
+        <div class="srow"><span>Reminder timing</span><span class="val">2 days before <span data-icon="chev" data-size="18"></span></span></div>
+      </div>
+      <p class="group-title">Setup</p>
+      <div class="group">
+        <button id="go-categories" class="srow"><span>Categories</span><span class="val"><span id="cat-count"></span> <span data-icon="chev" data-size="18"></span></span></button>
+        <div class="srow"><span>Storage locations</span><span class="val">3 <span data-icon="chev" data-size="18"></span></span></div>
+        <div class="srow"><span>Units</span><span class="val">Metric <span data-icon="chev" data-size="18"></span></span></div>
+      </div>
+      <p class="group-title">About</p>
+      <div class="group">
+        <div class="srow"><span>How U8 works</span><span class="val"><span data-icon="chev" data-size="18"></span></span></div>
+        <div class="srow"><span>Version</span><span class="val">2.1.0 <span data-icon="chev" data-size="18"></span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- User, opened from Settings -->
+  <section id="view-user" class="screen" hidden>
+    <header class="top">
+      <button id="back-settings-user" class="square" aria-label="Back to settings" data-icon="back"></button>
+      <div class="titles"><p class="eyebrow">Account</p><h1>User</h1></div>
+    </header>
+    <form id="user-form" class="body" novalidate>
+      <p class="hint-box">For now the user is saved on this device only.</p>
+      <label class="field"><span class="lbl">Username <b>*</b></span>
+        <input id="u-username" autocomplete="off" placeholder="e.g. kilian"></label>
+      <p class="error" aria-live="polite" id="e-username"></p>
+      <label class="field"><span class="lbl">Email</span>
+        <input id="u-email" type="email" autocomplete="off" placeholder="name@example.com"></label>
+      <p class="error" aria-live="polite" id="e-email"></p>
+      <button class="cta"><span data-icon="check" data-size="22"></span><span>Save user</span></button>
+    </form>
+  </section>
+
+  <!-- Category management, opened from Settings -->
+  <section id="view-categories" class="screen" hidden>
+    <header class="top">
+      <button id="back-settings" class="square" aria-label="Back to settings" data-icon="back"></button>
+      <div class="titles"><p class="eyebrow">Setup</p><h1>Categories</h1></div>
+    </header>
+    <div class="body">
+      <form id="category-form" novalidate>
+        <label class="lbl" for="new-category">New category</label>
+        <div class="rowbtns"><input id="new-category" autocomplete="off" placeholder="e.g. Snacks"><button class="small dark">Add</button></div>
+        <p class="error" aria-live="polite" id="e-new-category"></p>
+      </form>
+      <ul id="category-list"></ul>
+    </div>
+  </section>
+
+  <p id="toast" class="toast" role="status" hidden>
+    <span data-icon="tick" data-size="26"></span><span id="toast-text"></span><button id="toast-undo" type="button" hidden>Undo</button>
+  </p>
+
+  <nav id="tabbar" class="tabbar" aria-label="Main">
+    <button class="tab" data-view="form"><span data-icon="plus"></span><span>Add</span></button>
+    <button class="tab" data-view="items"><span data-icon="list"></span><span>Inventory</span></button>
+    <button class="tab" data-view="eat"><span data-icon="check"></span><span>Ate it</span></button>
+  </nav>
+</div>
+<script src="app.js?v=4"></script>
+</body>
+</html>

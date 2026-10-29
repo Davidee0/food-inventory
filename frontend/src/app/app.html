@@ -1,7 +1,33 @@
-<h1>{{ title() }}</h1>
-<ul>
-  <li><a routerLink="/items">Items</a></li>
-  <li><a routerLink="/add-item">Add item</a></li>
-  <li><a routerLink="/categories">Categories</a></li>
-</ul>
-<router-outlet />
+<div class="app">
+  <main class="page"><router-outlet /></main>
+
+  @if (inventory.toast(); as toast) {
+    <p class="toast" role="status">
+      <app-icon name="tick" [size]="26" />
+      <span class="toast-text">{{ toast.text }}</span>
+      @if (toast.undo; as run) {
+        <button type="button" (click)="undo(run)">Undo</button>
+      }
+    </p>
+  }
+
+  <nav class="tabbar" aria-label="Main">
+    <ul>
+      <li>
+        <a class="tab" routerLink="/add" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <app-icon name="plus" /><span>Add</span>
+        </a>
+      </li>
+      <li>
+        <a class="tab" routerLink="/items" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <app-icon name="list" /><span>Inventory</span>
+        </a>
+      </li>
+      <li>
+        <a class="tab" routerLink="/eat" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <app-icon name="check" /><span>Ate it</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
