@@ -1,0 +1,120 @@
+<app-top-bar eyebrow="Food inventory" [title]="id() ? 'Edit item' : 'Add new item'" />
+
+<div class="body">
+  @if (notFound()) {
+    <div class="list-state">
+      <p>This item does not exist any more.</p>
+      <a class="small" routerLink="/items">Back to the inventory</a>
+    </div>
+  } @else if (inventory.loadError() && !ready()) {
+    <div class="list-state">
+      <p>{{ inventory.loadError() }}</p>
+      <button type="button" class="small" (click)="retry()">Try again</button>
+    </div>
+  } @else if (ready()) {
+    <!-- novalidate: our own messages show under each field -->
+    <form novalidate (ngSubmit)="save()">
+      @if (message()) {
+        <p class="form-error" role="alert">{{ message() }}</p>
+      }
+
+      <label class="field">
+        <span class="lbl">Item name <b>*</b></span>
+        <input
+          id="f-name"
+          name="name"
+          autocomplete="off"
+          placeholder="e.g. Greek yogurt"
+          aria-describedby="e-name"
+          [(ngModel)]="form.name"
+          (ngModelChange)="clear('name')"
+          [attr.aria-invalid]="errors()['name'] ? true : null"
+        />
+      </label>
+      <p class="error" id="e-name" aria-live="polite">{{ errors()['name'] }}</p>
+
+      <div class="two">
+        <div>
+          <label class="field">
+            <span class="lbl">Category</span>
+            <select
+              name="category_id"
+              aria-describedby="e-category"
+              [(ngModel)]="form.category_id"
+              (ngModelChange)="clear('category_id')"
+              [attr.aria-invalid]="errors()['category_id'] ? true : null"
+            >
+              <option [ngValue]="null">No category</option>
+              @for (category of inventory.categories(); track category.id) {
+                <option [ngValue]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </label>
+          <p class="error" id="e-category" aria-live="polite">{{ errors()['category_id'] }}</p>
+        </div>
+        <div>
+          <label class="field">
+            <span class="lbl">Storage <b>*</b></span>
+            <select
+              name="location_id"
+              aria-label="Storage location"
+              aria-describedby="e-location"
+              [(ngModel)]="form.location_id"
+              (ngModelChange)="clear('location_id')"
+              [attr.aria-invalid]="errors()['location_id'] ? true : null"
+            >
+              <option [ngValue]="null">Choose</option>
+              @for (location of inventory.locations(); track location.id) {
+                <option [ngValue]="location.id">{{ location.name }}</option>
+              }
+            </select>
+          </label>
+          <p class="error" id="e-location" aria-live="polite">{{ errors()['location_id'] }}</p>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="lbl">Date purchased <b>*</b></span>
+        <input
+          name="purchase_date"
+          type="date"
+          [max]="today"
+          aria-describedby="e-purchase"
+          [(ngModel)]="form.purchase_date"
+          (ngModelChange)="clear('purchase_date')"
+          [attr.aria-invalid]="errors()['purchase_date'] ? true : null"
+        />
+      </label>
+      <p class="error" id="e-purchase" aria-live="polite">{{ errors()['purchase_date'] }}</p>
+
+      <label class="field">
+        <span class="lbl">Expiry date</span>
+        <input
+          name="best_before"
+          type="date"
+          aria-describedby="e-best"
+          [(ngModel)]="form.best_before"
+          (ngModelChange)="clear('best_before')"
+          [attr.aria-invalid]="errors()['best_before'] ? true : null"
+        />
+      </label>
+      <p class="error" id="e-best" aria-live="polite">{{ errors()['best_before'] }}</p>
+
+      <button type="submit" class="cta" [disabled]="saving()">
+        @if (editing()) {
+          Save changes
+        } @else {
+          <app-icon name="plus" [size]="22" /> Add item
+        }
+      </button>
+      @if (editing()) {
+        <a class="ghost" routerLink="/items">Cancel</a>
+        <button type="button" class="ghost danger" (click)="remove()">Delete item</button>
+      } @else {
+        <button type="button" class="ghost" [disabled]="saving()" (click)="save(true)">
+          Save and add another
+        </button>
+      }
+    </form>
+  }
+</div>

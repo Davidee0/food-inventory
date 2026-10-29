@@ -1,0 +1,22 @@
+.eat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px 14px 14px 10px;
+  background: #fff;
+  border: 2px solid var(--line);
+}
+.eat-text {
+  min-width: 0;
+}
+.ate {
+  flex: none;
+  margin-left: auto;
+  height: 48px;
+  padding: 0 22px;
+  background: var(--btn);
+  border: 2px solid var(--line);
+  box-shadow: 2px 2px 0 var(--shadow);
+  font: 700 16px var(--sans);
+}

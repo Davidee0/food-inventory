@@ -1,0 +1,35 @@
+<app-top-bar eyebrow="Quick remove" title="What did you eat?" />
+
+<div class="body">
+  <p class="hint-box">Tap “Ate it” when something is used up. You can undo it right after.</p>
+
+  <ul>
+    @for (item of inventory.items(); track item.id) {
+      <li class="eat-card">
+        <span class="slot"><span class="shape {{ shapeOf(item) }}"></span></span>
+        <div class="eat-text">
+          <strong class="name">{{ item.name }}</strong>
+          <p class="meta">{{ meta(item) }}</p>
+        </div>
+        <button
+          type="button"
+          class="ate"
+          [disabled]="busy().includes(item.id)"
+          [attr.aria-label]="'Ate ' + item.name"
+          (click)="ate(item)"
+        >
+          Ate it
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div class="list-state">
+    @if (inventory.loadError()) {
+      <p>{{ inventory.loadError() }}</p>
+      <button type="button" class="small" (click)="inventory.load()">Try again</button>
+    } @else if (inventory.loaded() && !inventory.items().length) {
+      <p>Nothing in stock right now.</p>
+    }
+  </div>
+</div>

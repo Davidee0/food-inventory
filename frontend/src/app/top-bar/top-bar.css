@@ -1,0 +1,46 @@
+.top {
+  display: grid;
+  grid-template-columns: 56px 1fr 56px;
+  align-items: center;
+  padding: 22px 20px 16px;
+  background: var(--band);
+  border-bottom: 2px solid var(--line);
+}
+.titles {
+  grid-column: 2;
+  min-width: 0;
+  text-align: center;
+}
+.eyebrow {
+  margin: 0;
+  font: 500 11px var(--mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  margin: 2px 0 0;
+  font: 800 28px/1.1 var(--sans);
+  letter-spacing: -0.035em;
+}
+.logo {
+  grid-column: 1;
+  font: 900 26px/1 var(--sans);
+  letter-spacing: -0.06em;
+}
+.square {
+  grid-column: 1;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 2px solid var(--line);
+  color: var(--ink);
+}
+.gear {
+  grid-column: 3;
+  justify-self: end;
+  background: transparent;
+  border-color: transparent;
+}
