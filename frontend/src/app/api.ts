@@ -28,15 +28,14 @@ export class Api {
   deleteCategory = (id: number) => firstValueFrom(this.http.delete(`${API}/categories/${id}`));
 }
 
-export const NETWORK_ERROR = 'Could not reach the server. Check your connection and try again.';
-
 /** The messages per field of a 400 answer, if it has them. */
 export const fieldErrors = (error: unknown): Errors | undefined =>
   error instanceof HttpErrorResponse ? error.error?.errors : undefined;
 
 /** A failed request in plain language: the server's message, or what went wrong. */
 export function errorMessage(error: unknown): string {
-  if (error instanceof HttpErrorResponse && error.status === 0) return NETWORK_ERROR;
+  if (error instanceof HttpErrorResponse && error.status === 0)
+    return 'Could not reach the server. Check your connection and try again.';
   const errors = fieldErrors(error);
   if (errors) return Object.values(errors)[0];
   return (

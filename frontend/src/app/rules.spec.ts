@@ -10,7 +10,8 @@ describe('rules', () => {
   });
 
   it('isValidDate accepts real YYYY-MM-DD dates only', () => {
-    for (const good of ['2028-02-29', '2026-12-31']) expect(isValidDate(good), good).toBe(true);
+    for (const good of ['2028-02-29', '2026-12-31', '0050-01-01'])
+      expect(isValidDate(good), good).toBe(true);
     for (const bad of [
       '2026-02-29',
       '2026-02-30',

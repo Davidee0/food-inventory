@@ -8,17 +8,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export const todayLocal = (now = new Date()) =>
   `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
-/** A real calendar date written as YYYY-MM-DD (2026-02-30 is not). */
-export function isValidDate(text: string): boolean {
-  const [y, m, d] = text.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  return (
-    /^\d{4}-\d{2}-\d{2}$/.test(text) &&
-    date.getFullYear() === y &&
-    date.getMonth() === m - 1 &&
-    date.getDate() === d
-  );
-}
+/** A real calendar date written as YYYY-MM-DD (2026-02-30 is not: it would roll over to 2 March). */
+export const isValidDate = (text: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(text) && !!new Date(`${text}T00:00Z`).toJSON()?.startsWith(text);
 
 /** One message per field; empty when the item can be saved. Text is trimmed first. */
 export function validateItem(item: ItemInput): Errors {

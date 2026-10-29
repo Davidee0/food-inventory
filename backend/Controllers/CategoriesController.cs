@@ -45,7 +45,7 @@ public class CategoriesController(AppDbContext db) : ControllerBase
     {
         if (await Find(id) is not { } category) return NotFoundMessage();
         var n = await db.Items.CountAsync(i => i.CategoryId == category.Id);
-        if (n > 0) return Conflict(new InUseDto($"{category.Name} is used by {n} {(n == 1 ? "item" : "items")} and cannot be deleted.", n));
+        if (n > 0) return Conflict(new { message = $"{category.Name} is used by {n} {(n == 1 ? "item" : "items")} and cannot be deleted." });
         db.Categories.Remove(category);
         await db.SaveChangesAsync();
         return NoContent();

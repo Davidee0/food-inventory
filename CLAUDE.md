@@ -21,9 +21,9 @@ Zoneless means no zone.js: state that a template shows must be a signal, because
 Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
 ## API decisions
-- Paths: `/locations`, `/items`, `/items/{id}`, `/categories`, `/categories/{id}`. JSON is snake_case through the naming policy in `Program.cs`; only `itemCount` in the delete-in-use 409 is not.
+- Paths: `/locations`, `/items`, `/items/{id}`, `/categories`, `/categories/{id}`. JSON is snake_case through the naming policy in `Program.cs`.
 - Codes: 201 create, 200 replace/rename, 204 delete, 404 `{message}` (also for a non-numeric id), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
-- Request bodies bind to `ItemRequest` / `CategoryRequest` (all fields nullable). Malformed JSON or a wrongly typed value (a number as name, an array as id) fails binding and gets 400 `{message:"The request body is not valid JSON."}`, so it is never stored. Ids may also be sent as text ("1").
+- Request bodies bind to `ItemRequest` / `CategoryRequest` (all fields nullable). Malformed JSON or a wrongly typed value (a number as name, an array as id) fails binding and gets 400 `{message:"The request body is not valid JSON."}`, so it is never stored. Ids may also be sent as text ("1"): ASP.NET Core's web JSON defaults allow it.
 - `Models/Rules.cs` has the rules and messages; `frontend/src/app/rules.ts` has the same ones for the form. Change both together.
 - `GET /items`: `best_before` ascending, nulls last, then name ignoring case.
 
@@ -34,6 +34,7 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 - **Seed once:** `seed_data.sql` is one transaction and fails on a database that has data (location names are unique). The app never seeds, so deleted items never come back.
 - **Mobile:** text 16 px (iPhones zoom in on smaller form text), buttons and fields at least 44 px, no sideways scrolling at 360 px, the Add button always visible, zoom stays enabled.
   The header is not sticky: it would cover a page's sticky `.form-error` message (e.g. a refused delete far down the category list).
+- **Lists reload after a change:** a delete (also a failed one, e.g. an item already deleted on another phone) reloads the list, so it never shows what is gone.
 - **Add/Edit after a failed load:** the form needs the locations, so `open()` loads again first and does not open the form without them.
 
 ## Tests

@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using FoodInventory.Api.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddControllers()
-    .AddJsonOptions(o =>
-    {
-        o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower; // PurchaseDate <-> purchase_date
-        o.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowReadingFromString; // "1" is accepted as an id
-    })
+    .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower) // PurchaseDate <-> purchase_date
     // Malformed JSON or a wrongly typed value (e.g. a number as name) never reaches a controller.
     .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = _ =>
         new BadRequestObjectResult(new { message = "The request body is not valid JSON." }));

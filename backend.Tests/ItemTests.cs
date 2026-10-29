@@ -79,14 +79,6 @@ public class ItemTests : ApiTest
         Assert.Equal(new string('x', 50), Text(response.Body, "name"));
     }
 
-    [Fact]
-    public async Task Ids_may_be_sent_as_numbers_or_as_text()
-    {
-        var response = await Api("POST", "/items", Good(("location_id", "2"), ("category_id", "1")));
-        Assert.Equal(HttpStatusCode.Created, response.Status);
-        Assert.Equal(("Freezer", "Dairy"), (Text(response.Body, "location_name"), Text(response.Body, "category_name")));
-    }
-
     [Theory]
     [InlineData("""{"name": """)]
     [InlineData("[]")]

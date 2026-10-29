@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Api, NETWORK_ERROR, errorMessage } from '../api';
+import { Api, errorMessage } from '../api';
 import { ItemForm } from '../item-form/item-form';
 import { Category, Item, Location } from '../models';
 
@@ -38,9 +38,7 @@ export class ItemList implements OnInit {
       this.loadError.set('');
     } catch (error) {
       this.items.set([]);
-      this.loadError.set(
-        errorMessage(error) === NETWORK_ERROR ? NETWORK_ERROR : 'Could not load your items.',
-      );
+      this.loadError.set(errorMessage(error));
     }
     this.loaded.set(true);
   }
@@ -53,12 +51,8 @@ export class ItemList implements OnInit {
 
   protected async remove(item: Item) {
     if (!confirm(`Delete ${item.name}?`)) return;
-    try {
-      await this.api.deleteItem(item.id);
-      this.items.update((items) => items.filter((i) => i !== item));
-    } catch (error) {
-      alert(errorMessage(error));
-    }
+    await this.api.deleteItem(item.id).catch((error) => alert(errorMessage(error)));
+    this.load();
   }
 
   /** "Fridge, Dairy", or only "Fridge" when the item has no category. */

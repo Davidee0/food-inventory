@@ -35,7 +35,7 @@ export class CategoryList implements OnInit {
   }
 
   protected remove(row: Row) {
-    this.run(() => this.api.deleteCategory(row.id));
+    if (confirm(`Delete ${row.name}?`)) this.run(() => this.api.deleteCategory(row.id));
   }
 
   /** Runs a change, then reloads the list. A refused change (e.g. a category in use) shows the API's message. */

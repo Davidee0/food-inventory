@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 
 namespace FoodInventory.Api.Tests;
 
@@ -54,10 +53,9 @@ public class CategoryTests : ApiTest
     {
         var one = await Api("DELETE", "/categories/1");
         Assert.Equal(HttpStatusCode.Conflict, one.Status);
-        Assert.Equal(("Dairy is used by 1 item and cannot be deleted.", 1), (Text(one.Body, "message"), one.Body.GetProperty("itemCount").GetInt32()));
+        Assert.Equal("Dairy is used by 1 item and cannot be deleted.", Text(one.Body, "message"));
 
         await Api("POST", "/items", Good(("category_id", 1)));
-        var two = (await Api("DELETE", "/categories/1")).Body;
-        Assert.Equal(("Dairy is used by 2 items and cannot be deleted.", 2), (Text(two, "message"), two.GetProperty("itemCount").GetInt32()));
+        Assert.Equal("Dairy is used by 2 items and cannot be deleted.", Text((await Api("DELETE", "/categories/1")).Body, "message"));
     }
 }

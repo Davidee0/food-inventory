@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace FoodInventory.Api.Models;
 
 // What the API receives and returns. Property names become snake_case JSON (see Program.cs).
@@ -13,5 +11,3 @@ public record ItemDto(int Id, string Name, DateOnly PurchaseDate, DateOnly? Best
     int LocationId, string LocationName, int? CategoryId, string? CategoryName);
 
 public record CategoryDto(int Id, string Name, int ItemCount);
-
-public record InUseDto(string Message, [property: JsonPropertyName("itemCount")] int ItemCount);

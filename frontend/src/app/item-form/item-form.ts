@@ -63,7 +63,6 @@ export class ItemForm implements OnInit, AfterViewInit {
 
   /** Nothing is sent while the form is invalid. If saving fails, what was typed stays in the form. */
   protected async save() {
-    if (this.saving()) return;
     this.message.set('');
     if (this.fail(validateItem(this.form))) return;
 
