@@ -5,8 +5,8 @@
     <p class="toast" role="status">
       <app-icon name="tick" [size]="26" />
       <span class="toast-text">{{ toast.text }}</span>
-      @if (toast.undo; as run) {
-        <button type="button" (click)="undo(run)">Undo</button>
+      @if (toast.undo; as undo) {
+        <button type="button" (click)="undo()">Undo</button>
       }
     </p>
   }

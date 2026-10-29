@@ -36,32 +36,31 @@
       <div class="two">
         <div>
           <label class="field">
-            <span class="lbl">Category</span>
-            <select
-              name="category_id"
-              aria-describedby="e-category"
-              [(ngModel)]="form.category_id"
-              (ngModelChange)="clear('category_id')"
-              [attr.aria-invalid]="errors()['category_id'] ? true : null"
-            >
-              <option [ngValue]="null">No category</option>
-              @for (category of inventory.categories(); track category.id) {
-                <option [ngValue]="category.id">{{ category.name }}</option>
-              }
-            </select>
+            <span class="lbl">Quantity <b>*</b></span>
+            <input
+              name="quantity"
+              type="number"
+              min="1"
+              step="1"
+              inputmode="numeric"
+              aria-describedby="e-quantity"
+              [(ngModel)]="form.quantity"
+              (ngModelChange)="clear('quantity')"
+              [attr.aria-invalid]="errors()['quantity'] ? true : null"
+            />
           </label>
-          <p class="error" id="e-category" aria-live="polite">{{ errors()['category_id'] }}</p>
+          <p class="error" id="e-quantity" aria-live="polite">{{ errors()['quantity'] }}</p>
         </div>
         <div>
           <label class="field">
             <span class="lbl">Storage <b>*</b></span>
             <select
-              name="location_id"
+              name="storageLocationId"
               aria-label="Storage location"
               aria-describedby="e-location"
-              [(ngModel)]="form.location_id"
-              (ngModelChange)="clear('location_id')"
-              [attr.aria-invalid]="errors()['location_id'] ? true : null"
+              [(ngModel)]="form.storageLocationId"
+              (ngModelChange)="clear('storageLocationId')"
+              [attr.aria-invalid]="errors()['storageLocationId'] ? true : null"
             >
               <option [ngValue]="null">Choose</option>
               @for (location of inventory.locations(); track location.id) {
@@ -69,36 +68,48 @@
               }
             </select>
           </label>
-          <p class="error" id="e-location" aria-live="polite">{{ errors()['location_id'] }}</p>
+          <p class="error" id="e-location" aria-live="polite">
+            {{ errors()['storageLocationId'] }}
+          </p>
         </div>
       </div>
 
       <label class="field">
+        <span class="lbl">Category</span>
+        <select name="categoryId" [(ngModel)]="form.categoryId">
+          <option [ngValue]="null">No category</option>
+          @for (category of inventory.categories(); track category.id) {
+            <option [ngValue]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
         <span class="lbl">Date purchased <b>*</b></span>
         <input
-          name="purchase_date"
+          name="purchaseDate"
           type="date"
           [max]="today"
           aria-describedby="e-purchase"
-          [(ngModel)]="form.purchase_date"
-          (ngModelChange)="clear('purchase_date')"
-          [attr.aria-invalid]="errors()['purchase_date'] ? true : null"
+          [(ngModel)]="form.purchaseDate"
+          (ngModelChange)="clear('purchaseDate')"
+          [attr.aria-invalid]="errors()['purchaseDate'] ? true : null"
         />
       </label>
-      <p class="error" id="e-purchase" aria-live="polite">{{ errors()['purchase_date'] }}</p>
+      <p class="error" id="e-purchase" aria-live="polite">{{ errors()['purchaseDate'] }}</p>
 
       <label class="field">
-        <span class="lbl">Expiry date</span>
+        <span class="lbl">Best before date</span>
         <input
-          name="best_before"
+          name="bestBeforeDate"
           type="date"
           aria-describedby="e-best"
-          [(ngModel)]="form.best_before"
-          (ngModelChange)="clear('best_before')"
-          [attr.aria-invalid]="errors()['best_before'] ? true : null"
+          [(ngModel)]="form.bestBeforeDate"
+          (ngModelChange)="clear('bestBeforeDate')"
+          [attr.aria-invalid]="errors()['bestBeforeDate'] ? true : null"
         />
       </label>
-      <p class="error" id="e-best" aria-live="polite">{{ errors()['best_before'] }}</p>
+      <p class="error" id="e-best" aria-live="polite">{{ errors()['bestBeforeDate'] }}</p>
 
       <button type="submit" class="cta" [disabled]="saving()">
         @if (editing()) {

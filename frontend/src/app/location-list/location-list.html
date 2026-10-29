@@ -6,10 +6,10 @@
   }
 
   <form novalidate (ngSubmit)="add()">
-    <label class="lbl" for="cat-new">New location</label>
+    <label class="lbl" for="loc-new">New location</label>
     <div class="rowbtns">
       <input
-        id="cat-new"
+        id="loc-new"
         name="newName"
         class="text-input"
         autocomplete="off"
@@ -30,7 +30,7 @@
           [(ngModel)]="row.draft"
           (keydown.enter)="rename(row)"
         />
-        <p class="meta">{{ count(row.item_count) }}</p>
+        <p class="meta">{{ count(row) }}</p>
         <div class="rowbtns">
           <button
             type="button"

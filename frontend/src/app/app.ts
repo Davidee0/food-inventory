@@ -12,9 +12,4 @@ import { Inventory } from './inventory';
 })
 export class App {
   protected readonly inventory = inject(Inventory);
-
-  protected undo(run: () => void) {
-    this.inventory.say('');
-    run();
-  }
 }

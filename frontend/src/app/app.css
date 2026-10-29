@@ -64,13 +64,11 @@
   color: #fff;
   box-shadow: 5px 5px 0 var(--shadow);
   font-weight: 700;
-  pointer-events: none; /* taps go through to the buttons below; only Undo is tappable */
 }
 .toast-text {
   flex: 1;
 }
 .toast button {
-  pointer-events: auto;
   min-height: 44px;
   padding: 0 4px;
   background: none;
