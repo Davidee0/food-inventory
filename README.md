@@ -36,6 +36,7 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which
 | `backend.Tests/` | xUnit tests of the API |
 | `frontend/` | the Angular project `FoodInventory.NG`, made with Angular CLI 22.2.0 like the course project (`ng new`) |
 | `frontend/src/app/` | `app.*`: the frame (page, message bar, tab bar Add / Inventory / Ate it), the routes, the config; the pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `category-list/`, `location-list/`; the parts `top-bar/` and `icon/`; `api.ts` (the service for the API), `inventory.ts` (the shared data and message bar), `models.ts`, `rules.ts` |
+| `prototype-frontend/` | Old design prototype (Node.js + SQLite), **for reference only**: not the real app, not part of the submission. The real frontend is `frontend/`. |
 
 Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).
 
