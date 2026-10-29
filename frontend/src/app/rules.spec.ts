@@ -1,5 +1,5 @@
 import { ItemInput } from './models';
-import { isValidDate, todayLocal, validateItem } from './rules';
+import { addDays, isValidDate, leftText, statusOf, todayLocal, validateItem } from './rules';
 
 describe('rules', () => {
   it('today comes from the local year, month and day, not from UTC', () => {
@@ -57,5 +57,28 @@ describe('rules', () => {
       best_before: 'Best before date cannot be before the purchase date.',
     });
     expect(check({ best_before: '2026-05-01' })).toEqual({});
+  });
+
+  it('addDays crosses months and years', () => {
+    expect(addDays('2026-12-30', 3)).toBe('2027-01-02');
+    expect(addDays('2026-03-01', -1)).toBe('2026-02-28');
+  });
+
+  it('statusOf: past before today, soon up to 3 days ahead', () => {
+    const today = '2026-10-29';
+    expect(statusOf(null, today)).toBe(null);
+    expect(statusOf('2026-10-28', today)).toBe('past');
+    expect(statusOf('2026-10-29', today)).toBe('soon');
+    expect(statusOf('2026-11-01', today)).toBe('soon');
+    expect(statusOf('2026-11-02', today)).toBe(null);
+  });
+
+  it('leftText says how many days are left', () => {
+    const today = '2026-10-29';
+    expect(leftText(null, today)).toBe('No expiry date');
+    expect(leftText('2026-10-28', today)).toBe('Expired');
+    expect(leftText('2026-10-29', today)).toBe('Today');
+    expect(leftText('2026-10-30', today)).toBe('1 day left');
+    expect(leftText('2026-11-05', today)).toBe('7 days left');
   });
 });

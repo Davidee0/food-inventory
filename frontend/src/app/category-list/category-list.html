@@ -1,33 +1,48 @@
-<main class="wrap">
-  <h2>Categories</h2>
+<app-top-bar eyebrow="Setup" title="Categories" back="/settings" />
+
+<div class="body">
   @if (message()) {
     <p class="form-error" role="alert">{{ message() }}</p>
   }
 
+  <form novalidate (ngSubmit)="add()">
+    <label class="lbl" for="cat-new">New category</label>
+    <div class="rowbtns">
+      <input
+        id="cat-new"
+        name="newName"
+        class="text-input"
+        autocomplete="off"
+        placeholder="e.g. Snacks"
+        [(ngModel)]="newName"
+      />
+      <button type="submit" class="small dark">Add</button>
+    </div>
+  </form>
+
   <ul class="cat-list">
     @for (row of rows(); track row.id) {
-      <li>
+      <li class="cat">
         <input
-          type="text"
-          class="cat-name"
+          class="text-input"
           autocomplete="off"
           [attr.aria-label]="'Name of category ' + row.name"
           [(ngModel)]="row.draft"
           (keydown.enter)="rename(row)"
         />
-        <span class="count">{{ count(row.item_count) }}</span>
-        <div class="row-buttons">
+        <p class="meta">{{ count(row.item_count) }}</p>
+        <div class="rowbtns">
           <button
             type="button"
-            class="btn"
+            class="small"
             [attr.aria-label]="'Save name of ' + row.name"
             (click)="rename(row)"
           >
-            Save
+            Save name
           </button>
           <button
             type="button"
-            class="btn quiet"
+            class="small danger"
             [attr.aria-label]="'Delete category ' + row.name"
             (click)="remove(row)"
           >
@@ -37,12 +52,4 @@
       </li>
     }
   </ul>
-
-  <form (ngSubmit)="add()">
-    <label for="cat-new">New category</label>
-    <div class="cat-add-row">
-      <input id="cat-new" name="newName" type="text" autocomplete="off" [(ngModel)]="newName" />
-      <button type="submit" class="btn primary">Add category</button>
-    </div>
-  </form>
-</main>
+</div>

@@ -1,96 +1,270 @@
-/* You can add global styles to this file, and also import other style files */
+/* U8 food inventory: what all pages share. Mobile first: one phone-sized column, centred on wider screens.
+   Look: grey paper, thick dark outlines, hard offset shadows, monospace labels. */
 :root {
-  --bg: #eef4f3;
-  --paper: #fff;
-  --ink: #17433f;
-  --line: #c9dad6;
-  --muted: #4d6662;
-  --bad: #8f1d14;
-  --bad-bg: #ffd9d4;
-  --radius: 6px;
+  --paper: #f5f5f1;
+  --band: #e8e8e3;
+  --ink: #242424;
+  --muted: #6d6d68;
+  --line: #2a2a2a;
+  --btn: #e2e2dd;
+  --shadow: #b9b9b4;
+  --tab: #d2d2cd;
+  --error: #a3200f;
+  --error-bg: #fbe1dc;
+  --warn: #f5c400;
+  --mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 * {
   box-sizing: border-box;
 }
+html {
+  background-color: #f3f3f1;
+  background-image:
+    linear-gradient(#e2e2de 1px, transparent 1px),
+    linear-gradient(90deg, #e2e2de 1px, transparent 1px);
+  background-size: 32px 32px;
+}
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--ink);
-  font:
-    16px/1.45 system-ui,
-    sans-serif;
+  font: 16px/1.4 var(--sans);
+}
+p {
+  margin: 0;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+/* Phone rules: text in fields is 16 px (smaller makes iPhones zoom in) and tap targets are at least 44 px. */
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 :focus-visible {
-  outline: 3px solid #0b6bcb;
+  outline: 3px solid var(--ink);
   outline-offset: 2px;
 }
-.wrap {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 16px;
+.body {
+  padding: 20px 20px 28px;
 }
 
-/* Buttons and fields are at least 44 px high. Text is 16 px: smaller text makes iPhones zoom in. */
-.btn {
+/* ---------- Form fields ---------- */
+.field {
+  display: block;
+  margin-top: 20px;
+}
+.lbl {
+  display: block;
+  margin-bottom: 8px;
+  font: 700 12px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.lbl b {
+  color: var(--error);
+}
+.field input,
+.field select,
+.text-input {
+  display: block;
+  width: 100%;
+  height: 56px;
+  padding: 0 18px;
+  background: #fff;
+  border: 2px solid var(--line);
+  font-size: 16px;
+}
+.text-input {
+  height: 48px;
+  padding: 0 14px;
+}
+input::placeholder {
+  color: #8b8b86;
+}
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px;
+  padding-right: 44px !important;
+}
+.error {
+  margin-top: 6px;
+  color: var(--error);
+  font-size: 14px;
+}
+.error:empty {
+  display: none;
+}
+[aria-invalid='true'] {
+  border-color: var(--error) !important;
+}
+/* A message about the whole page. Stays in view while the page scrolls. */
+.form-error {
+  position: sticky;
+  top: 8px;
+  z-index: 2;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 2px solid var(--error);
+  background: var(--error-bg);
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ---------- Buttons ---------- */
+.cta {
+  width: 100%;
+  height: 64px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--ink);
+  color: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--shadow);
+  font: 700 20px var(--sans);
+}
+.ghost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  margin-top: 16px;
+  background: transparent;
+  border: 2px solid var(--line);
+  font: 600 16px var(--sans);
+}
+.small {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
-  min-width: 44px;
   padding: 0 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius);
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
+  background: var(--btn);
+  border: 2px solid var(--line);
+  font: 600 15px var(--sans);
 }
-.btn.primary {
+.small.dark {
   background: var(--ink);
   color: #fff;
+  border-color: var(--ink);
 }
-.btn.quiet {
-  border-color: transparent;
-  background: none;
-  text-decoration: underline;
+.danger {
+  color: var(--error);
 }
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
+
+/* ---------- Shared bits of the lists ---------- */
+.list-state {
+  padding: 18px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font: 14px var(--mono);
 }
-select,
-input {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--paper);
-  color: var(--ink);
-  font: inherit;
+.list-state .small {
+  margin-top: 10px;
 }
-label {
+.hint-box {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1.5px dashed #666;
+  font: 13px/1.5 var(--mono);
+}
+.meta {
+  font-size: 14px;
+  color: var(--muted);
+}
+.name {
   display: block;
-  margin-bottom: 4px;
-  font-weight: 700;
+  font-size: 17px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.row-buttons {
+.group-title {
+  margin: 26px 0 10px;
+  font: 700 12px var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+/* Item outlines: small drawn shapes, picked by item id (shapeOf in inventory.ts). */
+.slot {
+  flex: none;
+  width: 58px;
   display: flex;
-  margin: 4px 0 0 -8px;
+  justify-content: center;
+  align-items: center;
 }
-.row-buttons .btn {
-  padding: 0 8px;
+.shape {
+  display: block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid var(--line);
+  background: #f7f7f3;
 }
-/* A message about the whole form or page. Stays in view while a long dialog or page scrolls. */
-.form-error {
-  position: sticky;
-  top: 0;
-  margin: 0 0 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius);
-  background: var(--bad-bg);
-  color: var(--bad);
-  font-weight: 600;
+.carton {
+  width: 40px;
+  height: 54px;
+  border-radius: 10px 0 0 0;
+}
+.bowl {
+  width: 56px;
+  height: 38px;
+  border-radius: 4px 4px 16px 16px;
+}
+.loaf {
+  width: 56px;
+  height: 34px;
+  border-radius: 17px 17px 4px 4px;
+}
+.block {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+.circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.arch {
+  width: 42px;
+  height: 54px;
+  border-radius: 21px 21px 4px 4px;
+}
+.box {
+  width: 56px;
+  height: 40px;
+}
+.cup {
+  width: 42px;
+  height: 54px;
+  border-radius: 4px 4px 14px 14px;
+}
+.shape.dashed {
+  border-style: dashed;
 }

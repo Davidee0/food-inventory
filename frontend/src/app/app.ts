@@ -1,13 +1,20 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Icon } from './icon/icon';
+import { Inventory } from './inventory';
 
-/** The frame of every page: the title, the links to the two lists, and the page of the current route below it. */
+/** The frame of every page: the page of the current route, the message bar, and the tab bar at the bottom. */
 @Component({
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('Food inventory');
+  protected readonly inventory = inject(Inventory);
+
+  protected undo(run: () => void) {
+    this.inventory.say('');
+    run();
+  }
 }

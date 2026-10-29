@@ -1,0 +1,66 @@
+<app-top-bar eyebrow="U8 preferences" title="Settings" [back]="inventory.lastMain" />
+
+<div class="body">
+  <p class="group-title first">Account</p>
+  <div class="group">
+    <a class="srow" routerLink="/settings/user">
+      <span>User</span>
+      <span class="val"
+        >{{ inventory.user().username || 'Not set' }} <app-icon name="chev" [size]="18"
+      /></span>
+    </a>
+  </div>
+
+  <p class="group-title">Notifications</p>
+  <div class="group">
+    <div class="srow">
+      <span>Expiry reminders</span>
+      <button
+        type="button"
+        class="toggle"
+        role="switch"
+        aria-label="Expiry reminders"
+        [attr.aria-checked]="reminders()"
+        (click)="reminders.set(!reminders())"
+      >
+        <i></i>
+      </button>
+    </div>
+    <div class="srow">
+      <span>Reminder timing</span>
+      <span class="val">2 days before <app-icon name="chev" [size]="18" /></span>
+    </div>
+  </div>
+
+  <p class="group-title">Setup</p>
+  <div class="group">
+    <a class="srow" routerLink="/settings/categories">
+      <span>Categories</span>
+      <span class="val"
+        >{{ inventory.categories().length }} <app-icon name="chev" [size]="18"
+      /></span>
+    </a>
+    <div class="srow">
+      <span>Storage locations</span>
+      <span class="val"
+        >{{ inventory.locations().length }} <app-icon name="chev" [size]="18"
+      /></span>
+    </div>
+    <div class="srow">
+      <span>Units</span>
+      <span class="val">Metric <app-icon name="chev" [size]="18" /></span>
+    </div>
+  </div>
+
+  <p class="group-title">About</p>
+  <div class="group">
+    <div class="srow">
+      <span>How U8 works</span>
+      <span class="val"><app-icon name="chev" [size]="18" /></span>
+    </div>
+    <div class="srow">
+      <span>Version</span>
+      <span class="val">2.1.0</span>
+    </div>
+  </div>
+</div>

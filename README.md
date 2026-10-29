@@ -35,7 +35,7 @@ Needs PostgreSQL, the .NET 8 SDK and Node.js 22.22.3 or newer (or 24.15+), which
 | `backend/Controllers/` | `LocationsController` (read only), `ItemsController` and `CategoriesController` (full CRUD) |
 | `backend.Tests/` | xUnit tests of the API |
 | `frontend/` | the Angular project `FoodInventory.NG`, made with Angular CLI 22.2.0 like the course project (`ng new`) |
-| `frontend/src/app/` | `app.*`: the frame (title, links to the two lists, `<router-outlet />`), the routes `/items` and `/categories`, the config; the pages `item-list/` and `category-list/`; the Add/Edit dialog `item-form/`; `api.ts` (the service for the API), `models.ts`, `rules.ts` |
+| `frontend/src/app/` | `app.*`: the frame (page, message bar, tab bar Add / Inventory / Ate it), the routes, the config; the pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `user-form/`, `category-list/`; the parts `top-bar/` and `icon/`; `api.ts` (the service for the API), `inventory.ts` (the shared data and message bar), `models.ts`, `rules.ts` |
 
 Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src` in `frontend/`).
 
@@ -48,10 +48,11 @@ Code style: Prettier with `frontend/.prettierrc` (run `npx prettier --write src`
 
 ## Demo script (at phone width)
 
-1. See the 6 example items, soonest best before date first.
-2. Add an item: try an empty form first (messages appear under the fields), then save a valid one.
-3. Edit it, then delete it after the confirmation.
-4. Open Categories: add one, try a duplicate name, rename it, try to delete Dairy (blocked, with the item count), delete the new one.
+1. Inventory: the example items grouped by category, expiring ones on top with a yellow warning sign. Search for "fridge".
+2. Add: try an empty form first (messages appear under the fields), then save a valid one.
+3. Tap the item to edit it, then delete it after the confirmation.
+4. Ate it: tap "Ate it" on an item, then Undo in the message bar.
+5. Settings (gear) → Categories: add one, try a duplicate name, rename it, try to delete Dairy (blocked, with the item count), delete the new one.
 
 ## Submission zip
 

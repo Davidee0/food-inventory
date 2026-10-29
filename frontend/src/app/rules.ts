@@ -39,3 +39,28 @@ export function validateItem(item: ItemInput): Errors {
     errors['best_before'] = 'Best before date cannot be before the purchase date.';
   return errors;
 }
+
+/** The date `n` days after `date` (n may be negative), as YYYY-MM-DD. */
+export function addDays(date: string, n: number): string {
+  const [y, m, d] = date.split('-').map(Number);
+  return todayLocal(new Date(y, m - 1, d + n));
+}
+
+/** 'past' = before today, 'soon' = today up to 3 days ahead, null = later or no date. */
+export type Status = 'past' | 'soon' | null;
+export function statusOf(bestBefore: string | null, today = todayLocal()): Status {
+  if (!bestBefore) return null;
+  if (bestBefore < today) return 'past';
+  return bestBefore <= addDays(today, 3) ? 'soon' : null;
+}
+
+/** "Expired", "Today", "1 day left", "5 days left" or "No expiry date". */
+export function leftText(bestBefore: string | null, today = todayLocal()): string {
+  if (!bestBefore) return 'No expiry date';
+  const [y, m, d] = bestBefore.split('-').map(Number);
+  const [ty, tm, td] = today.split('-').map(Number);
+  const n = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(ty, tm - 1, td)) / 86400000);
+  if (n < 0) return 'Expired';
+  if (n === 0) return 'Today';
+  return n === 1 ? '1 day left' : `${n} days left`;
+}

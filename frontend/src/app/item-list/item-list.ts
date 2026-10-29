@@ -1,75 +1,72 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { Api, NETWORK_ERROR, errorMessage } from '../api';
-import { ItemForm } from '../item-form/item-form';
-import { Category, Item, Location } from '../models';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { Icon } from '../icon/icon';
+import { Inventory, shapeOf } from '../inventory';
+import { Item } from '../models';
+import { leftText, statusOf } from '../rules';
+import { TopBar } from '../top-bar/top-bar';
 
-/** The item list (the start page): the items (the API sorts them, soonest best before date first), Add, Edit and Delete. */
+const NO_CATEGORY = 'No category';
+
+/** The inventory (the start page): search, then all items grouped by category, expiring ones first. Tap an item to edit it. */
 @Component({
   selector: 'app-item-list',
-  imports: [ItemForm],
+  imports: [FormsModule, RouterLink, Icon, TopBar],
   templateUrl: './item-list.html',
   styleUrl: './item-list.css',
 })
 export class ItemList implements OnInit {
-  private readonly api = inject(Api);
+  protected readonly inventory = inject(Inventory);
+  protected readonly search = signal('');
 
-  protected readonly items = signal<Item[]>([]);
-  protected readonly locations = signal<Location[]>([]);
-  protected readonly categories = signal<Category[]>([]);
-  protected readonly loaded = signal(false);
-  protected readonly loadError = signal('');
-  /** The item in the form: null to add a new one, undefined while the form is closed. */
-  protected readonly editing = signal<Item | null | undefined>(undefined);
+  protected readonly shapeOf = shapeOf;
+  protected readonly leftText = (item: Item) => leftText(item.best_before);
+  protected readonly expiring = (item: Item) => statusOf(item.best_before) !== null;
+
+  /** "6 items · 2 expiring" */
+  protected readonly countText = computed(() => {
+    const items = this.inventory.items();
+    const warnings = items.filter(this.expiring).length;
+    return `${items.length} ${items.length === 1 ? 'item' : 'items'}${warnings ? ` · ${warnings} expiring` : ''}`;
+  });
+
+  /** The search looks in the item name, the category name and the storage location. */
+  private readonly shown = computed(() => {
+    const q = this.search().trim().toLowerCase();
+    return this.inventory
+      .items()
+      .filter(
+        (i) =>
+          !q ||
+          [i.name, i.category_name, i.location_name].some((t) =>
+            (t ?? '').toLowerCase().includes(q),
+          ),
+      );
+  });
+
+  /** One group per category in the categories' order, then "No category". Expiring items go on top. */
+  protected readonly groups = computed(() =>
+    [...this.inventory.categories().map((c) => c.name), NO_CATEGORY]
+      .map((name) => ({
+        name,
+        items: this.shown()
+          .filter((i) => (i.category_name ?? NO_CATEGORY) === name)
+          // the rest keep the API's order: soonest best before date first
+          .sort((a, b) => Number(this.expiring(b)) - Number(this.expiring(a))),
+      }))
+      .filter((group) => group.items.length),
+  );
+
+  protected readonly noMatch = computed(
+    () => this.inventory.items().length > 0 && this.shown().length === 0,
+  );
 
   ngOnInit() {
-    this.load();
+    this.inventory.lastMain = '/items';
+    this.inventory.load();
   }
 
-  protected async load() {
-    try {
-      const [locations, categories, items] = await Promise.all([
-        this.api.locations(),
-        this.api.categories(),
-        this.api.items(),
-      ]);
-      this.locations.set(locations);
-      this.categories.set(categories);
-      this.items.set(items);
-      this.loadError.set('');
-    } catch (error) {
-      this.items.set([]);
-      this.loadError.set(
-        errorMessage(error) === NETWORK_ERROR ? NETWORK_ERROR : 'Could not load your items.',
-      );
-    }
-    this.loaded.set(true);
-  }
-
-  /** Opens the form. It needs the storage locations, so if loading failed, try again first. */
-  protected async open(item: Item | null) {
-    if (!this.locations().length) await this.load();
-    if (this.locations().length) this.editing.set(item);
-  }
-
-  protected async remove(item: Item) {
-    if (!confirm(`Delete ${item.name}?`)) return;
-    try {
-      await this.api.deleteItem(item.id);
-      this.items.update((items) => items.filter((i) => i !== item));
-    } catch (error) {
-      alert(errorMessage(error));
-    }
-  }
-
-  /** "Fridge, Dairy", or only "Fridge" when the item has no category. */
-  protected place = (item: Item) =>
-    [item.location_name, item.category_name].filter(Boolean).join(', ');
-
-  /** "3 Oct 2026" in the user's language. T00:00 makes it local midnight, not UTC. */
-  protected niceDate = (date: string) =>
-    new Date(`${date}T00:00`).toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
+  protected meta = (item: Item) =>
+    [item.location_name, this.leftText(item)].filter(Boolean).join(' · ');
 }

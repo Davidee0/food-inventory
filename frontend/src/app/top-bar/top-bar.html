@@ -1,0 +1,14 @@
+<header class="top">
+  @if (back(); as back) {
+    <a class="square" [routerLink]="back" aria-label="Back"><app-icon name="back" /></a>
+  } @else {
+    <span class="logo">U8</span>
+  }
+  <div class="titles">
+    <p class="eyebrow">{{ eyebrow() }}</p>
+    <h1>{{ title() }}</h1>
+  </div>
+  @if (!back()) {
+    <a class="square gear" routerLink="/settings" aria-label="Settings"><app-icon name="gear" /></a>
+  }
+</header>

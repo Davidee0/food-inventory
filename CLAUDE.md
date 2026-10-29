@@ -14,10 +14,15 @@ requirements: CRUD for two entities (items, categories), at least four Angular c
 ## Frontend
 Angular 22 with the same layout as the professor's course project (`ng new` with Angular CLI 22.2.0; project `FoodInventory.NG` like his `CourseAdminSystem.NG`): 2025 file names (`item-form.ts`, `.html`, `.css`,
 class `ItemForm`), `app.ts`/`app.html`/`app.css`/`app.spec.ts`/`app.config.ts`/`app.routes.ts`, routing, zoneless, Vitest, Prettier, `.vscode`.
-Like in class, `app.html` is a `<ul>` of `routerLink`s and a `<router-outlet />`, and each list is a routed page: `/items` is `ItemList` (list, Add, Edit,
-Delete; the `ItemForm` dialog), `/categories` is `CategoryList`; any other path goes to `/items`. Component styles are in the component's `.css`;
-`styles.css` has only what all pages share (colours, buttons, fields).
-Zoneless means no zone.js: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render.
+Design "U8" (from Kilian's prototype): `app.html` is a `<router-outlet />` plus a bottom tab bar of `routerLink`s (Add / Inventory / Ate it) and the message bar.
+Routed pages: `/items` `ItemList` (start page: search, grouped by category, expiring first with a warning sign), `/add` and `/edit/:id` `ItemForm`
+(`:id` arrives as an input through `withComponentInputBinding`), `/eat` `EatList` ("Ate it" deletes, with Undo), `/settings` `Settings`,
+`/settings/user` `UserForm` (kept in localStorage: the API has no users route), `/settings/categories` `CategoryList`; any other path goes to `/items`.
+Shared parts: `TopBar` (header), `Icon` (fixed SVG drawings). Services: `Api` (HTTP) and `Inventory` (the loaded data as signals, `load()`, the message bar, Undo).
+"Soon" = best before within 3 days, "past" = before today (`statusOf` in `rules.ts`). Component styles are in the component's `.css`;
+`styles.css` has what all pages share (colours, fields, buttons, item shapes).
+Zoneless means no zone.js: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render
+(the item form therefore renders only once `ready()` is true).
 Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
 ## API decisions
@@ -32,13 +37,13 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 - **Case-insensitive unique names:** `categories.name_key` (lower-case copy, UNIQUE) is set with `ToLowerInvariant()` in the API, not with SQL `lower()`, so Æ, Ø and Å work in any database locale.
 - **Plain dates:** `date` columns, `DateOnly`, `"YYYY-MM-DD"` strings, never timestamps. "Today" is the user's LOCAL date: `todayLocal()` builds it from local year, month and day, never `toISOString()`.
 - **Seed once:** `seed_data.sql` is one transaction and fails on a database that has data (location names are unique). The app never seeds, so deleted items never come back.
-- **Mobile:** text 16 px (iPhones zoom in on smaller form text), buttons and fields at least 44 px, no sideways scrolling at 360 px, the Add button always visible, zoom stays enabled.
+- **Mobile:** text 16 px (iPhones zoom in on smaller form text), buttons and fields at least 44 px, no sideways scrolling at 360 px, the tab bar (with Add) always visible, zoom stays enabled.
   The header is not sticky: it would cover a page's sticky `.form-error` message (e.g. a refused delete far down the category list).
-- **Add/Edit after a failed load:** the form needs the locations, so `open()` loads again first and does not open the form without them.
+- **Add/Edit after a failed load:** the form needs the locations, so it loads first and shows Try again instead of the form without them.
 
 ## Tests
 Every xUnit test gets its own brand-new database from the real scripts (`ApiTest.cs`). The Vitest spec checks the rules; run it in another zone too
 (`TZ=Pacific/Auckland npx ng test --watch=false`), because in UTC a `toISOString()` bug would not show.
 
 ## Colours
-bg #eef4f3, ink #17433f, line #c9dad6, error #8f1d14 on #ffd9d4, radius 6px, focus outline 3px #0b6bcb, max content width 640px.
+U8 look: paper #f5f5f1, band #e8e8e3, ink #242424, muted #6d6d68, error #a3200f, warning #f5c400, 2px dark outlines, no rounding, hard offset shadows, monospace labels, one 430px column.
