@@ -28,7 +28,7 @@ export class Inventory {
   readonly toast = signal('');
   private toastTimer?: ReturnType<typeof setTimeout>;
 
-  /** Where the back arrow of the categories page goes: the last main tab that was open. */
+  /** Where the back arrow of the Settings page goes: the last main tab that was open. */
   lastMain = '/items';
 
   /** Gets the storage locations, categories and food items again. False when it failed. */

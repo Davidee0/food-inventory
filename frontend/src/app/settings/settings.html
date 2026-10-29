@@ -1,0 +1,18 @@
+<app-top-bar eyebrow="U8" title="Settings" [back]="inventory.lastMain" />
+
+<div class="body">
+  <div class="group">
+    <a class="srow" routerLink="/settings/categories">
+      <span>Categories</span>
+      <span class="val"
+        >{{ inventory.categories().length }} <app-icon name="chev" [size]="18"
+      /></span>
+    </a>
+    <a class="srow" routerLink="/settings/locations">
+      <span>Storage locations</span>
+      <span class="val"
+        >{{ inventory.locations().length }} <app-icon name="chev" [size]="18"
+      /></span>
+    </a>
+  </div>
+</div>

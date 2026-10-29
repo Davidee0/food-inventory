@@ -10,7 +10,7 @@ create table category (
     name varchar(30) not null
 );
 
--- A category that still has food in it cannot be deleted: the foreign key refuses it.
+-- A category or storage location that still has food in it cannot be deleted: the foreign key refuses it.
 create table food_item (
     id                  serial primary key,
     name                varchar(50) not null,

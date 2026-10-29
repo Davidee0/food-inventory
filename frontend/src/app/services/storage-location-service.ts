@@ -12,4 +12,16 @@ export class StorageLocationService {
   getStorageLocations(): Observable<StorageLocation[]> {
     return this.http.get<StorageLocation[]>(`${this.baseUrl}/storagelocation`);
   }
+
+  addStorageLocation(location: StorageLocation): Observable<any> {
+    return this.http.post(`${this.baseUrl}/storagelocation`, location);
+  }
+
+  updateStorageLocation(location: StorageLocation): Observable<any> {
+    return this.http.put(`${this.baseUrl}/storagelocation`, location);
+  }
+
+  deleteStorageLocation(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/storagelocation/${id}`);
+  }
 }

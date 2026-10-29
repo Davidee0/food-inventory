@@ -18,8 +18,8 @@ Tests: `npx ng test --watch=false` in `frontend/` (the form's rules and dates, t
 |---|---|
 | `database.sql` | tables `storage_location`, `category`, `food_item` with primary and foreign keys, and 15 example rows |
 | `backend/FoodInventory.Model` | `Entities/` (one class per table, with the validation rules), `Repositories/` (SQL through Npgsql, on the course's `BaseRepository`) |
-| `backend/FoodInventory.API` | `Controllers/`: `/api/FoodItem` and `/api/Category` (GET, GET `{id}`, POST, PUT, DELETE `{id}`), `/api/StorageLocation` (GET); `Program.cs` |
-| `frontend/src/app` | design U8: pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `category-list/`; parts `top-bar/`, `icon/`; `model/` (interfaces), `services/` (calls to the API), `inventory.ts` (shared data, message bar), `rules.ts` (form rules, dates) |
+| `backend/FoodInventory.API` | `Controllers/`: `/api/FoodItem`, `/api/Category` and `/api/StorageLocation` (GET, GET `{id}`, POST, PUT, DELETE `{id}`); `Program.cs` |
+| `frontend/src/app` | design U8: pages `item-list/` (inventory), `item-form/` (add and edit), `eat-list/` (Ate it), `settings/`, `category-list/`, `location-list/`; parts `top-bar/`, `icon/`; `model/` (interfaces), `services/` (calls to the API), `inventory.ts` (shared data, message bar), `rules.ts` (form rules, dates) |
 | `prototype-frontend/` | Kilian's Node prototype the U8 design comes from (reference only) |
 
 ## Demo script (at phone width)
@@ -28,7 +28,8 @@ Tests: `npx ng test --watch=false` in `frontend/` (the form's rules and dates, t
 2. Add: try an empty form first (messages appear under the fields), then save a valid one.
 3. Tap the item to edit it (change the quantity), then delete it after the confirmation.
 4. Ate it: tap "Ate it" on an item and confirm.
-5. Gear → Categories: add one, rename it, try to delete Drinks (refused: it still has food), delete the new one.
+5. Gear → Settings → Categories: add one, rename it, try to delete Drinks (refused: it still has food), delete the new one.
+6. Settings → Storage locations: add "Cellar", rename it, try to delete Fridge (refused: it still has food), delete Cellar.
 
 ## Submission zip
 
