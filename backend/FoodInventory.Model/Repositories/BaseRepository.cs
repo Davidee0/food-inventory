@@ -1,15 +1,16 @@
-using Microsoft.Extensions.Configuration;
-using Npgsql;
-
 namespace FoodInventory.Model.Repositories;
 
+using Npgsql;
+using Microsoft.Extensions.Configuration;
+
+// The course's BaseRepository (Lecture 4): every repository can read from and write to the database.
 public class BaseRepository
 {
     protected string ConnectionString { get; }
 
     public BaseRepository(IConfiguration configuration)
     {
-        ConnectionString = configuration.GetConnectionString("AppProgDb")!;
+        ConnectionString = configuration.GetConnectionString("AppProgDb");
     }
 
     protected NpgsqlDataReader GetData(NpgsqlConnection conn, NpgsqlCommand cmd)
