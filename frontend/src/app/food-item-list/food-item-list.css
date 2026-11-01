@@ -1,0 +1,14 @@
+.filters {
+  display: flex;
+  gap: 16px;
+}
+
+.filters label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+select {
+  min-height: 40px;
+}

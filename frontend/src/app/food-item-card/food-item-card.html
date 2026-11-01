@@ -1,0 +1,44 @@
+<table>
+  <tr>
+    <td>Name</td>
+    <td>
+      <b>{{ foodItem.name }}</b>
+    </td>
+  </tr>
+  <tr>
+    <td>Quantity</td>
+    <td>{{ foodItem.quantity }}</td>
+  </tr>
+  <tr>
+    <td>Category</td>
+    <td>{{ foodItem.categoryName }}</td>
+  </tr>
+  <tr>
+    <td>Storage location</td>
+    <td>{{ foodItem.storageLocationName }}</td>
+  </tr>
+  <tr>
+    <td>Purchase date</td>
+    <td>{{ foodItem.purchaseDate }}</td>
+  </tr>
+  <tr>
+    <td>Best before</td>
+    <td>
+      {{ foodItem.bestBeforeDate }}
+      @if (foodItem.bestBeforeDate && daysLeft() < 0) {
+        <span class="warning">⚠ Expired</span>
+      } @else if (foodItem.bestBeforeDate && daysLeft() <= 3) {
+        <span class="warning">⚠ Expires soon</span>
+      }
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <div>
+        <button (click)="ateOne()">Ate one</button>
+        <button (click)="editFoodItem(foodItem.id)">Edit</button>
+        <button (click)="deleteFoodItem()">Delete</button>
+      </div>
+    </td>
+  </tr>
+</table>

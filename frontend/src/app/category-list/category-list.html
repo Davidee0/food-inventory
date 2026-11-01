@@ -1,55 +1,30 @@
-<app-top-bar eyebrow="Setup" title="Categories" back="/settings" />
+<h2>Categories</h2>
 
-<div class="body">
-  @if (message()) {
-    <p class="form-error" role="alert">{{ message() }}</p>
+<table>
+  @for (category of categories; track category.id) {
+    <tr>
+      <td>
+        <input type="text" [(ngModel)]="category.name" required maxlength="30" #name="ngModel" />
+      </td>
+      <td>
+        <button (click)="updateCategory(category)" [disabled]="name.invalid">Save</button>
+        <button (click)="deleteCategory(category)">Delete</button>
+      </td>
+    </tr>
   }
-
-  <form novalidate (ngSubmit)="add()">
-    <label class="lbl" for="cat-new">New category</label>
-    <div class="rowbtns">
+  <tr>
+    <td>
       <input
-        id="cat-new"
-        name="newName"
-        class="text-input"
-        autocomplete="off"
-        placeholder="e.g. Snacks"
+        type="text"
         [(ngModel)]="newName"
+        placeholder="New category"
+        required
+        maxlength="30"
+        #newNameField="ngModel"
       />
-      <button type="submit" class="small dark">Add</button>
-    </div>
-  </form>
-
-  <ul class="cat-list">
-    @for (row of rows(); track row.id) {
-      <li class="cat">
-        <input
-          class="text-input"
-          autocomplete="off"
-          [attr.aria-label]="'Name of category ' + row.name"
-          [(ngModel)]="row.draft"
-          (keydown.enter)="rename(row)"
-        />
-        <p class="meta">{{ count(row) }}</p>
-        <div class="rowbtns">
-          <button
-            type="button"
-            class="small"
-            [attr.aria-label]="'Save name of ' + row.name"
-            (click)="rename(row)"
-          >
-            Save name
-          </button>
-          <button
-            type="button"
-            class="small danger"
-            [attr.aria-label]="'Delete category ' + row.name"
-            (click)="remove(row)"
-          >
-            Delete
-          </button>
-        </div>
-      </li>
-    }
-  </ul>
-</div>
+    </td>
+    <td>
+      <button (click)="addCategory()" [disabled]="newNameField.invalid">Add</button>
+    </td>
+  </tr>
+</table>

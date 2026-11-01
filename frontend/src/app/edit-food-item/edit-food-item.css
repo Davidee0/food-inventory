@@ -1,0 +1,14 @@
+div {
+  margin-bottom: 12px;
+}
+
+input,
+select,
+button {
+  min-height: 40px;
+}
+
+.error {
+  margin-left: 8px;
+  color: #a3200f;
+}

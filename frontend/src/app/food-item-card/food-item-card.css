@@ -1,0 +1,31 @@
+table {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+td {
+  padding: 6px 10px;
+}
+
+td:first-child {
+  width: 40%;
+}
+
+button {
+  min-height: 40px;
+  margin-right: 8px;
+}
+
+.warning {
+  margin-left: 8px;
+  padding: 2px 6px;
+  background-color: #f5c400;
+  font-weight: bold;
+}

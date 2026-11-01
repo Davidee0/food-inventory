@@ -1,77 +1,51 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
-import { Inventory, errorMessage } from '../inventory';
 import { Category } from '../model/category';
 import { CategoryService } from '../services/category-service';
-import { TopBar } from '../top-bar/top-bar';
 
-type Row = Category & { draft: string }; // a category and the name typed in its field
-
-/** Categories, opened from the gear: add, rename and delete. The API checks the names and answers in plain language. */
 @Component({
+  imports: [FormsModule],
   selector: 'app-category-list',
-  imports: [FormsModule, TopBar],
-  templateUrl: './category-list.html',
   styleUrl: './category-list.css',
+  templateUrl: './category-list.html',
 })
 export class CategoryList implements OnInit {
-  private readonly categoryService = inject(CategoryService);
-  protected readonly inventory = inject(Inventory);
+  constructor(
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  protected readonly rows = signal<Row[]>([]);
-  protected readonly newName = signal('');
-  protected readonly message = signal('');
+  categories: Category[] = [];
+  newName: string = ''; // [(ngModel)] binds it to the "New category" field
 
-  /** "Used by 1 item", "Used by 2 items". */
-  protected count = (row: Row) => {
-    const n = this.inventory.items().filter((i) => i.categoryId === row.id).length;
-    return `Used by ${n} ${n === 1 ? 'item' : 'items'}`;
-  };
-
-  ngOnInit() {
-    this.run();
+  ngOnInit(): void {
+    this.loadCategories();
   }
 
-  protected async add() {
-    const name = this.newName().trim();
-    const added = await this.run(
-      () => firstValueFrom(this.categoryService.addCategory({ id: 0, name })),
-      `${name} added`,
-    );
-    if (added) this.newName.set('');
+  loadCategories(): void {
+    this.categoryService.getCategories().subscribe((categories) => {
+      this.categories = categories;
+      this.cdr.markForCheck();
+    });
   }
 
-  protected rename(row: Row) {
-    const name = row.draft.trim();
-    this.run(
-      () => firstValueFrom(this.categoryService.updateCategory({ id: row.id, name })),
-      `${name} saved`,
-    );
+  addCategory(): void {
+    this.categoryService.addCategory({ id: 0, name: this.newName }).subscribe(() => {
+      this.newName = '';
+      this.loadCategories();
+    });
   }
 
-  /** A category that still has food in it is refused by the API, which says why. */
-  protected remove(row: Row) {
-    if (!confirm(`Delete the category ${row.name}?`)) return;
-    this.run(
-      () => firstValueFrom(this.categoryService.deleteCategory(row.id)),
-      `${row.name} deleted`,
-    );
+  updateCategory(category: Category): void {
+    this.categoryService.updateCategory(category).subscribe(() => this.loadCategories());
   }
 
-  /** Runs a change, then loads everything again. A refused change shows the API's message. */
-  private async run(change?: () => Promise<unknown>, done = ''): Promise<boolean> {
-    try {
-      await change?.();
-      this.message.set('');
-      if (done) this.inventory.say(done);
-    } catch (error) {
-      this.message.set(errorMessage(error));
-      return false;
+  deleteCategory(category: Category): void {
+    if (confirm(`Delete ${category.name}?`)) {
+      this.categoryService.deleteCategory(category.id).subscribe({
+        next: () => this.loadCategories(),
+        error: (err) => alert(err.error), // e.g. "Dairy still has food in it, so it cannot be deleted."
+      });
     }
-    await this.inventory.load(); // the item list shows category names, so it needs the change too
-    if (this.inventory.loadError()) this.message.set(this.inventory.loadError());
-    this.rows.set(this.inventory.categories().map((c) => ({ ...c, draft: c.name })));
-    return true;
   }
 }

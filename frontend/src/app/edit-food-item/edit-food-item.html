@@ -1,0 +1,61 @@
+@if (foodItem) {
+  <h2>Edit food</h2>
+  <div>
+    Id: <span>{{ foodItem.id }}</span>
+  </div>
+  <div>
+    Name: <input type="text" [(ngModel)]="foodItem.name" required maxlength="50" #name="ngModel" />
+    @if (name.invalid) {
+      <span class="error">Name must be provided</span>
+    }
+  </div>
+  <div>
+    Quantity:
+    <input
+      type="number"
+      [(ngModel)]="foodItem.quantity"
+      required
+      min="1"
+      pattern="\d+"
+      #quantity="ngModel"
+    />
+    @if (quantity.invalid) {
+      <span class="error">Quantity must be a whole number, at least 1</span>
+    }
+  </div>
+  <div>
+    Category:
+    <select [(ngModel)]="foodItem.categoryId">
+      <option [ngValue]="null">No category</option>
+      @for (category of categories; track category.id) {
+        <option [ngValue]="category.id">{{ category.name }}</option>
+      }
+    </select>
+  </div>
+  <div>
+    Storage location:
+    <select [(ngModel)]="foodItem.storageLocationId">
+      @for (storageLocation of storageLocations; track storageLocation.id) {
+        <option [ngValue]="storageLocation.id">{{ storageLocation.name }}</option>
+      }
+    </select>
+  </div>
+  <div>
+    Purchase date:
+    <input type="date" [(ngModel)]="foodItem.purchaseDate" required #purchaseDate="ngModel" />
+    @if (purchaseDate.invalid) {
+      <span class="error">Purchase date must be provided</span>
+    }
+  </div>
+  <div>
+    Best before date: <input type="date" [(ngModel)]="foodItem.bestBeforeDate" />
+    @if (bestBeforeIsTooEarly()) {
+      <span class="error">Best before date cannot be before the purchase date</span>
+    }
+  </div>
+  @if (name.invalid || quantity.invalid || purchaseDate.invalid || bestBeforeIsTooEarly()) {
+    <div class="error">Error in data</div>
+  } @else {
+    <button (click)="updateFoodItem()">Update</button>
+  }
+}

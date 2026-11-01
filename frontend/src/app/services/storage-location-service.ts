@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { StorageLocation } from '../model/storage-location';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class StorageLocationService {
   baseUrl: string = 'http://localhost:5050/api';
 
@@ -12,15 +14,12 @@ export class StorageLocationService {
   getStorageLocations(): Observable<StorageLocation[]> {
     return this.http.get<StorageLocation[]>(`${this.baseUrl}/storagelocation`);
   }
-
-  addStorageLocation(location: StorageLocation): Observable<any> {
-    return this.http.post(`${this.baseUrl}/storagelocation`, location);
+  addStorageLocation(storageLocation: StorageLocation): Observable<any> {
+    return this.http.post(`${this.baseUrl}/storagelocation`, storageLocation);
   }
-
-  updateStorageLocation(location: StorageLocation): Observable<any> {
-    return this.http.put(`${this.baseUrl}/storagelocation`, location);
+  updateStorageLocation(storageLocation: StorageLocation): Observable<any> {
+    return this.http.put(`${this.baseUrl}/storagelocation`, storageLocation);
   }
-
   deleteStorageLocation(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/storagelocation/${id}`);
   }

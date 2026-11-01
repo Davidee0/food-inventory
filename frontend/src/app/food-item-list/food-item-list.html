@@ -1,0 +1,28 @@
+<h2>Food</h2>
+
+<div class="filters">
+  <label>
+    Category
+    <select [(ngModel)]="categoryId">
+      <option [ngValue]="0">All</option>
+      @for (category of categories; track category.id) {
+        <option [ngValue]="category.id">{{ category.name }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Storage location
+    <select [(ngModel)]="storageLocationId">
+      <option [ngValue]="0">All</option>
+      @for (storageLocation of storageLocations; track storageLocation.id) {
+        <option [ngValue]="storageLocation.id">{{ storageLocation.name }}</option>
+      }
+    </select>
+  </label>
+</div>
+
+@for (foodItem of filteredFoodItems(); track foodItem.id) {
+  <app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()"></app-food-item-card>
+} @empty {
+  <p>No food found.</p>
+}
