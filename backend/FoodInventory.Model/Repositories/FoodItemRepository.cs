@@ -94,14 +94,14 @@ public class FoodItemRepository : BaseRepository
         {
             Name = (string)data["name"],
             Quantity = (int)data["quantity"],
-            PurchaseDate = DateOnly.FromDateTime((DateTime)data["purchase_date"]),
+            PurchaseDate = (DateOnly)data["purchase_date"], // Npgsql 10 reads a date column as DateOnly
             StorageLocationId = (int)data["storage_location_id"],
             StorageLocationName = (string)data["storage_location_name"]
         };
         // An empty (null) column in the database is DBNull.Value in C#.
         if (data["best_before_date"] != DBNull.Value)
         {
-            foodItem.BestBeforeDate = DateOnly.FromDateTime((DateTime)data["best_before_date"]);
+            foodItem.BestBeforeDate = (DateOnly)data["best_before_date"];
         }
         if (data["category_id"] != DBNull.Value)
         {

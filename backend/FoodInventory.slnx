@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FoodInventory.API/FoodInventory.API.csproj" />
+  <Project Path="FoodInventory.Model/FoodInventory.Model.csproj" />
+</Solution>
