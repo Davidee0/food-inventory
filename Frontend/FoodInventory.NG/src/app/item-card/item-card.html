@@ -1,0 +1,24 @@
+<h2 class="name">{{ item.name }}</h2>
+<p class="facts">{{ place() }}</p>
+<p class="facts">Bought {{ niceDate(item.purchaseDate) }}</p>
+@if (item.bestBefore) {
+  <p class="facts">Best before {{ niceDate(item.bestBefore) }}</p>
+}
+<div class="row-buttons">
+  <button
+    type="button"
+    class="btn quiet"
+    [attr.aria-label]="'Edit ' + item.name"
+    (click)="edit.emit()"
+  >
+    Edit
+  </button>
+  <button
+    type="button"
+    class="btn quiet"
+    [attr.aria-label]="'Delete ' + item.name"
+    (click)="remove.emit()"
+  >
+    Delete
+  </button>
+</div>

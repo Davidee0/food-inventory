@@ -1,0 +1,27 @@
+<input
+  type="text"
+  class="name"
+  autocomplete="off"
+  [attr.aria-label]="'Name of category ' + category.name"
+  [(ngModel)]="draft"
+  (keydown.enter)="rename.emit(draft)"
+/>
+<span class="count">{{ count(category.itemCount) }}</span>
+<div class="row-buttons">
+  <button
+    type="button"
+    class="btn"
+    [attr.aria-label]="'Save name of ' + category.name"
+    (click)="rename.emit(draft)"
+  >
+    Save
+  </button>
+  <button
+    type="button"
+    class="btn quiet"
+    [attr.aria-label]="'Delete category ' + category.name"
+    (click)="remove.emit()"
+  >
+    Delete
+  </button>
+</div>

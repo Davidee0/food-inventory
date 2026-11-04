@@ -1,0 +1,39 @@
+<main class="wrap">
+  @if (loadError()) {
+    <div class="state">
+      <p>{{ loadError() }}</p>
+      <button type="button" class="btn primary" (click)="load()">Try again</button>
+    </div>
+  } @else if (!loaded()) {
+    <div class="state"><p>Loading your items…</p></div>
+  } @else if (!items().length) {
+    <div class="state">
+      <p>Nothing here yet.</p>
+      <button type="button" class="btn primary" (click)="open(null)">Add your first item</button>
+    </div>
+  }
+
+  <ul class="list">
+    @for (item of items(); track item.id) {
+      <li>
+        <app-item-card [item]="item" (edit)="open(item)" (remove)="remove(item)" />
+      </li>
+    }
+  </ul>
+</main>
+
+<div class="dock">
+  <div class="wrap">
+    <button type="button" class="btn primary" (click)="open(null)">Add item</button>
+  </div>
+</div>
+
+@if (editing() !== undefined) {
+  <app-item-form
+    [item]="editing() ?? null"
+    [locations]="locations()"
+    [categories]="categories()"
+    (saved)="load()"
+    (closed)="editing.set(undefined)"
+  />
+}

@@ -1,0 +1,14 @@
+<header>
+  <h1>{{ title() }}</h1>
+  <ul>
+    <li>
+      <a routerLink="/items" routerLinkActive="active" ariaCurrentWhenActive="page">Items</a>
+    </li>
+    <li>
+      <a routerLink="/categories" routerLinkActive="active" ariaCurrentWhenActive="page">
+        Categories
+      </a>
+    </li>
+  </ul>
+</header>
+<router-outlet />
