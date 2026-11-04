@@ -47,6 +47,13 @@ Code style: Prettier with `.prettierrc` (run `npx prettier --write src` in `Fron
 - JSON is camelCase, the .NET default: `{"name":"Milk","locationId":1,"categoryId":1,"purchaseDate":"2026-11-01","bestBefore":"2026-11-06"}`.
 - Errors: 400 invalid data (one message per field: `{"errors":{"name":"Enter a name."}}`) or malformed JSON, 404 unknown id,
   409 duplicate category name or category in use, 500 server error.
+- Try it in Swagger (http://localhost:5000/swagger) or in Postman like exercise E04.1: `GET http://localhost:5000/api/Item`.
+
+## Design
+
+Figma: https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9 (the steps from lecture 2): **1 Wireframes** of the three phone screens,
+then **2 UI design** with the colours of `styles.css` as variables, the components (Button, Header, Field, Item card, Category card)
+and the screens as a clickable prototype (press Play). Each screen links to its code here; change design and code together.
 
 ## Demo script (at phone width)
 

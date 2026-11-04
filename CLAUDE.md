@@ -48,5 +48,7 @@ Every xUnit test gets its own brand-new database from the real scripts (`ApiTest
 jsdom has no `<dialog>`, so the form spec stubs `showModal`). Run the Vitest specs in another zone too (`TZ=Pacific/Auckland npx ng test --watch=false`),
 because in UTC a `toISOString()` bug would not show.
 
-## Colours
+## Colours and design
 bg #eef4f3, ink #17433f, line #c9dad6, error #8f1d14 on #ffd9d4, radius 6px, focus outline 3px #0b6bcb, max content width 640px.
+Figma file https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9 (wireframes, UI design, prototype): its variables and components match
+`styles.css` and the card components; a layout change goes in both.
