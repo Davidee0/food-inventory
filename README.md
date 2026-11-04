@@ -4,7 +4,8 @@ Track the food you have at home: register groceries when you buy them and delete
 No login: everyone who opens the app shares one inventory.
 
 Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 10) and Angular 22,
-set up like the course project `CourseAdminSystem` (lectures 4 and 5).
+set up like the course project `CourseAdminSystem` (lectures 4 and 5). Product Goal, user stories with acceptance criteria and the
+Definition of Done: [BACKLOG.md](BACKLOG.md).
 
 ## Run it
 
@@ -19,6 +20,12 @@ Needs PostgreSQL with pgAdmin, the .NET 10 SDK and Node.js 24 LTS (Angular 22 al
 2. **API**: check `AppProgDb` in `Backend/FoodInventory.API/appsettings.json`, then in `Backend/` run `dotnet run --project FoodInventory.API`.
    It listens on http://localhost:5000, with Swagger at http://localhost:5000/swagger.
 3. **App**: in `Frontend/FoodInventory.NG/` run `npm install`, then `npx ng serve`, and open http://localhost:4200.
+
+**One database for the whole team** (optional, exercise E02.1): create a free PostgreSQL database on Supabase, run the two scripts
+in its SQL Editor, and give the API its .NET connection string in an environment variable, so the password never goes to GitHub:
+`ConnectionStrings__AppProgDb="<connection string>" dotnet run --project FoodInventory.API` (Windows PowerShell:
+`$env:ConnectionStrings__AppProgDb="<connection string>"`, then `dotnet run --project FoodInventory.API`).
+Everyone then sees the same data. The tests still use a local PostgreSQL.
 
 ## Tests
 

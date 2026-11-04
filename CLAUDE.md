@@ -11,6 +11,7 @@ in `Frontend/FoodInventory.NG/` (Node 24 LTS or 22.22.3+): `npx ng build`, `npx 
 ## How to work
 Less is more: build the smallest working solution, no libraries, abstractions or files a story does not need. Keep the course guide's
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
+`BACKLOG.md` holds the Product Goal, the user stories with acceptance criteria and the Definition of Done: keep its Status column true.
 
 ## Backend (like L04)
 `Backend/FoodInventory.slnx` with `FoodInventory.API` (`dotnet new webapi --use-controllers`; controllers, `Program.cs`, `Rules.cs`), `FoodInventory.Model`
