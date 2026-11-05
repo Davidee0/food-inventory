@@ -3,6 +3,16 @@
 Track the food you have at home: register groceries when you buy them and delete them when they are used up.
 No login: everyone who opens the app shares one inventory.
 
+Why: in 2022 the world wasted 1.05 billion tonnes of food, about a fifth of all food available to consumers, and 60% of it in
+households ([UNEP Food Waste Index Report 2024](https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report)).
+Seeing what you have, soonest best before date first, helps a household eat it in time.
+
+<p>
+  <img src="docs/items.png" width="240" alt="The item list on a phone, soonest best before date first">
+  <img src="docs/add-item.png" width="240" alt="The Add item form with a message under each wrong field">
+  <img src="docs/categories.png" width="240" alt="Categories: a category that items use cannot be deleted">
+</p>
+
 Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 10) and Angular 22,
 set up like the course project `CourseAdminSystem` (lectures 4 and 5). Product Goal, user stories with acceptance criteria and the
 Definition of Done: [BACKLOG.md](BACKLOG.md). Layers, ER model, one request end to end, security, strengths and limitations, and

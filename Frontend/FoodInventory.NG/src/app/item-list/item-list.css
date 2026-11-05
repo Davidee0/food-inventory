@@ -1,3 +1,15 @@
+/* Always in the page, so screen readers announce each new message; hidden while empty. */
+.notice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-left: 4px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  font-weight: 600;
+}
+.notice:empty {
+  display: none;
+}
 .state {
   padding: 32px 0;
   text-align: center;

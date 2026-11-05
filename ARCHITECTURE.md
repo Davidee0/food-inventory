@@ -69,8 +69,8 @@ erDiagram
    the category exist. Errors: 400 `{"errors":{"name":"Enter a name."}}`.
 5. **Repository** (`ItemRepository.InsertItem`): `INSERT ... RETURNING id` with parameters, then `GetItemById` joins the location and
    category names. Answer: **201 Created** with the item as JSON.
-6. **Back in Angular**: the form emits `saved`, `ItemList` loads `GET /api/Item` again (sorted by the database), the signals change
-   and the page shows the new list.
+6. **Back in Angular**: the form emits `saved` with the new item; `ItemList` shows "Saved Milk." and loads `GET /api/Item` again
+   (sorted by the database). The signals change and the page shows the new list.
 
 ## API
 
@@ -110,8 +110,8 @@ again, because a request can come from anywhere (Swagger, Postman). Both use the
 - **xUnit** (`Backend/FoodInventory.Tests`, 26 tests): every test runs the real API on a brand-new PostgreSQL database built from the
   real scripts. They cover create/read/replace/delete, every validation message, ids sent as text, malformed JSON, the sort order,
   category rules and the foreign key.
-- **Vitest** (`Frontend/FoodInventory.NG`, 15 tests): the form rules and "today" in the local time zone, plus a spec for every
-  component with TestBed and a mocked API (`vi.fn()`).
+- **Vitest** (`Frontend/FoodInventory.NG`, 16 tests): the form rules and "today" in the local time zone, plus a spec for every
+  component with TestBed and a mocked API (`vi.fn()`), e.g. Delete asks "Delete Milk?", Cancel keeps it, OK says "Deleted Milk.".
 - **By hand:** the demo script in the README, at 360 px.
 
 ## Strengths and limitations
@@ -126,8 +126,9 @@ again, because a request can come from anywhere (Swagger, Postman). Both use the
 
 ## Business value (lecture 1)
 
-The app helps a household waste less food, and less waste saves money. As a product it could grow with accounts, reminders before food
-goes off, and shared households. That would bring new requirements: authentication, hosting, and GDPR for personal data.
+Households waste the most food: 60% of the 1.05 billion tonnes wasted in 2022 (UNEP Food Waste Index Report 2024). The app helps a
+household waste less, and less waste saves money. As a product it could grow with accounts, reminders before food goes off, and
+shared households. That would bring new requirements: authentication, hosting, and GDPR for personal data.
 
 ## Questions for the oral exam
 
@@ -140,7 +141,7 @@ goes off, and shared households. That would bring new requirements: authenticati
 - **What do `[ApiController]` and `[Route("api/[controller]")]` do?** An invalid body gets a 400 automatically, and the URL comes from
   the class name: `ItemController` is `/api/Item`.
 - **How do the components talk to each other?** `@Input()` passes data down (list to card, list to form). `@Output()` reports events up
-  (the card's edit and remove, the form's saved and closed). The `Api` service is shared by all of them.
+  (the card's edit and remove; the form's saved, which carries the saved item, and closed). The `Api` service is shared by all of them.
 - **What is two-way binding?** `[(ngModel)]` keeps a form field and a variable equal in both directions (`item-form.html`).
 - **Why signals?** The app is zoneless: Angular re-renders when a signal changes, for example when the HTTP answer arrives.
 - **How does routing work?** `app.routes.ts` maps `/items` and `/categories` to components. The links use `routerLink`, and the page
@@ -167,6 +168,7 @@ Page = page of the lecture PDF.
 | L02 p.21-22 | Use case: preconditions and main flow | [One request from start to end](#one-request-from-start-to-end-adding-an-item) |
 | L02 p.24, 31 | Wireframes, then UI design, then a prototype | Figma: 1 Wireframes, 2 UI design (press Play) |
 | L02 p.29-31 | Visual hierarchy, consistency, colours, type sizes; primary, secondary and ghost buttons | `styles.css`; Button Primary, Secondary, Quiet |
+| L02 p.30 | Feedback elements: loading states, error messages, success notifications | "Loading your items..."; messages under fields; "Saved Milk." / "Deleted Milk." |
 | L02 p.32 | Mobile first; loading and error states; accessibility | 360 px layout; loading, empty and error states; WCAG contrast |
 | L02 p.38-40 | Definition of Done | `BACKLOG.md` |
 | L02 p.51-53 | Privacy, SQL injection, XSS, accessibility | [Security, ethics and accessibility](#security-ethics-and-accessibility-lecture-2) |

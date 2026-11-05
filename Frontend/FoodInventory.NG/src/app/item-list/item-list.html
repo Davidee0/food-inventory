@@ -1,4 +1,5 @@
 <main class="wrap">
+  <p class="notice" role="status">{{ notice() }}</p>
   @if (loadError()) {
     <div class="state">
       <p>{{ loadError() }}</p>
@@ -33,7 +34,7 @@
     [item]="editing() ?? null"
     [locations]="locations()"
     [categories]="categories()"
-    (saved)="load()"
+    (saved)="saved($event)"
     (closed)="editing.set(undefined)"
   />
 }

@@ -9,6 +9,7 @@ A shared food inventory that helps a household eat its food before it goes off.
 
 How we got there (lecture 2: discover, define, develop, deliver):
 - **Discover:** people forget what is in the fridge, freezer and pantry, buy things twice and throw food away after its best before date.
+  In 2022 households wasted 60% of the 1.05 billion tonnes of food wasted worldwide (UNEP Food Waste Index Report 2024).
 - **Define:** a household loses track of the food it has and of when it goes off, so food is wasted.
 - **Develop:** options were a shared list sorted by best before date, reminders, barcode scanning and recipes for food that goes off soon.
 - **Deliver:** the smallest useful product: one shared list, soonest best before date first, with storage locations and categories (US1-US8).
@@ -36,12 +37,13 @@ Ethics (lecture 2): the app has no accounts and stores no personal data, only th
 ## Acceptance criteria (US1-US8)
 
 - **US1 Add:** Name 1-50 characters (trimmed), storage location required, category optional, purchase date (today by default, the
-  user's local date), best before date optional and not before the purchase date. The new item appears in the list in the right place.
+  user's local date), best before date optional and not before the purchase date. The new item appears in the list in the right place,
+  and a message says "Saved <name>." (also after an edit).
 - **US2 List:** soonest best before date first, items without a date last, ties by name ignoring case. Each item shows its name,
   "location, category", "Bought <date>" and "Best before <date>" (only if it has one). No items: "Nothing here yet." with
   "Add your first item". Loading fails: "Could not load your items." (or the connection message) with "Try again".
 - **US3 Edit:** the form opens with the current values; saving replaces the whole item; an item that no longer exists gives "Item not found.".
-- **US4 Delete:** the question "Delete <name>?"; Cancel keeps the item.
+- **US4 Delete:** the question "Delete <name>?"; Cancel keeps the item; after deleting, a message says "Deleted <name>.".
 - **US5 Validation:** one message under each wrong field ("Enter a name.", "Choose a storage location.", "Enter a valid date." ...),
   nothing is sent while the form is wrong, and the API checks the same rules with the same messages.
 - **US6 Mobile:** works at 360 px wide without sideways scrolling; buttons and fields at least 44 px; text at least 16 px;

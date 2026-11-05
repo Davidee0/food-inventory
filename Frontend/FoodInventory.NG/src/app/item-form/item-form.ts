@@ -31,7 +31,7 @@ export class ItemForm implements OnInit, AfterViewInit {
   @Input() item: Item | null = null;
   @Input() locations: Location[] = [];
   @Input() categories: Category[] = [];
-  @Output() saved = new EventEmitter<void>();
+  @Output() saved = new EventEmitter<Item>();
   @Output() closed = new EventEmitter<void>();
 
   @ViewChild('dialog') private dialog!: ElementRef<HTMLDialogElement>;
@@ -71,8 +71,7 @@ export class ItemForm implements OnInit, AfterViewInit {
 
     this.saving.set(true);
     try {
-      await this.api.saveItem(this.form, this.item?.id);
-      this.saved.emit();
+      this.saved.emit(await this.api.saveItem(this.form, this.item?.id));
       this.dialog.nativeElement.close();
     } catch (error) {
       if (!this.fail(fieldErrors(error) ?? {})) this.message.set(errorMessage(error));

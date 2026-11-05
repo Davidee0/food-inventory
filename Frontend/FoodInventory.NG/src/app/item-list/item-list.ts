@@ -23,6 +23,8 @@ export class ItemList implements OnInit {
   protected readonly loadError = signal('');
   /** The item in the form: null to add a new one, undefined while the form is closed. */
   protected readonly editing = signal<Item | null | undefined>(undefined);
+  /** A short message after a change, e.g. "Saved Milk." (lecture 2: success notifications). */
+  protected readonly notice = signal('');
 
   ngOnInit() {
     this.load();
@@ -50,8 +52,14 @@ export class ItemList implements OnInit {
 
   /** Opens the form. It needs the storage locations, so if loading failed, try again first. */
   protected async open(item: Item | null) {
+    this.notice.set('');
     if (!this.locations().length) await this.load();
     if (this.locations().length) this.editing.set(item);
+  }
+
+  protected saved(item: Item) {
+    this.notice.set(`Saved ${item.name}.`);
+    this.load();
   }
 
   protected async remove(item: Item) {
@@ -59,6 +67,7 @@ export class ItemList implements OnInit {
     try {
       await this.api.deleteItem(item.id);
       this.items.update((items) => items.filter((i) => i !== item));
+      this.notice.set(`Deleted ${item.name}.`);
     } catch (error) {
       alert(errorMessage(error));
     }
