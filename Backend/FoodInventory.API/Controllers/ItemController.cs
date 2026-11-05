@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoodInventory.API.Controllers;
 
+// Ids are numbers: {id:int} sends /api/Item/abc to a plain 404.
 [Route("api/[controller]")]
 [ApiController]
 public class ItemController(ItemRepository items, LocationRepository locations, CategoryRepository categories) : ControllerBase
@@ -12,15 +13,12 @@ public class ItemController(ItemRepository items, LocationRepository locations, 
     [HttpGet]
     public ActionResult<IEnumerable<Item>> GetItems() => Ok(items.GetItems());
 
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Item> GetItem(string id) => Find(id) is { } item ? Ok(item) : ItemNotFound();
+    [HttpGet("{id:int}")]
+    public ActionResult<Item> GetItem(int id) => items.GetItemById(id) is { } item ? Ok(item) : ItemNotFound();
 
     // 201 Created, with a Location header that points to the new item.
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult<Item> Post(ItemRequest request)
     {
         var errors = Check(request);
@@ -30,33 +28,25 @@ public class ItemController(ItemRepository items, LocationRepository locations, 
     }
 
     // PUT replaces the whole item: send every field.
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Item> Put(string id, ItemRequest request)
+    [HttpPut("{id:int}")]
+    public ActionResult<Item> Put(int id, ItemRequest request)
     {
-        if (Find(id) is not { } item) return ItemNotFound();
+        if (items.GetItemById(id) is null) return ItemNotFound();
         var errors = Check(request);
         if (errors.Count > 0) return BadRequest(new { errors });
-        items.UpdateItem(ToItem(request, item.Id));
-        return Ok(items.GetItemById(item.Id));
+        items.UpdateItem(ToItem(request, id));
+        return Ok(items.GetItemById(id));
     }
 
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Delete(string id)
+    [HttpDelete("{id:int}")]
+    public ActionResult Delete(int id)
     {
-        if (Find(id) is not { } item) return ItemNotFound();
-        items.DeleteItem(item.Id);
+        if (items.GetItemById(id) is null) return ItemNotFound();
+        items.DeleteItem(id);
         return NoContent();
     }
 
     private NotFoundObjectResult ItemNotFound() => NotFound(new { message = "Item not found." });
-
-    // A non-numeric id ("abc") is simply not found.
-    private Item Find(string id) => int.TryParse(id, out var n) ? items.GetItemById(n) : null;
 
     // The item rules, then what only the database knows: the chosen location and category exist.
     private Dictionary<string, string> Check(ItemRequest r)

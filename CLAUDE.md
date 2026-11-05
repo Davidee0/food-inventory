@@ -32,10 +32,9 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
 ## API decisions
 - Paths `api/[controller]` like the course: `/api/Location`, `/api/Item`, `/api/Item/{id}`, `/api/Category`, `/api/Category/{id}`. JSON is camelCase (.NET default).
-- Codes: 201 create (with a `Location` header from `CreatedAtAction`; a GET on it returns the resource), 200 replace/rename, 204 delete, 404 `{message}` (also for a non-numeric id), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
+- Codes: 201 create (with a `Location` header from `CreatedAtAction`; a GET on it returns the resource), 200 replace/rename, 204 delete, 404 `{message}` (routes use `{id:int}`, so a non-numeric id gets a plain 404), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
 - Request bodies bind to `ItemRequest` / `CategoryRequest` (dates as text, so a bad date gets its field message). Malformed JSON or a wrongly typed value (a number as name, an array as id) fails binding and gets 400 `{message:"The request body is not valid JSON."}`, so it is never stored. Ids may also be sent as text ("1").
-- Each action declares its status codes with `[ProducesResponseType]` (Swagger shows them); `SuppressMapClientErrors` keeps Swagger from calling
-  the `{message}` / `{errors}` bodies ProblemDetails.
+- Swagger: only the two POSTs declare `[ProducesResponseType(StatusCodes.Status201Created)]`; the API table in `ARCHITECTURE.md` lists every code.
 - `FoodInventory.API/Rules.cs` has the rules and messages; `src/app/rules.ts` has the same ones for the form. Change both together.
 - `GET /api/Item`: `best_before` ascending, nulls last, then name ignoring case.
 

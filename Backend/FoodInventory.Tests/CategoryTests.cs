@@ -41,7 +41,7 @@ public class CategoryTests : ApiTest
         Assert.Equal("Enter a name.", Text((await Api("PUT", $"/api/Category/{id}", new { name = "" })).Body.GetProperty("errors"), "name"));
 
         Assert.Equal(HttpStatusCode.NoContent, (await Api("DELETE", $"/api/Category/{id}")).Status);
-        foreach (var (method, path) in new[] { ("DELETE", $"/api/Category/{id}"), ("PUT", "/api/Category/9999"), ("PUT", "/api/Category/abc") })
+        foreach (var (method, path) in new[] { ("DELETE", $"/api/Category/{id}"), ("PUT", "/api/Category/9999") })
         {
             var gone = await Api(method, path, method == "PUT" ? new { name = "Nope" } : null);
             Assert.Equal(HttpStatusCode.NotFound, gone.Status);
@@ -74,10 +74,8 @@ public class CategoryTests : ApiTest
             Assert.Equal(HttpStatusCode.OK, read.Status);
             Assert.Equal(Text(created.Body, "name"), Text(read.Body, "name"));
         }
-        foreach (var path in new[] { "/api/Category/9999", "/api/Category/abc" })
-        {
-            var gone = await Api("GET", path);
-            Assert.Equal((HttpStatusCode.NotFound, "Category not found."), (gone.Status, Text(gone.Body, "message")));
-        }
+        var gone = await Api("GET", "/api/Category/9999");
+        Assert.Equal((HttpStatusCode.NotFound, "Category not found."), (gone.Status, Text(gone.Body, "message")));
+        Assert.Equal(HttpStatusCode.NotFound, (await Api("PUT", "/api/Category/abc", new { name = "Nope" })).Status); // not a number: no route matches
     }
 }

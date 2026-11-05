@@ -9,13 +9,9 @@ builder.Services.AddScoped<CategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ItemRepository, ItemRepository>();
 
 builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions(o =>
-    {
-        // Malformed JSON or a wrongly typed value (e.g. a number as name) never reaches a controller.
-        o.InvalidModelStateResponseFactory = _ => new BadRequestObjectResult(new { message = "The request body is not valid JSON." });
-        // Errors here are {message} or {errors}, not ASP.NET's ProblemDetails, so Swagger must not describe them as ProblemDetails.
-        o.SuppressMapClientErrors = true;
-    });
+    // Malformed JSON or a wrongly typed value (e.g. a number as name) never reaches a controller.
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = _ =>
+        new BadRequestObjectResult(new { message = "The request body is not valid JSON." }));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 // The Angular app (ng serve) runs on another port, so the browser needs permission to call the API.

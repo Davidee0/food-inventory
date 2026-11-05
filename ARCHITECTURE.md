@@ -91,7 +91,7 @@ erDiagram
 | `GET /api/Location` | 200 (Fridge, Freezer, Pantry) | |
 
 Any unexpected error: 500 `{"message":"Something went wrong on the server."}`. Every `201 Created` has a `Location` header that a
-GET can read. Each action lists its status codes with `[ProducesResponseType]`, so Swagger (`/swagger`) shows the whole contract.
+GET can read. Ids are numbers: the routes use `{id:int}`, so `/api/Item/abc` matches no route and gets a plain 404. Swagger is at `/swagger`.
 
 ## Validation in two places
 
@@ -186,13 +186,13 @@ Page = page of the lecture PDF.
 | L04 p.7, 17 | Web API: a contract, stateless, REST, JSON | `Controllers/` |
 | L04 p.27 | Resources with GET, POST, PUT, DELETE | [API](#api): every resource address answers GET, also the `Location` of a new one |
 | L04 p.30 | `dotnet new sln`, `dotnet new webapi --use-controllers`, `dotnet sln add`; remove `UseHttpsRedirection` | `Backend/FoodInventory.slnx`, `FoodInventory.API` |
-| L04 p.31 | Create the database in pgAdmin; run the script in the Query Tool | README, Run it |
+| L04 p.31 | Create the database in pgAdmin; run the script in the Query Tool; `template0` if the locale provider differs | README, Run it and "If something goes wrong" |
 | L04 p.32 | `dotnet new classlib -n ....Model`; packages Npgsql and Microsoft.Extensions.Configuration | `FoodInventory.Model` |
 | L04 p.33 | Connection string `AppProgDb` in `appsettings.json`; folders `Entities` and `Repositories` | The same |
 | L04 p.34 | `BaseRepository` | `Repositories/BaseRepository.cs`, unchanged |
 | L04 p.35 | An entity class with an `(int id)` constructor and `DateOnly` | `Entities/` |
 | L04 p.36 | One repository per table; `AddScoped`; project reference; `<Nullable>disable</Nullable>` | `Program.cs`, the `.csproj` files |
-| L04 p.37 | A controller in `Controllers/`; `dotnet run --project`; `/api/Student` | `ItemController` is `/api/Item` |
+| L04 p.37 | A controller in `Controllers/`; `dotnet run --project`; `/api/Student`; a port in use: `lsof -i`, `kill` | `ItemController` is `/api/Item`; README tips |
 | L04 p.38 | Swashbuckle: `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI`, launch URL `swagger` | `Program.cs`, `launchSettings.json` |
 | L05 p.22-25 | A component is a class, a template, styles and metadata | One folder per component |
 | L05 p.27 | Input (parent to child), Output (child to parent), shared services | `ItemCard`, `CategoryCard`, `ItemForm`; the `Api` service |

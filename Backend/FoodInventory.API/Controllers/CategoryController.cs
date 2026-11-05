@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoodInventory.API.Controllers;
 
+// Ids are numbers: {id:int} sends /api/Category/abc to a plain 404.
 [Route("api/[controller]")]
 [ApiController]
 public class CategoryController(CategoryRepository repository) : ControllerBase
@@ -12,16 +13,13 @@ public class CategoryController(CategoryRepository repository) : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<Category>> GetCategories() => Ok(repository.GetCategories());
 
-    [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Category> GetCategory(string id) => Find(id) is { } category ? Ok(category) : CategoryNotFound();
+    [HttpGet("{id:int}")]
+    public ActionResult<Category> GetCategory(int id) =>
+        repository.GetCategoryById(id) is { } category ? Ok(category) : CategoryNotFound();
 
     // 201 Created, with a Location header that points to the new category.
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<Category> Post(CategoryRequest request)
     {
         if (CheckName(request, 0) is { } answer) return answer;
@@ -29,38 +27,28 @@ public class CategoryController(CategoryRepository repository) : ControllerBase
         return CreatedAtAction(nameof(GetCategory), new { id }, repository.GetCategoryById(id));
     }
 
-    [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public ActionResult<Category> Put(string id, CategoryRequest request)
+    [HttpPut("{id:int}")]
+    public ActionResult<Category> Put(int id, CategoryRequest request)
     {
-        if (Find(id) is not { } category) return CategoryNotFound();
-        if (CheckName(request, category.Id) is { } answer) return answer;
-        repository.UpdateCategory(category.Id, request.Name.Trim());
-        return Ok(repository.GetCategoryById(category.Id));
+        if (repository.GetCategoryById(id) is null) return CategoryNotFound();
+        if (CheckName(request, id) is { } answer) return answer;
+        repository.UpdateCategory(id, request.Name.Trim());
+        return Ok(repository.GetCategoryById(id));
     }
 
     // A category that items still use cannot be deleted (the database refuses it too: ON DELETE RESTRICT).
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public ActionResult Delete(string id)
+    [HttpDelete("{id:int}")]
+    public ActionResult Delete(int id)
     {
-        if (Find(id) is not { } category) return CategoryNotFound();
+        if (repository.GetCategoryById(id) is not { } category) return CategoryNotFound();
         var n = category.ItemCount;
         if (n > 0)
             return Conflict(new { message = $"{category.Name} is used by {n} {(n == 1 ? "item" : "items")} and cannot be deleted.", itemCount = n });
-        repository.DeleteCategory(category.Id);
+        repository.DeleteCategory(id);
         return NoContent();
     }
 
     private NotFoundObjectResult CategoryNotFound() => NotFound(new { message = "Category not found." });
-
-    // A non-numeric id ("abc") is simply not found.
-    private Category Find(string id) => int.TryParse(id, out var n) ? repository.GetCategoryById(n) : null;
 
     // The 400 or 409 answer for a bad name, or null when the name can be saved (on the category with this id).
     private ActionResult CheckName(CategoryRequest request, int id)

@@ -33,6 +33,11 @@ Needs PostgreSQL with pgAdmin, the .NET 10 SDK and Node.js 24 LTS (Angular 22 al
    `GET http://localhost:5000/api/Item`. All endpoints: [ARCHITECTURE.md](ARCHITECTURE.md#api).
 3. **App**: in `Frontend/FoodInventory.NG/` run `npm install`, then `npx ng serve`, and open http://localhost:4200.
 
+**If something goes wrong** (tips from lecture 4):
+- pgAdmin says the locale provider does not match the template database: in the Definition tab choose `template0`.
+- "Address already in use" for port 5000: `lsof -i :5000`, then `kill <PID>`.
+- Swagger answers with a database error: check the user name and password in `AppProgDb`.
+
 **One database for the whole team** (optional, exercise E02.1): create a free PostgreSQL database on Supabase, run the two scripts
 in its SQL Editor, and give the API its .NET connection string in an environment variable, so the password never goes to GitHub:
 `ConnectionStrings__AppProgDb="<connection string>" dotnet run --project FoodInventory.API` (Windows PowerShell:

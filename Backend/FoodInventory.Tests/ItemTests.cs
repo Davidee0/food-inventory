@@ -23,12 +23,13 @@ public class ItemTests : ApiTest
         Assert.Equal(JsonValueKind.Null, replaced.Body.GetProperty("bestBefore").ValueKind);
 
         Assert.Equal(HttpStatusCode.NoContent, (await Api("DELETE", $"/api/Item/{id}")).Status);
-        foreach (var (method, path) in new[] { ("GET", $"/api/Item/{id}"), ("DELETE", $"/api/Item/{id}"), ("PUT", $"/api/Item/{id}"), ("GET", "/api/Item/abc") })
+        foreach (var (method, path) in new[] { ("GET", $"/api/Item/{id}"), ("DELETE", $"/api/Item/{id}"), ("PUT", $"/api/Item/{id}") })
         {
             var gone = await Api(method, path, method == "PUT" ? Good() : null);
             Assert.Equal(HttpStatusCode.NotFound, gone.Status);
             Assert.Equal("Item not found.", Text(gone.Body, "message"));
         }
+        Assert.Equal(HttpStatusCode.NotFound, (await Api("GET", "/api/Item/abc")).Status); // not a number: no route matches
     }
 
     [Fact]
