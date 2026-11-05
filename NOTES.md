@@ -11,5 +11,5 @@ One `Rules` file per side with the same messages. Plain dates, local "today". ca
 **Tests:** 26 xUnit tests (a fresh PostgreSQL database each) and 15 Vitest tests; checked in Chromium at 360 px through the demo script,
 offline and server-error paths, and local "today" near midnight in UTC+14 and UTC-11.
 **Run:** see README (DB scripts, `dotnet run --project FoodInventory.API` in `Backend`, `npx ng serve` in `Frontend/FoodInventory.NG`).
-**Backlog:** `BACKLOG.md` (Product Goal, US1-US13 with acceptance criteria, Definition of Done); design in Figma (link in README).
+**Docs:** `BACKLOG.md` (Product Goal, US1-US13, acceptance criteria, Definition of Done), `ARCHITECTURE.md` (layers, ER model, exam questions), Figma (README).
 **Next:** the report (max 10 pages); optional stories US9-US13 only if there is time.

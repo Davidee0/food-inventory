@@ -5,7 +5,8 @@ No login: everyone who opens the app shares one inventory.
 
 Course project for *Designing and Developing Digital Business Applications* (CBS): PostgreSQL, ASP.NET Core Web API (C#, .NET 10) and Angular 22,
 set up like the course project `CourseAdminSystem` (lectures 4 and 5). Product Goal, user stories with acceptance criteria and the
-Definition of Done: [BACKLOG.md](BACKLOG.md).
+Definition of Done: [BACKLOG.md](BACKLOG.md). Layers, ER model, one request end to end, security, strengths and limitations, and
+questions for the oral exam: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Run it
 

@@ -12,6 +12,7 @@ in `Frontend/FoodInventory.NG/` (Node 24 LTS or 22.22.3+): `npx ng build`, `npx 
 Less is more: build the smallest working solution, no libraries, abstractions or files a story does not need. Keep the course guide's
 requirements: CRUD for two entities (items, categories), at least four Angular components, a service for the API, a form with two-way binding and validation.
 `BACKLOG.md` holds the Product Goal, the user stories with acceptance criteria and the Definition of Done: keep its Status column true.
+`ARCHITECTURE.md` explains the layers, the ER model, the API and the tests: keep it true when the code changes.
 
 ## Backend (like L04)
 `Backend/FoodInventory.slnx` with `FoodInventory.API` (`dotnet new webapi --use-controllers`; controllers, `Program.cs`, `Rules.cs`), `FoodInventory.Model`
@@ -50,6 +51,7 @@ jsdom has no `<dialog>`, so the form spec stubs `showModal`). Run the Vitest spe
 because in UTC a `toISOString()` bug would not show.
 
 ## Colours and design
-bg #eef4f3, ink #17433f, line #c9dad6, error #8f1d14 on #ffd9d4, radius 6px, focus outline 3px #0b6bcb, max content width 640px.
+bg #eef4f3, ink #17433f, line #c9dad6 (separators only), field border #6f8d89 (3:1 contrast), error #8f1d14 on #ffd9d4, radius 6px,
+focus outline 3px #0b6bcb, max content width 640px. All text has at least 4.5:1 contrast (WCAG AA).
 Figma file https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9 (wireframes, UI design, prototype): its variables and components match
 `styles.css` and the card components; a layout change goes in both.
