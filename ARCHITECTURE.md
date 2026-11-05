@@ -47,12 +47,13 @@ erDiagram
     int location_id FK "NOT NULL"
     int category_id FK "NULL, ON DELETE RESTRICT"
     date purchase_date
-    date best_before "NULL"
+    date best_before "NULL, CHECK >= purchase_date"
   }
 ```
 
 - Every item has exactly one storage location and at most one category. A category that items still use cannot be deleted:
   the database refuses it (`ON DELETE RESTRICT`), and the API answers first with a clear 409 message.
+- The database also refuses a best before date before the purchase date (`CHECK`), the same rule the form and the API check.
 - `name_key` makes category names unique ignoring case ("Dairy" = "dairy"); the API fills it with `ToLowerInvariant()`.
 - Dates are plain `date` values (no time, no time zone), sent as `"YYYY-MM-DD"`.
 - Scripts: `Database/create_tables.sql`, then `Database/seed_data.sql` (one transaction, runs once).
@@ -68,7 +69,8 @@ erDiagram
 4. **Controller** (`ItemController.Post`): `Rules.Item` checks the same rules again, and the repositories check that the location and
    the category exist. Errors: 400 `{"errors":{"name":"Enter a name."}}`.
 5. **Repository** (`ItemRepository.InsertItem`): `INSERT ... RETURNING id` with parameters, then `GetItemById` joins the location and
-   category names. Answer: **201 Created** with the item as JSON.
+   category names. Answer: **201 Created** with the item as JSON and a `Location` header (`/api/Item/7`) made by `CreatedAtAction`:
+   the address where the new item can be read.
 6. **Back in Angular**: the form emits `saved` with the new item; `ItemList` shows "Saved Milk." and loads `GET /api/Item` again
    (sorted by the database). The signals change and the page shows the new list.
 
@@ -82,12 +84,14 @@ erDiagram
 | `PUT /api/Item/{id}` (the whole item) | 200 + the item | 400, 404 |
 | `DELETE /api/Item/{id}` | 204 | 404 |
 | `GET /api/Category` | 200, with `itemCount`, by name | |
-| `POST /api/Category` | 201 | 400 name, 409 `Dairy already exists.` |
+| `GET /api/Category/{id}` | 200 | 404 `Category not found.` |
+| `POST /api/Category` | 201 + the category | 400 name, 409 `Dairy already exists.` |
 | `PUT /api/Category/{id}` | 200 | 400, 404, 409 |
 | `DELETE /api/Category/{id}` | 204 | 404, 409 `Dairy is used by 1 item and cannot be deleted.` |
 | `GET /api/Location` | 200 (Fridge, Freezer, Pantry) | |
 
-Any unexpected error: 500 `{"message":"Something went wrong on the server."}`. Swagger documents it all at `/swagger`.
+Any unexpected error: 500 `{"message":"Something went wrong on the server."}`. Every `201 Created` has a `Location` header that a
+GET can read. Each action lists its status codes with `[ProducesResponseType]`, so Swagger (`/swagger`) shows the whole contract.
 
 ## Validation in two places
 
@@ -104,13 +108,14 @@ again, because a request can come from anywhere (Swagger, Postman). Both use the
 - **Accessibility:** a label for every field; `aria-invalid` and `aria-describedby` link a field to its message, and the focus moves to
   the first wrong field. Buttons and fields are at least 44 px and text is at least 16 px. All text has at least 4.5:1 contrast
   (ink on background 9.9:1, error text 6.9:1, grey text 5.6:1) and field borders 3:1. Everything works with the keyboard.
+  The page links are a `<nav>` landmark, and the three required fields have `aria-required="true"`.
   Screen readers announce "Saved Milk." and "Deleted Milk.": the message is a `role="status"` live region that always stays in the page.
 
 ## Tests
 
-- **xUnit** (`Backend/FoodInventory.Tests`, 26 tests): every test runs the real API on a brand-new PostgreSQL database built from the
-  real scripts. They cover create/read/replace/delete, every validation message, ids sent as text, malformed JSON, the sort order,
-  category rules and the foreign key.
+- **xUnit** (`Backend/FoodInventory.Tests`, 28 tests): every test runs the real API on a brand-new PostgreSQL database built from the
+  real scripts. They cover create/read/replace/delete, the `Location` of a new resource, every validation message, ids sent as text,
+  malformed JSON, the sort order, category rules, the foreign key and the date `CHECK`.
 - **Vitest** (`Frontend/FoodInventory.NG`, 16 tests): the form rules and "today" in the local time zone, plus a spec for every
   component with TestBed and a mocked API (`vi.fn()`), e.g. Delete asks "Delete Milk?", Cancel keeps it, OK says "Deleted Milk.".
 - **By hand:** the demo script in the README, at 360 px.
@@ -149,6 +154,10 @@ shared households. That would bring new requirements: authentication, hosting, a
   appears in `<router-outlet />`.
 - **What happens when you delete a category that is in use?** The API counts its items and answers 409 with the count; the database
   would refuse it anyway (`ON DELETE RESTRICT`).
+- **What does `201 Created` send back?** The new resource as JSON and a `Location` header with its address, made by
+  `CreatedAtAction(nameof(GetItem), new { id }, item)`; a GET on that address returns the item.
+- **Why a `CHECK` in the database when the API already checks?** The database is the last guard: a script, Swagger or a bug
+  cannot store a best before date before the purchase date.
 - **Why are dates text?** A best before date has no time and no time zone. "Today" comes from the local year, month and day
   (`todayLocal`), because `toISOString()` gives the UTC day, which is wrong around midnight.
 
@@ -173,8 +182,9 @@ Page = page of the lecture PDF.
 | L02 p.32 | Mobile first; loading and error states; accessibility | 360 px layout; loading, empty and error states; WCAG contrast |
 | L02 p.38-40 | Definition of Done | `BACKLOG.md` |
 | L02 p.51-53 | Privacy, SQL injection, XSS, accessibility | [Security, ethics and accessibility](#security-ethics-and-accessibility-lecture-2) |
+| L02 p.52 | Keep dependencies up to date | `npm audit` and `dotnet list package --vulnerable` find nothing (Definition of Done) |
 | L04 p.7, 17 | Web API: a contract, stateless, REST, JSON | `Controllers/` |
-| L04 p.27 | Resources with GET, POST, PUT, DELETE | [API](#api) |
+| L04 p.27 | Resources with GET, POST, PUT, DELETE | [API](#api): every resource address answers GET, also the `Location` of a new one |
 | L04 p.30 | `dotnet new sln`, `dotnet new webapi --use-controllers`, `dotnet sln add`; remove `UseHttpsRedirection` | `Backend/FoodInventory.slnx`, `FoodInventory.API` |
 | L04 p.31 | Create the database in pgAdmin; run the script in the Query Tool | README, Run it |
 | L04 p.32 | `dotnet new classlib -n ....Model`; packages Npgsql and Microsoft.Extensions.Configuration | `FoodInventory.Model` |

@@ -14,11 +14,12 @@ CREATE TABLE categories (
 );
 
 -- Dates are plain dates. A category that is still used by an item cannot be deleted (RESTRICT).
+-- The best before date cannot be before the purchase date (a missing best before date passes the CHECK).
 CREATE TABLE items (
     id            SERIAL PRIMARY KEY,
     name          VARCHAR(50) NOT NULL,
     location_id   INTEGER NOT NULL REFERENCES locations (id),
     category_id   INTEGER REFERENCES categories (id) ON DELETE RESTRICT,
     purchase_date DATE NOT NULL,
-    best_before   DATE
+    best_before   DATE CHECK (best_before >= purchase_date)
 );

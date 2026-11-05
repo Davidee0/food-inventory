@@ -60,4 +60,24 @@ public class CategoryTests : ApiTest
         var two = (await Api("DELETE", "/api/Category/1")).Body;
         Assert.Equal(("Dairy is used by 2 items and cannot be deleted.", 2), (Text(two, "message"), two.GetProperty("itemCount").GetInt32()));
     }
+
+    [Fact]
+    public async Task A_new_category_or_item_can_be_read_at_its_Location()
+    {
+        foreach (var (path, body) in new (string, object)[] { ("/api/Category", new { name = "Snacks" }), ("/api/Item", Good(("name", "Tea"))) })
+        {
+            var created = await Api("POST", path, body);
+            Assert.Equal(HttpStatusCode.Created, created.Status);
+            Assert.Equal($"{path}/{created.Body.GetProperty("id").GetInt32()}", new Uri(created.Location!).AbsolutePath);
+
+            var read = await Api("GET", created.Location!);
+            Assert.Equal(HttpStatusCode.OK, read.Status);
+            Assert.Equal(Text(created.Body, "name"), Text(read.Body, "name"));
+        }
+        foreach (var path in new[] { "/api/Category/9999", "/api/Category/abc" })
+        {
+            var gone = await Api("GET", path);
+            Assert.Equal((HttpStatusCode.NotFound, "Category not found."), (gone.Status, Text(gone.Body, "message")));
+        }
+    }
 }

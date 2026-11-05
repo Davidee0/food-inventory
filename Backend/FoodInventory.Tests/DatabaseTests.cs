@@ -13,6 +13,14 @@ public class DatabaseTests : ApiTest
     }
 
     [Fact]
+    public async Task The_database_refuses_a_best_before_date_before_the_purchase_date()
+    {
+        var error = await Assert.ThrowsAsync<PostgresException>(() => Sql(
+            "INSERT INTO items (name, location_id, purchase_date, best_before) VALUES ('Tea', 1, '2026-11-05', '2026-11-04')"));
+        Assert.Equal(PostgresErrorCodes.CheckViolation, error.SqlState);
+    }
+
+    [Fact]
     public async Task Seed_has_3_locations_and_6_items_soonest_best_before_first_ties_by_name()
     {
         var locations = (await Api("GET", "/api/Location")).Body.EnumerateArray().Select(l => l.GetProperty("name").GetString());

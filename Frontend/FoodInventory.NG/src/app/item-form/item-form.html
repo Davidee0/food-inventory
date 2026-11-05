@@ -9,6 +9,7 @@
       <label for="f-name">Name</label>
       <input
         id="f-name"
+        aria-required="true"
         name="name"
         type="text"
         autocomplete="off"
@@ -24,6 +25,7 @@
       <label for="f-location">Storage location</label>
       <select
         id="f-location"
+        aria-required="true"
         name="locationId"
         aria-describedby="e-location"
         [(ngModel)]="form.locationId"
@@ -60,6 +62,7 @@
       <label for="f-purchase">Purchase date</label>
       <input
         id="f-purchase"
+        aria-required="true"
         name="purchaseDate"
         type="date"
         aria-describedby="e-purchase"

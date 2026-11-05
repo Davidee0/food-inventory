@@ -12,15 +12,28 @@ public class CategoryController(CategoryRepository repository) : ControllerBase
     [HttpGet]
     public ActionResult<IEnumerable<Category>> GetCategories() => Ok(repository.GetCategories());
 
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<Category> GetCategory(string id) => Find(id) is { } category ? Ok(category) : CategoryNotFound();
+
+    // 201 Created, with a Location header that points to the new category.
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<Category> Post(CategoryRequest request)
     {
         if (CheckName(request, 0) is { } answer) return answer;
         var id = repository.InsertCategory(request.Name.Trim());
-        return Created($"/api/Category/{id}", repository.GetCategoryById(id));
+        return CreatedAtAction(nameof(GetCategory), new { id }, repository.GetCategoryById(id));
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<Category> Put(string id, CategoryRequest request)
     {
         if (Find(id) is not { } category) return CategoryNotFound();
@@ -31,6 +44,9 @@ public class CategoryController(CategoryRepository repository) : ControllerBase
 
     // A category that items still use cannot be deleted (the database refuses it too: ON DELETE RESTRICT).
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult Delete(string id)
     {
         if (Find(id) is not { } category) return CategoryNotFound();

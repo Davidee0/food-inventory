@@ -6,3 +6,7 @@ dist/
 coverage/
 out-tsc/
 *.user
+# Editor and system files: Visual Studio, JetBrains Rider, macOS
+.vs/
+.idea/
+.DS_Store

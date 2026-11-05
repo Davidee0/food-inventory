@@ -57,5 +57,6 @@ Ethics (lecture 2): the app has no accounts and stores no personal data, only th
 - The acceptance criteria pass, checked in the browser at 360 px.
 - `dotnet test` (Backend) and `ng test` (Frontend/FoodInventory.NG) pass; `ng build` has no errors; Prettier has formatted the code.
 - `Rules.cs` and `rules.ts` have the same rules and messages.
+- `dotnet format` and Prettier have formatted the code; `npm audit` and `dotnet list package --vulnerable` find nothing.
 - README, CLAUDE.md and the Figma file are updated when the structure or the layout changes.
 - The change is merged through a pull request that a teammate has read.

@@ -5,8 +5,9 @@ Built: US1-US8. Optional US9-US13 (quantity, filters, highlights, sort toggle, l
 The structure follows the professor's course project `CourseAdminSystem` (lecture notes L04 backend, L05 frontend): when in doubt, do what the course did.
 
 ## Commands
-In `Backend/` (.NET 10, needs PostgreSQL, see `TEST_DB_ADMIN`): `dotnet build`, `dotnet test`, `dotnet run --project FoodInventory.API` ·
-in `Frontend/FoodInventory.NG/` (Node 24 LTS or 22.22.3+): `npx ng build`, `npx ng test --watch=false` (Vitest), `npx prettier --write src`.
+In `Backend/` (.NET 10, needs PostgreSQL, see `TEST_DB_ADMIN`): `dotnet build`, `dotnet test`, `dotnet run --project FoodInventory.API`,
+`dotnet format FoodInventory.slnx`, `dotnet list FoodInventory.slnx package --vulnerable --include-transitive` ·
+in `Frontend/FoodInventory.NG/` (Node 24 LTS or 22.22.3+): `npx ng build`, `npx ng test --watch=false` (Vitest), `npx prettier --write src`, `npm audit`.
 
 ## How to work
 Less is more: build the smallest working solution, no libraries, abstractions or files a story does not need. Keep the course guide's
@@ -31,13 +32,16 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 
 ## API decisions
 - Paths `api/[controller]` like the course: `/api/Location`, `/api/Item`, `/api/Item/{id}`, `/api/Category`, `/api/Category/{id}`. JSON is camelCase (.NET default).
-- Codes: 201 create, 200 replace/rename, 204 delete, 404 `{message}` (also for a non-numeric id), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
+- Codes: 201 create (with a `Location` header from `CreatedAtAction`; a GET on it returns the resource), 200 replace/rename, 204 delete, 404 `{message}` (also for a non-numeric id), 400 `{errors:{field:msg}}` (one message per field), 409 duplicate name or category in use, 500 `{message:"Something went wrong on the server."}`.
 - Request bodies bind to `ItemRequest` / `CategoryRequest` (dates as text, so a bad date gets its field message). Malformed JSON or a wrongly typed value (a number as name, an array as id) fails binding and gets 400 `{message:"The request body is not valid JSON."}`, so it is never stored. Ids may also be sent as text ("1").
+- Each action declares its status codes with `[ProducesResponseType]` (Swagger shows them); `SuppressMapClientErrors` keeps Swagger from calling
+  the `{message}` / `{errors}` bodies ProblemDetails.
 - `FoodInventory.API/Rules.cs` has the rules and messages; `src/app/rules.ts` has the same ones for the form. Change both together.
 - `GET /api/Item`: `best_before` ascending, nulls last, then name ignoring case.
 
 ## Traps
 - **FK enforcement:** `items.category_id` is `ON DELETE RESTRICT`; PostgreSQL enforces it. The API counts the items first to answer with a friendly 409.
+  `items.best_before` has `CHECK (best_before >= purchase_date)`, the same rule as the API and the form.
 - **Case-insensitive unique names:** `categories.name_key` (lower-case copy, UNIQUE) is set with `ToLowerInvariant()` in `CategoryRepository`, not with SQL `lower()`, so Æ, Ø and Å work in any database locale.
 - **Plain dates:** `date` columns, `DateOnly`, `"YYYY-MM-DD"` strings, never timestamps. "Today" is the user's LOCAL date: `todayLocal()` builds it from local year, month and day, never `toISOString()`.
 - **Seed once:** `seed_data.sql` is one transaction and fails on a database that has data (location names are unique). The app never seeds, so deleted items never come back.

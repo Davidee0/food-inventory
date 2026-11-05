@@ -65,14 +65,14 @@ public abstract class ApiTest : IAsyncLifetime
     protected Task Sql(string sql) => Execute(Connection, sql);
 
     /// <summary>Calls the API. The body is sent as JSON; a string is sent as it is (to test malformed JSON).</summary>
-    protected async Task<(HttpStatusCode Status, JsonElement Body)> Api(string method, string path, object? body = null)
+    protected async Task<(HttpStatusCode Status, JsonElement Body, string? Location)> Api(string method, string path, object? body = null)
     {
         var request = new HttpRequestMessage(new HttpMethod(method), path);
         if (body is not null)
             request.Content = new StringContent(body as string ?? JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
         var response = await _http.SendAsync(request);
         var text = await response.Content.ReadAsStringAsync();
-        return (response.StatusCode, text.Length > 0 ? JsonDocument.Parse(text).RootElement : default);
+        return (response.StatusCode, text.Length > 0 ? JsonDocument.Parse(text).RootElement : default, response.Headers.Location?.ToString());
     }
 
     /// <summary>A valid item, with some fields replaced: Good(("name", "Butter")).</summary>
@@ -80,7 +80,11 @@ public abstract class ApiTest : IAsyncLifetime
     {
         var item = new Dictionary<string, object?>
         {
-            ["name"] = "Cheese", ["locationId"] = 1, ["categoryId"] = null, ["purchaseDate"] = Today, ["bestBefore"] = null,
+            ["name"] = "Cheese",
+            ["locationId"] = 1,
+            ["categoryId"] = null,
+            ["purchaseDate"] = Today,
+            ["bestBefore"] = null,
         };
         foreach (var (field, value) in changes) item[field] = value;
         return item;
