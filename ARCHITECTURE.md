@@ -104,6 +104,7 @@ again, because a request can come from anywhere (Swagger, Postman). Both use the
 - **Accessibility:** a label for every field; `aria-invalid` and `aria-describedby` link a field to its message, and the focus moves to
   the first wrong field. Buttons and fields are at least 44 px and text is at least 16 px. All text has at least 4.5:1 contrast
   (ink on background 9.9:1, error text 6.9:1, grey text 5.6:1) and field borders 3:1. Everything works with the keyboard.
+  Screen readers announce "Saved Milk." and "Deleted Milk.": the message is a `role="status"` live region that always stays in the page.
 
 ## Tests
 

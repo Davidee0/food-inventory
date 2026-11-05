@@ -1,4 +1,5 @@
-/* Always in the page, so screen readers announce each new message; hidden while empty. */
+/* Always in the page, so screen readers announce each new message. While empty it only collapses:
+   display: none would take it out of the accessibility tree, and the next message would not be announced. */
 .notice {
   margin: 12px 0 0;
   padding: 10px 12px;
@@ -8,7 +9,9 @@
   font-weight: 600;
 }
 .notice:empty {
-  display: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .state {
   padding: 32px 0;
