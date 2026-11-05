@@ -49,6 +49,7 @@ Everyone then sees the same data. The tests still use a local PostgreSQL.
 - `dotnet test` in `Backend/`: the API against a brand-new PostgreSQL database per test, built from the scripts in `Database/`.
   Set `TEST_DB_ADMIN` if PostgreSQL is not on localhost with user and password `postgres`.
 - `npx ng test --watch=false` in `Frontend/FoodInventory.NG/`: the form rules and date helpers, and every component (Vitest, no browser needed).
+- GitHub Actions runs both, plus the formatting checks and the build, on every pull request (`.github/workflows/ci.yml`).
 
 ## Where things are
 

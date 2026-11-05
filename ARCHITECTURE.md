@@ -116,8 +116,10 @@ again, because a request can come from anywhere (Swagger, Postman). Both use the
 - **xUnit** (`Backend/FoodInventory.Tests`, 28 tests): every test runs the real API on a brand-new PostgreSQL database built from the
   real scripts. They cover create/read/replace/delete, the `Location` of a new resource, every validation message, ids sent as text,
   malformed JSON, the sort order, category rules, the foreign key and the date `CHECK`.
-- **Vitest** (`Frontend/FoodInventory.NG`, 16 tests): the form rules and "today" in the local time zone, plus a spec for every
+- **Vitest** (`Frontend/FoodInventory.NG`, 17 tests): the form rules and "today" in the local time zone, plus a spec for every
   component with TestBed and a mocked API (`vi.fn()`), e.g. Delete asks "Delete Milk?", Cancel keeps it, OK says "Deleted Milk.".
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs both on every pull request, the backend against a PostgreSQL 16 service,
+  plus the formatting checks and the build, so a broken change shows up before it is merged.
 - **By hand:** the demo script in the README, at 360 px.
 
 ## Strengths and limitations
@@ -173,6 +175,7 @@ Page = page of the lecture PDF.
 | L01 p.27-32 | Scrum: team, events, Product Backlog, Increment | `BACKLOG.md` |
 | L01 p.40 | Angular, ASP.NET Core (C#), PostgreSQL | The stack |
 | L01 p.50 | Layered architecture, REST API | [Layers](#layers) |
+| L01 p.50 | DevOps: CI/CD pipelines with automated testing | `.github/workflows/ci.yml` runs every test on each pull request |
 | L02 p.17-20 | User stories: "As a ... I want ... so that ..." | `BACKLOG.md` |
 | L02 p.18 | INVEST: every story is testable, with acceptance criteria | `BACKLOG.md`, acceptance criteria |
 | L02 p.21-22 | Use case: preconditions and main flow | [One request from start to end](#one-request-from-start-to-end-adding-an-item) |
@@ -196,7 +199,7 @@ Page = page of the lecture PDF.
 | L04 p.38 | Swashbuckle: `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI`, launch URL `swagger` | `Program.cs`, `launchSettings.json` |
 | L05 p.22-25 | A component is a class, a template, styles and metadata | One folder per component |
 | L05 p.27 | Input (parent to child), Output (child to parent), shared services | `ItemCard`, `CategoryCard`, `ItemForm`; the `Api` service |
-| L05 p.35-37 | Clear labels; feedback while loading; helpful errors with a way to recover | Labels; "Loading your items..."; "Try again" |
+| L05 p.35-37 | Clear labels; feedback while loading; helpful errors with a way to recover | Labels; "Loading your items...", "Loading categories..."; "Try again" |
 | L05 p.51-52 | Node.js LTS; `npm install -g @angular/cli` | README, Run it |
 | L05 p.53-54 | `ng new ....NG` in `Frontend/`, CSS, no SSR; `ng serve` | `Frontend/FoodInventory.NG` |
 | L05 p.56-57 | `ng generate component`; `ng generate interface` in `model/` | `item-card/` and the others; `model/item.ts` |

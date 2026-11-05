@@ -50,7 +50,8 @@ Ethics (lecture 2): the app has no accounts and stores no personal data, only th
   "Add item" always visible; Edit and Delete one tap on each item.
 - **US7 Categories in the form:** the category comes from a list with "No category"; an unknown category gives "Choose a category from the list.".
 - **US8 Categories:** add, rename and delete; names have 1-30 characters and are unique ignoring case ("Dairy already exists.");
-  a category that items use cannot be deleted ("Dairy is used by 1 item and cannot be deleted.").
+  a category that items use cannot be deleted ("Dairy is used by 1 item and cannot be deleted."). While loading the page says
+  "Loading categories…", and with no categories "No categories yet. Add one above.".
 
 ## Definition of Done
 
@@ -59,4 +60,4 @@ Ethics (lecture 2): the app has no accounts and stores no personal data, only th
 - `Rules.cs` and `rules.ts` have the same rules and messages.
 - `dotnet format` and Prettier have formatted the code; `npm audit` and `dotnet list package --vulnerable` find nothing.
 - README, CLAUDE.md and the Figma file are updated when the structure or the layout changes.
-- The change is merged through a pull request that a teammate has read.
+- The change is merged through a pull request that a teammate has read and whose CI checks are green.

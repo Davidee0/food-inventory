@@ -53,7 +53,7 @@ Form fields stay two-way bound with `[(ngModel)]` (course requirement).
 ## Tests
 Every xUnit test gets its own brand-new database from the real scripts (`ApiTest.cs`). Every component has a `.spec.ts` (TestBed, the API mocked with `vi.fn()`;
 jsdom has no `<dialog>`, so the form spec stubs `showModal`). Run the Vitest specs in another zone too (`TZ=Pacific/Auckland npx ng test --watch=false`),
-because in UTC a `toISOString()` bug would not show.
+because in UTC a `toISOString()` bug would not show. GitHub Actions (`.github/workflows/ci.yml`) runs all of it on every pull request.
 
 ## Colours and design
 bg #eef4f3, ink #17433f, line #c9dad6 (separators only), field border #6f8d89 (3:1 contrast), error #8f1d14 on #ffd9d4, radius 6px,

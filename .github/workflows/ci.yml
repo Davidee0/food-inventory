@@ -1,0 +1,48 @@
+# Runs the tests on every pull request and on main (lecture 1: CI with automated testing).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet build Backend/FoodInventory.slnx
+      - run: dotnet test Backend/FoodInventory.slnx --no-build
+      - run: dotnet format Backend/FoodInventory.slnx --verify-no-changes
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend/FoodInventory.NG
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Frontend/FoodInventory.NG/package-lock.json
+      - run: npm ci
+      - run: npx prettier --check src
+      - run: npx ng build
+      - run: npx ng test --watch=false
+      # In UTC a toISOString() "today" bug would not show, so run the tests in a zone far from it too.
+      - run: npx ng test --watch=false
+        env:
+          TZ: Pacific/Auckland

@@ -17,6 +17,7 @@ export class CategoryList implements OnInit {
   protected readonly categories = signal<Category[]>([]);
   protected readonly newName = signal('');
   protected readonly message = signal('');
+  protected readonly loaded = signal(false);
 
   ngOnInit() {
     this.run();
@@ -44,6 +45,8 @@ export class CategoryList implements OnInit {
     } catch (error) {
       this.message.set(errorMessage(error));
       return false;
+    } finally {
+      this.loaded.set(true);
     }
   }
 }

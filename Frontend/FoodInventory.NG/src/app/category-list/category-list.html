@@ -12,6 +12,12 @@
     </div>
   </form>
 
+  @if (!loaded()) {
+    <p class="state">Loading categories…</p>
+  } @else if (!categories().length && !message()) {
+    <p class="state">No categories yet. Add one above.</p>
+  }
+
   <ul class="list">
     @for (category of categories(); track category.id) {
       <li>
