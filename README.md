@@ -19,7 +19,8 @@ Needs PostgreSQL with pgAdmin, the .NET 10 SDK and Node.js 24 LTS (Angular 22 al
    psql -U postgres -d food_inventory -f Database/create_tables.sql -f Database/seed_data.sql
    ```
 2. **API**: check `AppProgDb` in `Backend/FoodInventory.API/appsettings.json`, then in `Backend/` run `dotnet run --project FoodInventory.API`.
-   It listens on http://localhost:5000, with Swagger at http://localhost:5000/swagger.
+   It listens on http://localhost:5000. Try it in Swagger (http://localhost:5000/swagger) or in Postman like exercise E04.1:
+   `GET http://localhost:5000/api/Item`. All endpoints: [ARCHITECTURE.md](ARCHITECTURE.md#api).
 3. **App**: in `Frontend/FoodInventory.NG/` run `npm install`, then `npx ng serve`, and open http://localhost:4200.
 
 **One database for the whole team** (optional, exercise E02.1): create a free PostgreSQL database on Supabase, run the two scripts
@@ -46,16 +47,6 @@ Everyone then sees the same data. The tests still use a local PostgreSQL.
 | `Frontend/FoodInventory.NG/src/app/` | `app.*` (title, links, `<router-outlet />`, routes `/items` and `/categories`); `item-list/` + `item-card/` and `category-list/` + `category-card/` (a list and its cards: `@Input` down, `@Output` up); `item-form/` (the Add/Edit dialog); `model/` (the interfaces); `api.ts` (the service for the API); `rules.ts` |
 
 Code style: Prettier with `.prettierrc` (run `npx prettier --write src` in `Frontend/FoodInventory.NG/`).
-
-## API
-
-- Items: `GET /api/Item`, `GET /api/Item/{id}`, `POST /api/Item` (201), `PUT /api/Item/{id}` (send the whole item), `DELETE /api/Item/{id}` (204).
-- Categories: `GET /api/Category`, `POST /api/Category` (201), `PUT /api/Category/{id}`, `DELETE /api/Category/{id}` (204).
-- Locations: `GET /api/Location` (Fridge, Freezer, Pantry).
-- JSON is camelCase, the .NET default: `{"name":"Milk","locationId":1,"categoryId":1,"purchaseDate":"2026-11-01","bestBefore":"2026-11-06"}`.
-- Errors: 400 invalid data (one message per field: `{"errors":{"name":"Enter a name."}}`) or malformed JSON, 404 unknown id,
-  409 duplicate category name or category in use, 500 server error.
-- Try it in Swagger (http://localhost:5000/swagger) or in Postman like exercise E04.1: `GET http://localhost:5000/api/Item`.
 
 ## Design
 

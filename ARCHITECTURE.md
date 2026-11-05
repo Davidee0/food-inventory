@@ -149,3 +149,55 @@ goes off, and shared households. That would bring new requirements: authenticati
   would refuse it anyway (`ON DELETE RESTRICT`).
 - **Why are dates text?** A best before date has no time and no time zone. "Today" comes from the local year, month and day
   (`todayLocal`), because `toISOString()` gives the UTC day, which is wrong around midnight.
+
+## Where the course is in this project
+
+Page = page of the lecture PDF.
+
+| Lecture, page | The course | In this project |
+|---|---|---|
+| L01 p.14 | Project: software product, written report (max 10 pages), individual oral exam | This repository; facts for the report here and in `BACKLOG.md` |
+| L01 p.15 | Do not share the project outside the group | Keep the GitHub repository private; share the Figma file with the group only |
+| L01 p.16 | CBS rules for generative AI (my.cbs.dk/ai) | Follow them; be able to explain every file |
+| L01 p.27-32 | Scrum: team, events, Product Backlog, Increment | `BACKLOG.md` |
+| L01 p.40 | Angular, ASP.NET Core (C#), PostgreSQL | The stack |
+| L01 p.50 | Layered architecture, REST API | [Layers](#layers) |
+| L02 p.17-20 | User stories: "As a ... I want ... so that ..." | `BACKLOG.md` |
+| L02 p.18 | INVEST: every story is testable, with acceptance criteria | `BACKLOG.md`, acceptance criteria |
+| L02 p.21-22 | Use case: preconditions and main flow | [One request from start to end](#one-request-from-start-to-end-adding-an-item) |
+| L02 p.24, 31 | Wireframes, then UI design, then a prototype | Figma: 1 Wireframes, 2 UI design (press Play) |
+| L02 p.29-31 | Visual hierarchy, consistency, colours, type sizes; primary, secondary and ghost buttons | `styles.css`; Button Primary, Secondary, Quiet |
+| L02 p.32 | Mobile first; loading and error states; accessibility | 360 px layout; loading, empty and error states; WCAG contrast |
+| L02 p.38-40 | Definition of Done | `BACKLOG.md` |
+| L02 p.51-53 | Privacy, SQL injection, XSS, accessibility | [Security, ethics and accessibility](#security-ethics-and-accessibility-lecture-2) |
+| L04 p.7, 17 | Web API: a contract, stateless, REST, JSON | `Controllers/` |
+| L04 p.27 | Resources with GET, POST, PUT, DELETE | [API](#api) |
+| L04 p.30 | `dotnet new sln`, `dotnet new webapi --use-controllers`, `dotnet sln add`; remove `UseHttpsRedirection` | `Backend/FoodInventory.slnx`, `FoodInventory.API` |
+| L04 p.31 | Create the database in pgAdmin; run the script in the Query Tool | README, Run it |
+| L04 p.32 | `dotnet new classlib -n ....Model`; packages Npgsql and Microsoft.Extensions.Configuration | `FoodInventory.Model` |
+| L04 p.33 | Connection string `AppProgDb` in `appsettings.json`; folders `Entities` and `Repositories` | The same |
+| L04 p.34 | `BaseRepository` | `Repositories/BaseRepository.cs`, unchanged |
+| L04 p.35 | An entity class with an `(int id)` constructor and `DateOnly` | `Entities/` |
+| L04 p.36 | One repository per table; `AddScoped`; project reference; `<Nullable>disable</Nullable>` | `Program.cs`, the `.csproj` files |
+| L04 p.37 | A controller in `Controllers/`; `dotnet run --project`; `/api/Student` | `ItemController` is `/api/Item` |
+| L04 p.38 | Swashbuckle: `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI`, launch URL `swagger` | `Program.cs`, `launchSettings.json` |
+| L05 p.22-25 | A component is a class, a template, styles and metadata | One folder per component |
+| L05 p.27 | Input (parent to child), Output (child to parent), shared services | `ItemCard`, `CategoryCard`, `ItemForm`; the `Api` service |
+| L05 p.35-37 | Clear labels; feedback while loading; helpful errors with a way to recover | Labels; "Loading your items..."; "Try again" |
+| L05 p.51-52 | Node.js LTS; `npm install -g @angular/cli` | README, Run it |
+| L05 p.53-54 | `ng new ....NG` in `Frontend/`, CSS, no SSR; `ng serve` | `Frontend/FoodInventory.NG` |
+| L05 p.56-57 | `ng generate component`; `ng generate interface` in `model/` | `item-card/` and the others; `model/item.ts` |
+| L05 p.60-63 | A list and a card: `@for`, `@Input() student!` | `ItemList` + `ItemCard`, `CategoryList` + `CategoryCard` |
+| L05 p.68 | Routes, `RouterLink`, a nav list, `<router-outlet />` | `app.routes.ts`, `app.html` |
+| E02.1 p.1 | Scrum team of 3-4, registered on Digital Exam, with an idea of its own | The Product Goal in `BACKLOG.md` |
+| E02.1 p.1-2 | PostgreSQL and pgAdmin; a cloud database such as Supabase for the team | README, Run it |
+| E04.1 p.1 | Test your API with Postman | README: `GET http://localhost:5000/api/Item` |
+
+Kept different on purpose:
+
+| Lecture, page | The course | Here, and why |
+|---|---|---|
+| L05 p.53 | Keep zone.js | Zoneless with signals, like the professor's own project files (they have no zone.js) |
+| L05 p.62-63 | `track $index` | `track item.id`: each card stays with its item when the list changes |
+| L05 p.65 | A table with `border` and `cellpadding` | Cards styled with CSS: a table does not fit a 360 px phone |
+| L05 p.58, 61 | Data typed into the component | Data from the API |
