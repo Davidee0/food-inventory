@@ -16,45 +16,76 @@ public class StorageLocationController : ControllerBase
         Repository = repository;
     }
 
+    // GET api/StorageLocation/5
     [HttpGet("{id}")]
     public ActionResult<StorageLocation> GetStorageLocation([FromRoute] int id)
     {
-        StorageLocation? location = Repository.GetStorageLocationById(id);
-        if (location == null) return NotFound();
-        return Ok(location);
+        StorageLocation storageLocation = Repository.GetStorageLocationById(id);
+        if (storageLocation == null)
+        {
+            return NotFound();
+        }
+        return Ok(storageLocation);
     }
 
+    // GET api/StorageLocation
     [HttpGet]
     public ActionResult<IEnumerable<StorageLocation>> GetStorageLocations()
     {
         return Ok(Repository.GetStorageLocations());
     }
 
+    // POST api/StorageLocation
     [HttpPost]
-    public ActionResult Post([FromBody] StorageLocation location)
+    public ActionResult Post([FromBody] StorageLocation storageLocation)
     {
-        return Repository.InsertStorageLocation(location) ? Ok() : BadRequest();
+        bool status = Repository.InsertStorageLocation(storageLocation);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest();
     }
 
+    // PUT api/StorageLocation (the whole storage location, id included)
     [HttpPut]
-    public ActionResult UpdateStorageLocation([FromBody] StorageLocation location)
+    public ActionResult UpdateStorageLocation([FromBody] StorageLocation storageLocation)
     {
-        if (Repository.GetStorageLocationById(location.Id) == null) return NotFound($"Storage location with id {location.Id} not found");
-        return Repository.UpdateStorageLocation(location) ? Ok() : BadRequest("Something went wrong");
+        StorageLocation existingStorageLocation = Repository.GetStorageLocationById(storageLocation.Id);
+        if (existingStorageLocation == null)
+        {
+            return NotFound($"Storage location with id {storageLocation.Id} not found");
+        }
+        bool status = Repository.UpdateStorageLocation(storageLocation);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest("Something went wrong");
     }
 
+    // DELETE api/StorageLocation/5
     [HttpDelete("{id}")]
     public ActionResult DeleteStorageLocation([FromRoute] int id)
     {
-        StorageLocation? location = Repository.GetStorageLocationById(id);
-        if (location == null) return NotFound($"Storage location with id {id} not found");
+        StorageLocation existingStorageLocation = Repository.GetStorageLocationById(id);
+        if (existingStorageLocation == null)
+        {
+            return NotFound($"Storage location with id {id} not found");
+        }
         try
         {
-            return Repository.DeleteStorageLocation(id) ? NoContent() : BadRequest($"Unable to delete storage location with id {id}");
+            bool status = Repository.DeleteStorageLocation(id);
+            if (status)
+            {
+                return NoContent();
+            }
+            return BadRequest($"Unable to delete storage location with id {id}");
         }
-        catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
+        catch (PostgresException)
         {
-            return Conflict($"{location.Name} still has food in it, so it cannot be deleted.");
+            // The foreign key in food_item refuses the delete while food is still stored here.
+            return Conflict($"{existingStorageLocation.Name} still has food in it, so it cannot be deleted.");
         }
     }
 }

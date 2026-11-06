@@ -1,0 +1,38 @@
+<h2>Storage locations</h2>
+
+<table>
+  @for (storageLocation of storageLocations; track storageLocation.id) {
+    <tr>
+      <td>
+        <input
+          type="text"
+          [(ngModel)]="storageLocation.name"
+          required
+          maxlength="30"
+          #name="ngModel"
+        />
+      </td>
+      <td>
+        <button (click)="updateStorageLocation(storageLocation)" [disabled]="name.invalid">
+          Save
+        </button>
+        <button (click)="deleteStorageLocation(storageLocation)">Delete</button>
+      </td>
+    </tr>
+  }
+  <tr>
+    <td>
+      <input
+        type="text"
+        [(ngModel)]="newName"
+        placeholder="New storage location"
+        required
+        maxlength="30"
+        #newNameField="ngModel"
+      />
+    </td>
+    <td>
+      <button (click)="addStorageLocation()" [disabled]="newNameField.invalid">Add</button>
+    </td>
+  </tr>
+</table>

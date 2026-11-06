@@ -1,33 +1,15 @@
-<div class="app">
-  <main class="page"><router-outlet /></main>
-
-  @if (inventory.toast(); as toast) {
-    <p class="toast" role="status">
-      <app-icon name="tick" [size]="26" />
-      <span class="toast-text">{{ toast.text }}</span>
-      @if (toast.undo; as undo) {
-        <button type="button" (click)="undo()">Undo</button>
-      }
-    </p>
-  }
-
-  <nav class="tabbar" aria-label="Main">
-    <ul>
-      <li>
-        <a class="tab" routerLink="/add" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="plus" /><span>Add</span>
-        </a>
-      </li>
-      <li>
-        <a class="tab" routerLink="/items" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="list" /><span>Inventory</span>
-        </a>
-      </li>
-      <li>
-        <a class="tab" routerLink="/eat" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="check" /><span>Ate it</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
+<mat-toolbar>
+  <button mat-icon-button aria-label="Open main menu" [matMenuTriggerFor]="menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button routerLink="/food-items" mat-menu-item>Food</button>
+    <button routerLink="/add-food-item" mat-menu-item>Add food</button>
+    <button routerLink="/categories" mat-menu-item>Categories</button>
+    <button routerLink="/storage-locations" mat-menu-item>Storage locations</button>
+  </mat-menu>
+  <span>U8 Food Inventory</span>
+</mat-toolbar>
+<main>
+  <router-outlet />
+</main>

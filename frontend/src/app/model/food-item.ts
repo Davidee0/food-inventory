@@ -1,11 +1,11 @@
 export interface FoodItem {
   id: number;
   name: string;
-  quantity: number | null; // null while the form field is empty
-  purchaseDate: string; // "YYYY-MM-DD"
-  bestBeforeDate: string | null;
-  categoryId: number | null;
-  storageLocationId: number | null;
-  categoryName?: string | null;
-  storageLocationName?: string;
+  quantity: number;
+  purchaseDate: string; // a date as text: "YYYY-MM-DD"
+  bestBeforeDate: string | null; // optional
+  categoryId: number | null; // optional
+  storageLocationId: number;
+  categoryName?: string; // filled in by the API
+  storageLocationName?: string; // filled in by the API
 }
