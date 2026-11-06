@@ -6,6 +6,7 @@ Food inventory, CBS course project (Designing and Developing Digital Business Ap
 Follow the professor's lecture slides (Lectures 4 to 8, course project CourseAdminSystem) as closely as possible, so the team can map every file to a slide. README.md has the map: keep it up to date, including "Where the app differs from the slides, on purpose".
 Keep it simple: no code, libraries, files or patterns the lectures do not use unless a user story needs them (then list it under "What the app adds to the lectures" in README.md).
 No hyphens or em dashes in prose written for the team (README, comments, PR texts).
+BACKLOG.md has the user stories, acceptance criteria and Definition of Done: update a story there when its behaviour changes. CI (`.github/workflows/ci.yml`) must stay green.
 
 ## Database (`database.sql`)
 `storage_location`, `category`, `food_item` (quantity > 0, optional best_before_date not before purchase_date, optional category_id, required storage_location_id). The foreign keys refuse to delete a category or storage location that still has food.
@@ -13,7 +14,7 @@ No hyphens or em dashes in prose written for the team (README, comments, PR text
 ## Backend (Lecture 4 and 6)
 * .NET SDK 10 as Lecture 4 asks: `net10.0`, `FoodInventory.slnx`, packages Npgsql 10, Microsoft.Extensions.Configuration, Swashbuckle.AspNetCore and Swashbuckle.AspNetCore.SwaggerUI.
 * `FoodInventory.Model`: `Entities/` (a class per table, constructor with the id, `[Required]`/`[Range]` only), `Repositories/` (`XRepository : BaseRepository`, SQL with `@parameters`, `using var dbConn`). `BaseRepository.cs` is the slide's file: do not change it. Npgsql 10 reads `date` as `DateOnly`: cast with `(DateOnly)data["column"]`.
-* `FoodInventory.API`: `[Route("api/[controller]")]` controllers with explicit `if` statements as in the course. PUT gets the whole object. NotFound for unknown ids; 409 Conflict when a category or storage location still has food.
+* `FoodInventory.API`: `[Route("api/[controller]")]` controllers with explicit `if` statements as in the course. PUT gets the whole object. NotFound for unknown ids; 409 Conflict when a category or storage location still has food; 400 BadRequest when the best before date is before the purchase date.
 * `Program.cs` as the template plus the professor's edits: `AddScoped<X, X>()`, Swagger, no HTTPS redirection, `app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin())`.
 * Port 5050 in `Properties/launchSettings.json`, connection string `AppProgDb`, `<Nullable>disable</Nullable>`.
 

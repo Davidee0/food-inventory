@@ -25,6 +25,13 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
    ```
    Open http://localhost:4200
 
+## Project documents
+
+* [BACKLOG.md](BACKLOG.md): Product Goal, personas, user stories with their status, acceptance criteria and the Definition of Done (Lectures 1 and 2).
+* Figma wireframes: [Mobile Wireframe for U8 App](https://www.figma.com/make/dwuMZ5LaWamDN2ijxUaK9z/Mobile-Wireframe-for-U8-App)
+* ER diagram: [Database](#database) below.
+* CI: `.github/workflows/ci.yml` checks every pull request (Lecture 1).
+
 ## Where each lecture is in the code
 
 ### Lecture 4: Web API and database
@@ -94,6 +101,10 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 
 | Lecture | Theory | Where it shows |
 |---|---|---|
+| 1 | Scrum: product backlog, user stories, Definition of Done | `BACKLOG.md` |
+| 1 | CI with automated testing | `.github/workflows/ci.yml`: every pull request builds the backend, calls the API on a database made from `database.sql`, and builds and tests the frontend |
+| 2 | discover, define, develop, deliver; ethics | Product Goal and Ethics in `BACKLOG.md` |
+| 2 | security | SQL with parameters (`@name`), so typed text never changes the SQL; Angular escapes `{{ }}` |
 | 4 | REST: resources as endpoints, GET, POST, PUT, DELETE, stateless, JSON | `/api/FoodItem`, `/api/Category`, `/api/StorageLocation` in Swagger |
 | 4 | layers: frontend, Web API, business logic, database | `frontend/`, `FoodInventory.API`, `FoodInventory.Model`, `database.sql` |
 | 5 | components, templates, services, routing | one folder per component, `services/`, `app.routes.ts` |
@@ -102,7 +113,7 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 | 6 | dependency injection, `@Injectable({ providedIn: 'root' })` | the services, injected in the constructors |
 | 6 | signals | not used: the hands on code uses plain fields, so does this app |
 | 7 | validation types: required, range, format, business logic, cross field | name required, quantity at least 1, whole number pattern, a used category cannot be deleted, best before not before purchase |
-| 7 | validation layers: client, server, database | the forms; `[Required]` and `[Range]` on the entities; `not null`, `check` and foreign keys |
+| 7 | validation layers: client, server, database | the forms; `[Required]` and `[Range]` on the entities and the date rule in `FoodItemController`; `not null`, `check` and foreign keys |
 | 7 | best practices: errors after interaction, clear messages, disable submit when invalid | Material errors after a field is touched, one message per rule, Add and Save disabled |
 | 8 | Material components, theming, accessibility | toolbar, menu, form field, input, select, button, icon; `material-theme.scss`; `aria-label` on the menu button |
 
@@ -123,12 +134,12 @@ Each one is a few lines, in the file named:
 
 1. **Filters** by category and storage location: two `<select>` with `[(ngModel)]` and `filteredFoodItems()` (`food-item-list`).
 2. **Expiring food**: the API sorts by best before date (`order by` in `FoodItemRepository`); the card shows ⚠ Expired or ⚠ Expires soon (3 days or less) with `daysLeft()` (`food-item-card`).
-3. **Ate one**: the quantity goes down by 1 with a `PUT`; eating the last one deletes the item (`food-item-card`).
+3. **Ate one**: the quantity goes down by 1 with a `PUT` of a copy, so the card only changes once the API has saved it; eating the last one deletes the item (`food-item-card`).
 4. **Delete asks first** with `confirm()`, and the card tells the list to load again with `@Output() changed` (Lecture 5, components talking "child to parent").
 5. **Categories and storage locations** pages: add, rename and delete in one table (`category-list`, `storage-location-list`). One that still has food cannot be deleted: the foreign key refuses it, the API answers 409 Conflict with a message, and the page shows it with `alert()`.
 6. **Names instead of ids**: a `left join` in `FoodItemRepository` gives `categoryName` and `storageLocationName` (the "we can fix that at a later stage" from Lecture 7, slide 54), and the forms use drop downs (`<select>`, `mat-select`).
 7. **Optional fields**: best before date and category may be empty (`null`).
-8. **Cross field check**: the best before date cannot be before the purchase date (both forms, and a `check` in the database).
+8. **Cross field check**: the best before date cannot be before the purchase date: both forms, an `if` in `FoodItemController` (400 with the same message) and a `check` in the database.
 9. **Small helpers**: the start page opens the food list (`redirectTo` in `app.routes.ts`); the purchase date starts at today (`formatDate`); names have a `maxlength` like their database columns.
 
 ## Good to know
@@ -150,6 +161,8 @@ Each one is a few lines, in the file named:
 
 ```
 database.sql                  3 tables with primary and foreign keys, 19 example rows
+BACKLOG.md                    Product Goal, user stories, acceptance criteria, Definition of Done
+.github/workflows/ci.yml      CI: build, API calls on a fresh database, frontend tests
 backend/
   FoodInventory.slnx
   FoodInventory.API/          Program.cs, appsettings.json, Properties/launchSettings.json, Controllers/
@@ -164,6 +177,33 @@ frontend/                     the Angular project FoodInventory.NG
     category-list/, storage-location-list/
 ```
 
+## Database
+
+Every food item has one storage location and at most one category.
+
+```mermaid
+erDiagram
+    STORAGE_LOCATION ||--o{ FOOD_ITEM : "holds"
+    CATEGORY |o--o{ FOOD_ITEM : "groups"
+    STORAGE_LOCATION {
+        serial id PK
+        varchar name "30, not null"
+    }
+    CATEGORY {
+        serial id PK
+        varchar name "30, not null"
+    }
+    FOOD_ITEM {
+        serial id PK
+        varchar name "50, not null"
+        integer quantity "not null, above 0"
+        date purchase_date "not null"
+        date best_before_date "optional, not before purchase_date"
+        integer category_id FK "optional"
+        integer storage_location_id FK "not null"
+    }
+```
+
 ## Demo script
 
 1. **Food**: Chicken breast is expired, Milk and Yogurt expire soon. Filter Category: Dairy, then All.
@@ -172,6 +212,10 @@ frontend/                     the Angular project FoodInventory.NG
 4. **Ate one** on Bread, then **Delete** it (it asks first).
 5. **Categories**: add Snacks, rename it, delete it; try to delete Dairy (refused, it still has food).
 6. **Storage locations**: the same with Cellar and Fridge.
+
+## Team workflow
+
+* Never commit directly to `main`: one branch per task, merged through a pull request that a teammate has read and whose CI is green.
 
 ## Project guide checklist
 
