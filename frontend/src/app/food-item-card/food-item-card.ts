@@ -31,8 +31,9 @@ export class FoodItemCard {
   // "Ate one": the quantity goes down by 1. Eating the last one deletes the food item.
   ateOne(): void {
     if (this.foodItem.quantity > 1) {
-      this.foodItem.quantity = this.foodItem.quantity - 1;
-      this.foodItemService.updateFoodItem(this.foodItem).subscribe(() => this.changed.emit());
+      // a copy with one less: the card only changes after the API has saved it
+      const eaten = { ...this.foodItem, quantity: this.foodItem.quantity - 1 };
+      this.foodItemService.updateFoodItem(eaten).subscribe(() => this.changed.emit());
     } else {
       this.deleteFoodItem();
     }

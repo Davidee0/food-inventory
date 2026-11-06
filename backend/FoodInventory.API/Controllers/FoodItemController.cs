@@ -38,6 +38,10 @@ public class FoodItemController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] FoodItem foodItem)
     {
+        if (foodItem.BestBeforeDate < foodItem.PurchaseDate)
+        {
+            return BadRequest("Best before date cannot be before the purchase date");
+        }
         bool status = Repository.InsertFoodItem(foodItem);
         if (status)
         {
@@ -54,6 +58,10 @@ public class FoodItemController : ControllerBase
         if (existingFoodItem == null)
         {
             return NotFound($"Food item with id {foodItem.Id} not found");
+        }
+        if (foodItem.BestBeforeDate < foodItem.PurchaseDate)
+        {
+            return BadRequest("Best before date cannot be before the purchase date");
         }
         bool status = Repository.UpdateFoodItem(foodItem);
         if (status)
