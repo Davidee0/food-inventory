@@ -4,6 +4,7 @@ import { AddFoodItem } from './add-food-item/add-food-item';
 import { EditFoodItem } from './edit-food-item/edit-food-item';
 import { CategoryList } from './category-list/category-list';
 import { StorageLocationList } from './storage-location-list/storage-location-list';
+import { FoodLogList } from './food-log-list/food-log-list';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'food-items', pathMatch: 'full' }, // the start page is the food list
@@ -12,4 +13,5 @@ export const routes: Routes = [
   { path: 'edit-food-item/:id', component: EditFoodItem },
   { path: 'categories', component: CategoryList },
   { path: 'storage-locations', component: StorageLocationList },
+  { path: 'food-log', component: FoodLogList },
 ];

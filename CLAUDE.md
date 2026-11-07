@@ -9,7 +9,7 @@ No hyphens or em dashes in prose written for the team (README, comments, PR text
 BACKLOG.md has the user stories, acceptance criteria and Definition of Done: update a story there when its behaviour changes. CI (`.github/workflows/ci.yml`) must stay green.
 
 ## Database (`database.sql`)
-`storage_location`, `category`, `food_item` (quantity > 0, optional best_before_date not before purchase_date, optional category_id, required storage_location_id). The foreign keys refuse to delete a category or storage location that still has food.
+`storage_location`, `category`, `food_item` (quantity > 0, optional best_before_date not before purchase_date, optional category_id, required storage_location_id), `food_log` (the history of US14: a copy of the name, quantity, log_date, wasted, optional category_id with `on delete set null`). The foreign keys refuse to delete a category or storage location that still has food. CI uses the seed ids (16 is the first new food item and history row, 7 the first new category): update them when the seed rows change.
 
 ## Backend (Lecture 4 and 6)
 * .NET SDK 10 as Lecture 4 asks: `net10.0`, `FoodInventory.slnx`, packages Npgsql 10, Microsoft.Extensions.Configuration, Swashbuckle.AspNetCore and Swashbuckle.AspNetCore.SwaggerUI.

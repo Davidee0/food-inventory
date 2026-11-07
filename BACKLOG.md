@@ -37,6 +37,7 @@ Ethics (Lecture 2): no accounts and no personal data, only the food list. Every 
 | US11 | As a parent, I want expired and soon expiring food marked, so that I eat it first. | Done |
 | US12 | As a user, I want to show the newest food first, so that I see what I bought last. | Not built (optional) |
 | US13 | As a user, I want to add, rename and delete storage locations, so that they match my home. | Done |
+| US14 | As a parent, I want to see what we ate and what we threw away, so that we can waste less. | Done |
 
 ## Acceptance criteria
 
@@ -48,10 +49,11 @@ Ethics (Lecture 2): no accounts and no personal data, only the food list. Every 
 * **US6 Mobile:** every page works at 360 px wide without sideways scrolling.
 * **US7 Category:** chosen from a drop down that starts with "No category"; shown on the card.
 * **US8 Categories:** add, rename and delete in one table; a name is required and has at most 30 characters. A category that still has food cannot be deleted: "Dairy still has food in it, so it cannot be deleted."
-* **US9 Quantity:** "Ate one" lowers it by 1 once the API has saved it; eating the last one asks to delete the food.
+* **US9 Quantity:** "Ate one" lowers it by 1 once the API has saved it; eating the last one asks to delete the food. "Threw one away" does the same for food that went off. Both add a row to the history (US14); Delete does not.
 * **US10 Filters:** Category and Storage location work together; All shows everything; nothing matching: "No food found."
 * **US11 Expiring food:** "⚠ Expired" after the best before date, "⚠ Expires soon" from 3 days before it; a text and an icon, not colour alone.
 * **US13 Storage locations:** as US8: "Fridge still has food in it, so it cannot be deleted."
+* **US14 History:** the History page (menu) lists every "Ate one" and "Threw one away": date, food, and how many were eaten or thrown away, newest first. Above the table: "Eaten: 16, thrown away: 6, so 27% was wasted." A wrong row can be deleted (it asks first). Deleting a category keeps its rows.
 
 ## Definition of Done
 
