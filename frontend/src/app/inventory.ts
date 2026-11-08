@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { firstValueFrom } from 'rxjs';
 import { Category } from './model/category';
 import { FoodItem } from './model/food-item';
@@ -9,7 +10,7 @@ import { FoodItemService } from './services/food-item-service';
 import { StorageLocationService } from './services/storage-location-service';
 
 /**
- * What all pages share: the data from the API and the message bar at the bottom.
+ * What all pages share: the data from the API and the message bar at the bottom (a Material snack bar).
  * After every change the pages call load(), so every page shows the same, fresh data.
  */
 @Injectable({ providedIn: 'root' })
@@ -17,6 +18,7 @@ export class Inventory {
   private readonly foodItemService = inject(FoodItemService);
   private readonly categoryService = inject(CategoryService);
   private readonly storageLocationService = inject(StorageLocationService);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly items = signal<FoodItem[]>([]);
   readonly categories = signal<Category[]>([]);
@@ -24,11 +26,7 @@ export class Inventory {
   readonly loaded = signal(false);
   readonly loadError = signal('');
 
-  /** The message bar. With an undo function it shows an Undo button. */
-  readonly toast = signal<{ text: string; undo?: () => void } | null>(null);
-  private toastTimer?: ReturnType<typeof setTimeout>;
-
-  /** Where the back arrow of the Settings page goes: the last main tab that was open. */
+  /** Where the back arrow of Categories and Storage locations goes: the page where the gear menu was opened. */
   lastMain = '/items';
 
   /** Gets the storage locations, categories and food items again. False when it failed. */
@@ -52,10 +50,14 @@ export class Inventory {
     }
   }
 
+  /** The message bar. With an undo function it shows an Undo button; an empty text closes it. */
   say(text: string, undo?: () => void) {
-    clearTimeout(this.toastTimer);
-    this.toast.set(text ? { text, undo } : null);
-    if (text) this.toastTimer = setTimeout(() => this.toast.set(null), undo ? 6000 : 3000);
+    if (!text) return this.snackBar.dismiss();
+    const bar = this.snackBar.open(text, undo ? 'Undo' : undefined, {
+      duration: undo ? 6000 : 3000,
+      panelClass: 'u8-snack',
+    });
+    if (undo) bar.onAction().subscribe(undo);
   }
 
   /** "Ate it": one less (5 oranges become 4); the last one takes the item off the list. Undo puts it back. */

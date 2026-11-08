@@ -2,21 +2,35 @@
 
 <div class="body">
   <div class="filters">
-    <select name="category" aria-label="Filter by category" [(ngModel)]="categoryId">
-      <option [ngValue]="null">All categories</option>
-      @for (category of inventory.categories(); track category.id) {
-        <option [ngValue]="category.id">{{ category.name }}</option>
-      }
-    </select>
-    <select name="storage" aria-label="Filter by storage location" [(ngModel)]="storageLocationId">
-      <option [ngValue]="null">All storage</option>
-      @for (location of inventory.locations(); track location.id) {
-        <option [ngValue]="location.id">{{ location.name }}</option>
-      }
-    </select>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-select
+        aria-label="Filter by category"
+        placeholder="All categories"
+        [(ngModel)]="categoryId"
+      >
+        <mat-option [value]="null">All categories</mat-option>
+        @for (category of inventory.categories(); track category.id) {
+          <mat-option [value]="category.id">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-select
+        aria-label="Filter by storage location"
+        placeholder="All storage"
+        [(ngModel)]="storageLocationId"
+      >
+        <mat-option [value]="null">All storage</mat-option>
+        @for (location of inventory.locations(); track location.id) {
+          <mat-option [value]="location.id">{{ location.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
   </div>
   @if (filtered()) {
-    <button type="button" class="small clear" (click)="clearFilters()">Clear filters</button>
+    <button mat-stroked-button type="button" class="small clear" (click)="clearFilters()">
+      Clear filters
+    </button>
   }
 
   @for (group of groups(); track group.name) {
@@ -54,13 +68,17 @@
   <div class="list-state">
     @if (inventory.loadError()) {
       <p>{{ inventory.loadError() }}</p>
-      <button type="button" class="small" (click)="inventory.load()">Try again</button>
+      <button mat-stroked-button type="button" class="small" (click)="inventory.load()">
+        Try again
+      </button>
     } @else if (inventory.loaded() && !inventory.items().length) {
       <p>No items yet. Tap "Add" and start with what you have at home.</p>
-      <a class="small" routerLink="/add">Add item</a>
+      <a mat-stroked-button class="small" routerLink="/add">Add item</a>
     } @else if (noMatch()) {
       <p>No items match the filters</p>
-      <button type="button" class="small" (click)="clearFilters()">Clear filters</button>
+      <button mat-stroked-button type="button" class="small" (click)="clearFilters()">
+        Clear filters
+      </button>
     }
   </div>
 </div>

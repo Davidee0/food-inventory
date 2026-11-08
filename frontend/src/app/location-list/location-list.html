@@ -1,4 +1,4 @@
-<app-top-bar eyebrow="Setup" title="Storage locations" back="/settings" />
+<app-top-bar eyebrow="Setup" title="Storage locations" [back]="inventory.lastMain" />
 
 <div class="body">
   @if (message()) {
@@ -6,33 +6,39 @@
   }
 
   <form novalidate (ngSubmit)="add()">
-    <label class="lbl" for="loc-new">New location</label>
     <div class="rowbtns">
-      <input
-        id="loc-new"
-        name="newName"
-        class="text-input"
-        autocomplete="off"
-        placeholder="e.g. Cellar"
-        [(ngModel)]="newName"
-      />
-      <button type="submit" class="small dark">Add</button>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>New location</mat-label>
+        <input
+          matInput
+          id="loc-new"
+          name="newName"
+          autocomplete="off"
+          placeholder="e.g. Cellar"
+          [(ngModel)]="newName"
+        />
+      </mat-form-field>
+      <button mat-flat-button type="submit" class="small">Add</button>
     </div>
   </form>
 
   <ul class="cat-list">
     @for (row of rows(); track row.id) {
       <li class="cat">
-        <input
-          class="text-input"
-          autocomplete="off"
-          [attr.aria-label]="'Name of location ' + row.name"
-          [(ngModel)]="row.draft"
-          (keydown.enter)="rename(row)"
-        />
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Name</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            [attr.aria-label]="'Name of location ' + row.name"
+            [(ngModel)]="row.draft"
+            (keydown.enter)="rename(row)"
+          />
+        </mat-form-field>
         <p class="meta">{{ count(row) }}</p>
         <div class="rowbtns">
           <button
+            mat-stroked-button
             type="button"
             class="small"
             [attr.aria-label]="'Save name of ' + row.name"
@@ -41,6 +47,7 @@
             Save name
           </button>
           <button
+            mat-stroked-button
             type="button"
             class="small danger"
             [attr.aria-label]="'Delete location ' + row.name"

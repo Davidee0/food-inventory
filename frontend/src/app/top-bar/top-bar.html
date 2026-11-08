@@ -1,6 +1,8 @@
-<header class="top">
+<mat-toolbar class="top">
   @if (back(); as back) {
-    <a class="square" [routerLink]="back" aria-label="Back"><app-icon name="back" /></a>
+    <a mat-icon-button class="square" [routerLink]="back" aria-label="Back"
+      ><app-icon name="back"
+    /></a>
   } @else {
     <span class="logo">U8</span>
   }
@@ -9,6 +11,20 @@
     <h1>{{ title() }}</h1>
   </div>
   @if (!back()) {
-    <a class="square gear" routerLink="/settings" aria-label="Settings"><app-icon name="gear" /></a>
+    <!-- The gear opens the settings menu (lecture 8: the items move into a mat-menu in the toolbar) -->
+    <button
+      mat-icon-button
+      type="button"
+      class="gear"
+      aria-label="Settings"
+      [matMenuTriggerFor]="settings"
+      (menuOpened)="inventory.lastMain = router.url"
+    >
+      <app-icon name="gear" />
+    </button>
+    <mat-menu #settings="matMenu" xPosition="before">
+      <a mat-menu-item routerLink="/settings/categories">Categories</a>
+      <a mat-menu-item routerLink="/settings/locations">Storage locations</a>
+    </mat-menu>
   }
-</header>
+</mat-toolbar>

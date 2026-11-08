@@ -13,10 +13,9 @@
 .ate {
   flex: none;
   margin-left: auto;
-  height: 48px;
-  padding: 0 22px;
+  --mat-button-outlined-container-height: 48px;
+  --mat-button-outlined-label-text-size: 16px;
+  --mat-button-outlined-label-text-weight: 700;
   background: var(--btn);
-  border: 2px solid var(--line);
   box-shadow: 2px 2px 0 var(--shadow);
-  font: 700 16px var(--sans);
 }

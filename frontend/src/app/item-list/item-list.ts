@@ -1,6 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../icon/icon';
 import { Inventory, shapeOf } from '../inventory';
@@ -13,7 +16,16 @@ const NO_CATEGORY = 'No category';
 /** The inventory (the start page): filters, then all items grouped by category, expiring ones first. Tap an item to edit it. */
 @Component({
   selector: 'app-item-list',
-  imports: [DatePipe, FormsModule, RouterLink, Icon, TopBar],
+  imports: [
+    DatePipe,
+    FormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    RouterLink,
+    Icon,
+    TopBar,
+  ],
   templateUrl: './item-list.html',
   styleUrl: './item-list.css',
 })
@@ -66,7 +78,6 @@ export class ItemList implements OnInit {
   );
 
   ngOnInit() {
-    this.inventory.lastMain = '/items';
     this.inventory.load();
   }
 
