@@ -25,6 +25,13 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
    ```
    Open http://localhost:4200
 
+Optional, from the exercises:
+* **Postman** (Exercise 4.1): send the same requests as in Swagger, for example GET `http://localhost:5050/api/FoodItem`. Use the desktop app, which can reach `localhost`.
+* **One shared cloud database** (Exercise 2.1 allows Supabase): run `database.sql` in its SQL editor, then give the API the connection string in an environment variable instead of `appsettings.json`, so the password never goes to GitHub:
+  ```bash
+  ConnectionStrings__AppProgDb="Host=...;Username=...;Password=...;Database=postgres" dotnet run --project FoodInventory.API
+  ```
+
 ## Project documents
 
 * [BACKLOG.md](BACKLOG.md): Product Goal, personas, user stories with their status, acceptance criteria and the Definition of Done (Lectures 1 and 2).
