@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FoodItemRepository, FoodItemRepository>();
 builder.Services.AddScoped<CategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<StorageLocationRepository, StorageLocationRepository>();
+builder.Services.AddScoped<FoodLogRepository, FoodLogRepository>();
 
 builder.Services.AddControllers();
 // Swagger: try the endpoints on http://localhost:5050/swagger (Lecture 4).

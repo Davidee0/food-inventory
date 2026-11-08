@@ -1,6 +1,6 @@
 # U8 Food Inventory
 
-Register groceries when you buy them; eat them one at a time or delete them when they are used up.
+Register groceries when you buy them; eat them one at a time or delete them when they are used up; see how much was thrown away.
 CBS group project for Designing and Developing Digital Business Applications: PostgreSQL, ASP.NET Core Web API (C#, .NET 10), Angular 22 with Angular Material.
 
 The code follows the professor's CourseAdminSystem from Lectures 4 to 8 step by step: same commands, same project layout, same patterns. Where the professor has a *Student*, this app has a *FoodItem*; where he has a *Teacher*, this app has a *Category* and a *StorageLocation*.
@@ -25,6 +25,13 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
    ```
    Open http://localhost:4200
 
+Optional, from the exercises:
+* **Postman** (Exercise 4.1): send the same requests as in Swagger, for example GET `http://localhost:5050/api/FoodItem`. Use the desktop app, which can reach `localhost`.
+* **One shared cloud database** (Exercise 2.1 allows Supabase): run `database.sql` in its SQL editor, then give the API the connection string in an environment variable instead of `appsettings.json`, so the password never goes to GitHub:
+  ```bash
+  ConnectionStrings__AppProgDb="Host=...;Username=...;Password=...;Database=postgres" dotnet run --project FoodInventory.API
+  ```
+
 ## Project documents
 
 * [BACKLOG.md](BACKLOG.md): Product Goal, personas, user stories with their status, acceptance criteria and the Definition of Done (Lectures 1 and 2).
@@ -45,9 +52,9 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 | `<Nullable>disable</Nullable>` in both projects | both `.csproj` files |
 | `ConnectionStrings` with `AppProgDb` above `AllowedHosts` in `appsettings.json` | same |
 | `Repositories/BaseRepository.cs` (from the slide) | same file |
-| `Entities/Student.cs`: constructor with the id, `DateOnly` for dates | `Entities/FoodItem.cs`, `Category.cs`, `StorageLocation.cs` |
-| `Repositories/StudentRepository.cs` (SQL with `@parameters`) | `Repositories/FoodItemRepository.cs`, `CategoryRepository.cs`, `StorageLocationRepository.cs` |
-| `Controllers/StudentController.cs`, route `api/[controller]` | `Controllers/FoodItemController.cs`, `CategoryController.cs`, `StorageLocationController.cs` |
+| `Entities/Student.cs`: constructor with the id, `DateOnly` for dates | `Entities/FoodItem.cs`, `Category.cs`, `StorageLocation.cs`, `FoodLog.cs` |
+| `Repositories/StudentRepository.cs` (SQL with `@parameters`) | `Repositories/FoodItemRepository.cs`, `CategoryRepository.cs`, `StorageLocationRepository.cs`, `FoodLogRepository.cs` |
+| `Controllers/StudentController.cs`, route `api/[controller]` | `Controllers/FoodItemController.cs`, `CategoryController.cs`, `StorageLocationController.cs`, `FoodLogController.cs` |
 | `AddScoped<StudentRepository, StudentRepository>()`, `UseHttpsRedirection` removed | `Program.cs` |
 | Swagger: packages `Swashbuckle.AspNetCore` and `Swashbuckle.AspNetCore.SwaggerUI`, `AddEndpointsApiExplorer`, `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI` | `FoodInventory.API.csproj`, `Program.cs` |
 | `launchBrowser` true and `launchUrl` swagger in `Properties/launchSettings.json` | same (port 5050) |
@@ -57,7 +64,7 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 | Professor | This app |
 |---|---|
 | `ng new CourseAdminSystem.NG` (CSS, no SSR, **N** to zoneless, no AI tools) | `frontend/` (project FoodInventory.NG) |
-| `ng generate interface Student` in `model/` | `model/food-item.ts`, `category.ts`, `storage-location.ts` |
+| `ng generate interface Student` in `model/` | `model/food-item.ts`, `category.ts`, `storage-location.ts`, `food-log.ts` |
 | `ng generate component student-card`: a table, `@Input() student`, `table, th, td { border: 1px solid black; }` | `food-item-card` |
 | `ng g c StudentList`: `@for` over the cards | `food-item-list` |
 | routes in `app.routes.ts`, `routerLink` | same |
@@ -66,7 +73,7 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 
 | Professor | This app |
 |---|---|
-| `ng generate service services/StudentService --injectable`: `baseUrl`, `HttpClient`, methods that return an `Observable` | `services/food-item-service.ts`, `category-service.ts`, `storage-location-service.ts` |
+| `ng generate service services/StudentService --injectable`: `baseUrl`, `HttpClient`, methods that return an `Observable` | `services/food-item-service.ts`, `category-service.ts`, `storage-location-service.ts`, `food-log-service.ts` |
 | `provideHttpClient()` | `app.config.ts` |
 | `implements OnInit`, `ngOnInit()` calls the service and `subscribe`s | every list and form component |
 | `console.log('API response:', ...)` and `console.error(...)` in the list | `food-item-list` |
@@ -105,7 +112,7 @@ You need what Lectures 4 and 5 install: PostgreSQL with pgAdmin, the .NET SDK 10
 | 1 | CI with automated testing | `.github/workflows/ci.yml`: every pull request builds the backend, calls the API on a database made from `database.sql`, and builds and tests the frontend |
 | 2 | discover, define, develop, deliver; ethics | Product Goal and Ethics in `BACKLOG.md` |
 | 2 | security | SQL with parameters (`@name`), so typed text never changes the SQL; Angular escapes `{{ }}` |
-| 4 | REST: resources as endpoints, GET, POST, PUT, DELETE, stateless, JSON | `/api/FoodItem`, `/api/Category`, `/api/StorageLocation` in Swagger |
+| 4 | REST: resources as endpoints, GET, POST, PUT, DELETE, stateless, JSON | `/api/FoodItem`, `/api/Category`, `/api/StorageLocation`, `/api/FoodLog` in Swagger |
 | 4 | layers: frontend, Web API, business logic, database | `frontend/`, `FoodInventory.API`, `FoodInventory.Model`, `database.sql` |
 | 5 | components, templates, services, routing | one folder per component, `services/`, `app.routes.ts` |
 | 5 | components talking: parent to child (input), child to parent (output) | `[foodItem]` and `(changed)` on `<app-food-item-card>` |
@@ -134,13 +141,14 @@ Each one is a few lines, in the file named:
 
 1. **Filters** by category and storage location: two `<select>` with `[(ngModel)]` and `filteredFoodItems()` (`food-item-list`).
 2. **Expiring food**: the API sorts by best before date (`order by` in `FoodItemRepository`); the card shows ⚠ Expired or ⚠ Expires soon (3 days or less) with `daysLeft()` (`food-item-card`).
-3. **Ate one**: the quantity goes down by 1 with a `PUT` of a copy, so the card only changes once the API has saved it; eating the last one deletes the item (`food-item-card`).
+3. **Ate one** and **Threw one away**: the quantity goes down by 1 with a `PUT` of a copy, so the card only changes once the API has saved it; the last one deletes the item (`oneLess()` in `food-item-card`).
 4. **Delete asks first** with `confirm()`, and the card tells the list to load again with `@Output() changed` (Lecture 5, components talking "child to parent").
 5. **Categories and storage locations** pages: add, rename and delete in one table (`category-list`, `storage-location-list`). One that still has food cannot be deleted: the foreign key refuses it, the API answers 409 Conflict with a message, and the page shows it with `alert()`.
 6. **Names instead of ids**: a `left join` in `FoodItemRepository` gives `categoryName` and `storageLocationName` (the "we can fix that at a later stage" from Lecture 7, slide 54), and the forms use drop downs (`<select>`, `mat-select`).
 7. **Optional fields**: best before date and category may be empty (`null`).
 8. **Cross field check**: the best before date cannot be before the purchase date: both forms, an `if` in `FoodItemController` (400 with the same message) and a `check` in the database.
 9. **Small helpers**: the start page opens the food list (`redirectTo` in `app.routes.ts`); the purchase date starts at today (`formatDate`); names have a `maxlength` like their database columns.
+10. **History (US14)**: a fourth table, `food_log`, gets a row (a `POST` to `/api/FoodLog`) after every "Ate one" and "Threw one away". It copies the name, because the food item is gone after the last one, and its foreign key to `category` has `on delete set null`, so deleting a category keeps the history. The page `food-log-list` (menu: History) shows the rows newest first and the share thrown away (`wastedPercent()`): the number that shows whether the Product Goal is met.
 
 ## Good to know
 
@@ -160,7 +168,7 @@ Each one is a few lines, in the file named:
 ## Structure
 
 ```
-database.sql                  3 tables with primary and foreign keys, 19 example rows
+database.sql                  4 tables with primary and foreign keys, 39 example rows
 BACKLOG.md                    Product Goal, user stories, acceptance criteria, Definition of Done
 .github/workflows/ci.yml      CI: build, API calls on a fresh database, frontend tests
 backend/
@@ -171,20 +179,21 @@ frontend/                     the Angular project FoodInventory.NG
   src/material-theme.scss     the theme from ng add @angular/material
   src/app/
     app.html, app.ts          toolbar with the menu, router outlet
-    app.routes.ts             food-items, add-food-item, edit-food-item/:id, categories, storage-locations
+    app.routes.ts             food-items, add-food-item, edit-food-item/:id, categories, storage-locations, food-log
     model/, services/
     food-item-list/, food-item-card/, add-food-item/, edit-food-item/
-    category-list/, storage-location-list/
+    category-list/, storage-location-list/, food-log-list/
 ```
 
 ## Database
 
-Every food item has one storage location and at most one category.
+Every food item has one storage location and at most one category. Every row of the history (`food_log`) has at most one category.
 
 ```mermaid
 erDiagram
     STORAGE_LOCATION ||--o{ FOOD_ITEM : "holds"
     CATEGORY |o--o{ FOOD_ITEM : "groups"
+    CATEGORY |o--o{ FOOD_LOG : "groups"
     STORAGE_LOCATION {
         serial id PK
         varchar name "30, not null"
@@ -202,6 +211,14 @@ erDiagram
         integer category_id FK "optional"
         integer storage_location_id FK "not null"
     }
+    FOOD_LOG {
+        serial id PK
+        varchar name "50, not null"
+        integer quantity "not null, above 0"
+        date log_date "not null"
+        boolean wasted "not null, true when thrown away"
+        integer category_id FK "optional, set null when the category is deleted"
+    }
 ```
 
 ## Demo script
@@ -212,6 +229,7 @@ erDiagram
 4. **Ate one** on Bread, then **Delete** it (it asks first).
 5. **Categories**: add Snacks, rename it, delete it; try to delete Dairy (refused, it still has food).
 6. **Storage locations**: the same with Cellar and Fridge.
+7. **Threw one away** on Chicken breast (2 left, so it becomes 1), then **Menu, History**: Chicken breast is on top as thrown away and the share wasted goes up from 27%.
 
 ## Team workflow
 
@@ -219,8 +237,8 @@ erDiagram
 
 ## Project guide checklist
 
-* Several related tables with PK and FK, at least 10 records: `storage_location`, `category`, `food_item`, 19 rows.
+* Several related tables with PK and FK, at least 10 records: `storage_location`, `category`, `food_item`, `food_log`, 39 rows.
 * CRUD with GET, POST, PUT and DELETE for at least two entities: food items, categories, storage locations.
-* At least 4 Angular components: 7 (App, FoodItemList, FoodItemCard, AddFoodItem, EditFoodItem, CategoryList, StorageLocationList).
-* Services for the API: 3.
+* At least 4 Angular components: 8 (App, FoodItemList, FoodItemCard, AddFoodItem, EditFoodItem, CategoryList, StorageLocationList, FoodLogList).
+* Services for the API: 4.
 * A form with two way binding and basic validation: `edit-food-item` (`[(ngModel)]`), plus the Reactive Form in `add-food-item`.

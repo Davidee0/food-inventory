@@ -1,0 +1,38 @@
+<h2>History</h2>
+
+<p>
+  Eaten: <b>{{ total(false) }}</b
+  >, thrown away: <b>{{ total(true) }}</b
+  >, so <b>{{ wastedPercent() }}%</b> was wasted.
+</p>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Food</th>
+    <th>What happened</th>
+    <th></th>
+  </tr>
+  @for (foodLog of foodLogs; track foodLog.id) {
+    <tr>
+      <td>{{ foodLog.logDate }}</td>
+      <td>{{ foodLog.name }}</td>
+      <td>
+        @if (foodLog.wasted) {
+          <span class="warning">{{ foodLog.quantity }} thrown away</span>
+        } @else {
+          {{ foodLog.quantity }} eaten
+        }
+      </td>
+      <td>
+        <button (click)="deleteFoodLog(foodLog)" [attr.aria-label]="'Delete ' + foodLog.name">
+          Delete
+        </button>
+      </td>
+    </tr>
+  } @empty {
+    <tr>
+      <td colspan="4">Nothing eaten or thrown away yet.</td>
+    </tr>
+  }
+</table>

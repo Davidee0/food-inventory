@@ -49,16 +49,28 @@ jobs:
           expect 200 GET /api/FoodItem/1
           expect 404 GET /api/FoodItem/9999
           expect 200 POST /api/FoodItem "{\"name\":\"Bread\",\"quantity\":1,\"purchaseDate\":\"$today\",\"storageLocationId\":3}"
-          expect 200 PUT /api/FoodItem "{\"id\":11,\"name\":\"Bread\",\"quantity\":2,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":6,\"storageLocationId\":3}"
-          expect 200 GET /api/FoodItem/11
+          expect 200 PUT /api/FoodItem "{\"id\":16,\"name\":\"Bread\",\"quantity\":2,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":6,\"storageLocationId\":3}"
+          expect 200 GET /api/FoodItem/16
           grep -q '"quantity":2' body.txt
           expect 400 POST /api/FoodItem "{\"name\":\"\",\"quantity\":0,\"purchaseDate\":\"$today\",\"storageLocationId\":3}"
           expect 400 POST /api/FoodItem "{\"name\":\"Bread\",\"quantity\":1,\"purchaseDate\":\"$today\",\"bestBeforeDate\":\"2000-01-01\",\"storageLocationId\":3}"
-          expect 204 DELETE /api/FoodItem/11
-          expect 404 DELETE /api/FoodItem/11
+          expect 204 DELETE /api/FoodItem/16
+          expect 404 DELETE /api/FoodItem/16
+          expect 200 GET /api/FoodLog
+          grep -q '"name":"Lettuce"' body.txt
+          expect 200 POST /api/FoodLog "{\"name\":\"Bread\",\"quantity\":1,\"logDate\":\"$today\",\"wasted\":true,\"categoryId\":6}"
+          expect 200 GET /api/FoodLog/16
+          grep -q '"wasted":true' body.txt
+          expect 400 POST /api/FoodLog "{\"name\":\"Bread\",\"quantity\":0,\"logDate\":\"$today\",\"wasted\":false}"
+          expect 204 DELETE /api/FoodLog/16
+          expect 404 DELETE /api/FoodLog/16
           expect 200 POST /api/Category '{"id":0,"name":"Snacks"}'
           expect 200 PUT /api/Category '{"id":7,"name":"Treats"}'
+          # a category with history but no food can be deleted: the history keeps the row without the category
+          expect 200 POST /api/FoodLog "{\"name\":\"Crisps\",\"quantity\":1,\"logDate\":\"$today\",\"wasted\":false,\"categoryId\":7}"
           expect 204 DELETE /api/Category/7
+          expect 200 GET /api/FoodLog/17
+          grep -q '"categoryId":null' body.txt
           expect 409 DELETE /api/Category/1
           expect 409 DELETE /api/StorageLocation/1
           expect 200 GET /swagger/v1/swagger.json
