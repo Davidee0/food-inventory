@@ -17,14 +17,15 @@ Built: US1-US10 (add, view, edit, delete with confirmation, validation, mobile, 
 - The rules and messages in `FoodItem.cs` / `Category.cs` and in `frontend/src/app/rules.ts` are the same: change them together.
 
 ## Frontend: design "U8" (Kilian's prototype)
-`ng new` project FoodInventory.NG (Angular CLI 22.2.0, zoneless, Vitest, Prettier). `app.html`: `<router-outlet />`, the message bar and a bottom tab bar (Add / Inventory / Ate it).
+`ng new` project FoodInventory.NG (Angular CLI 22.2.0, zoneless, Vitest, Prettier). `app.html`: `<router-outlet />` and a bottom tab bar (Add / Inventory / Ate it).
+Angular Material (lecture 8), themed in the U8 look in `src/material-theme.scss` (no Google fonts, no Material icon font: icons stay `app-icon`): `mat-toolbar` top bar, `mat-menu` on the gear, `mat-form-field`/`matInput`/`mat-select`/`mat-error`, `mat-flat-button`/`mat-stroked-button`, `MatSnackBar` as the message bar.
 Pages: `/items` ItemList (filters by category and storage location, grouped by category, expiring first with a warning sign), `/add` and `/edit/:id` ItemForm (`:id` arrives as an input through `withComponentInputBinding`),
-`/eat` EatList ("Ate it" = one eaten: quantity - 1, the last one deletes the item; Undo in the message bar, no confirmation), `/settings` Settings (the gear in the top bar) with `/settings/categories` CategoryList and `/settings/locations` LocationList. Parts: TopBar, Icon.
+`/eat` EatList ("Ate it" = one eaten: quantity - 1, the last one deletes the item; Undo in the message bar, no confirmation), the gear in the top bar opens a menu with `/settings/categories` CategoryList and `/settings/locations` LocationList (their back arrow goes to `lastMain`, the page where the menu was opened). Parts: TopBar, Icon.
 Data as in class: `model/` (interfaces), `services/` (one per controller; HttpClient, Observables). `inventory.ts` keeps the loaded data as signals for all pages, with `load()`, `remove()` (Delete in the form, after a confirmation), `eatOne()` and the message bar (with an optional Undo). The top bar and the tab bar are sticky.
 "Today" is the LOCAL date (`todayLocal()`, never `toISOString()`); "soon" = best before within 3 days, "past" = before today.
-Zoneless: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render. Form fields stay two-way bound with `[(ngModel)]`.
+Zoneless: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render. The Add/Edit form is a reactive form (`itemForm()` in `rules.ts`: FormControls with Validators, messages in `MESSAGES`); the category and location fields and the filters stay two-way bound with `[(ngModel)]` (the guide asks for two-way binding).
 Mobile: 16 px text, 44 px buttons and fields, no sideways scrolling at 360 px, the tab bar always visible.
 U8 look: paper #f5f5f1, band #e8e8e3, ink #242424, muted #6d6d68, error #a3200f, warning #f5c400, 2px dark outlines, no rounding, hard offset shadows, monospace labels, one 430px column.
 
 ## Commands
-`dotnet build backend/FoodInventory.sln` · `dotnet run --project backend/FoodInventory.API` · in `frontend/` (Node 22.22.3+): `npx ng serve`, `npx ng build`, `npx ng test --watch=false` (also with `TZ=Pacific/Auckland`), `npx prettier --write src`.
+`dotnet build backend/FoodInventory.sln` · `dotnet test backend/FoodInventory.sln` (xUnit + Moq; repository methods are `virtual` so they can be mocked) · `dotnet run --project backend/FoodInventory.API` · in `frontend/` (Node 22.22.3+): `npx ng serve`, `npx ng build`, `npx ng test --watch=false` (also with `TZ=Pacific/Auckland`), `npx prettier --write src`.
