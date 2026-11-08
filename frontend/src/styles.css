@@ -44,7 +44,6 @@ a {
 }
 /* Phone rules: text in fields is 16 px (smaller makes iPhones zoom in) and tap targets are at least 44 px. */
 button,
-select,
 input {
   font: inherit;
   color: inherit;
@@ -65,58 +64,16 @@ button:disabled {
   padding: 20px 20px 28px;
 }
 
-/* ---------- Form fields ---------- */
-.field {
-  display: block;
-  margin-top: 20px;
+/* ---------- Form fields: Angular Material (material-theme.scss), 16 px text, at least 44 px high ---------- */
+.mat-mdc-form-field {
+  --mat-form-field-container-text-size: 16px;
+  --mat-select-trigger-text-size: 16px;
+  --mat-form-field-outlined-label-text-size: 16px;
+  --mat-form-field-container-height: 56px;
+  --mat-form-field-outlined-label-text-font: var(--mono); /* U8: monospace labels */
 }
-.lbl {
-  display: block;
-  margin-bottom: 8px;
-  font: 700 12px var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.lbl b {
-  color: var(--error);
-}
-.field input,
-.field select,
-.text-input {
-  display: block;
-  width: 100%;
-  height: 56px;
-  padding: 0 18px;
-  background: #fff;
-  border: 2px solid var(--line);
-  font-size: 16px;
-}
-.text-input {
-  height: 48px;
-  padding: 0 14px;
-}
-input::placeholder {
-  color: #8b8b86;
-}
-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5l7 7-7 7'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 18px;
-  padding-right: 44px !important;
-}
-.error {
-  margin-top: 6px;
-  color: var(--error);
+.mat-mdc-form-field-error {
   font-size: 14px;
-}
-.error:empty {
-  display: none;
-}
-[aria-invalid='true'] {
-  border-color: var(--error) !important;
 }
 /* A message about the whole page. Stays in view while the page scrolls. */
 .form-error {
@@ -131,49 +88,57 @@ select {
   font-weight: 600;
 }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons: Material buttons (mat-flat-button, mat-stroked-button) in the U8 look ---------- */
+.mat-mdc-button-base {
+  --mat-button-filled-label-text-font: var(--sans);
+  --mat-button-outlined-label-text-font: var(--sans);
+  --mat-button-outlined-label-text-color: var(--ink);
+  letter-spacing: normal;
+}
+/* The big dark button at the bottom of the form. */
 .cta {
   width: 100%;
-  height: 64px;
-  margin-top: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: 20px;
   gap: 10px;
-  background: var(--ink);
-  color: #fff;
-  border: 2px solid var(--ink);
+  --mat-button-filled-container-height: 64px;
+  --mat-button-filled-label-text-size: 20px;
+  --mat-button-filled-label-text-weight: 700;
   box-shadow: 5px 5px 0 var(--shadow);
-  font: 700 20px var(--sans);
 }
-.ghost {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 48px;
-  margin-top: 16px;
-  background: transparent;
-  border: 2px solid var(--line);
-  font: 600 16px var(--sans);
-}
-.small {
+.cta app-icon {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 16px;
-  background: var(--btn);
-  border: 2px solid var(--line);
-  font: 600 15px var(--sans);
+  vertical-align: middle;
 }
-.small.dark {
-  background: var(--ink);
-  color: #fff;
-  border-color: var(--ink);
+/* Cancel, Delete item, Save and add another. */
+.ghost {
+  width: 100%;
+  margin-top: 16px;
+  --mat-button-outlined-container-height: 48px;
+  --mat-button-outlined-label-text-size: 16px;
+  --mat-button-outlined-label-text-weight: 600;
+}
+/* Small buttons in the lists. */
+.small {
+  --mat-button-filled-container-height: 44px;
+  --mat-button-outlined-container-height: 44px;
+  --mat-button-filled-label-text-size: 15px;
+  --mat-button-outlined-label-text-size: 15px;
+  --mat-button-outlined-label-text-weight: 600;
+  --mat-button-filled-label-text-weight: 600;
+}
+.mat-mdc-outlined-button.small {
+  background: var(--btn);
 }
 .danger {
-  color: var(--error);
+  --mat-button-outlined-label-text-color: var(--error);
+}
+
+/* ---------- The message bar: a Material snack bar just above the tab bar ---------- */
+.u8-snack {
+  margin-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  box-shadow: 5px 5px 0 var(--shadow);
+  --mat-snack-bar-supporting-text-weight: 700;
+  --mat-snack-bar-supporting-text-size: 16px;
 }
 
 /* ---------- Shared bits of the lists ---------- */

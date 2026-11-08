@@ -32,15 +32,8 @@ import { Component, input } from '@angular/core';
         @case ('pencil') {
           <path d="M4 20l1.2-4.2L16.6 4.4a2 2 0 0 1 2.8 2.8L8 18.6z" />
         }
-        @case ('chev') {
-          <path d="M9 5l7 7-7 7" />
-        }
         @case ('back') {
           <path d="M15 5l-7 7 7 7" />
-        }
-        @case ('tick') {
-          <circle cx="12" cy="12" r="10" />
-          <path d="M7.5 12.5l3 3 6-6.5" />
         }
         @case ('warn') {
           <path class="warn" d="M12 3.2L2.4 20h19.2z" />

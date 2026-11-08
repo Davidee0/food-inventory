@@ -1,0 +1,64 @@
+// Angular Material (lecture 8), themed in the U8 look instead of a prebuilt theme (lecture 8: "Custom themes via SCSS"):
+// paper and ink colours, square corners, 2px dark outlines, the system font. The colours are the ones in styles.css.
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        theme-type: light,
+      ),
+      typography: (
+        plain-family: #{"system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"},
+        brand-family: #{"system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"},
+      ),
+      density: 0,
+    )
+  );
+
+  // The U8 colours in place of Material's blue.
+  @include mat.theme-overrides(
+    (
+      primary: #242424,
+      on-primary: #ffffff,
+      surface: #ffffff,
+      on-surface: #242424,
+      on-surface-variant: #6d6d68,
+      surface-container: #f5f5f1,
+      outline: #2a2a2a,
+      outline-variant: #d6d6d1,
+      error: #a3200f,
+      inverse-surface: #242424,
+      inverse-on-surface: #ffffff,
+      inverse-primary: #f5c400,
+      corner-extra-small: 0px,
+      corner-small: 0px,
+      corner-medium: 0px,
+      corner-large: 0px,
+      corner-extra-large: 0px,
+      corner-full: 0px,
+    )
+  );
+
+  // Fields: a 2px dark outline, red when a field has a message.
+  @include mat.form-field-overrides(
+    (
+      outlined-outline-width: 2px,
+      outlined-focus-outline-width: 3px,
+      outlined-outline-color: #2a2a2a,
+      outlined-hover-outline-color: #2a2a2a,
+      outlined-focus-outline-color: #242424,
+      outlined-label-text-color: #6d6d68,
+      outlined-focus-label-text-color: #242424,
+    )
+  );
+
+  // Buttons: 2px dark outlines, as in the prototype.
+  @include mat.button-overrides(
+    (
+      outlined-outline-width: 2px,
+      outlined-outline-color: #2a2a2a,
+    )
+  );
+}

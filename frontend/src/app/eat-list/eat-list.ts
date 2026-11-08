@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { Inventory, shapeOf } from '../inventory';
 import { FoodItem } from '../model/food-item';
 import { leftText } from '../rules';
@@ -7,7 +8,7 @@ import { TopBar } from '../top-bar/top-bar';
 /** "Ate it": one tap = one eaten (5 oranges become 4), with Undo in the message bar. */
 @Component({
   selector: 'app-eat-list',
-  imports: [TopBar],
+  imports: [MatButtonModule, TopBar],
   templateUrl: './eat-list.html',
   styleUrl: './eat-list.css',
 })
@@ -19,7 +20,6 @@ export class EatList implements OnInit {
   protected readonly shapeOf = shapeOf;
 
   ngOnInit() {
-    this.inventory.lastMain = '/eat';
     this.inventory.load();
   }
 

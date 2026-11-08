@@ -1,5 +1,4 @@
-import { FoodItem } from './model/food-item';
-import { addDays, leftText, statusOf, todayLocal, validateItem } from './rules';
+import { addDays, itemForm, leftText, messageOf, statusOf, todayLocal } from './rules';
 
 describe('rules', () => {
   it('today comes from the local year, month and day, not from UTC', () => {
@@ -9,25 +8,30 @@ describe('rules', () => {
     expect(todayLocal(new Date(2026, 11, 31, 23, 30))).toBe('2026-12-31');
   });
 
-  it('validateItem gives the same messages as the API', () => {
-    const valid: FoodItem = {
-      id: 0,
-      name: ' Milk ',
-      quantity: 1,
-      purchaseDate: '2026-05-01',
-      bestBeforeDate: null,
-      categoryId: null,
-      storageLocationId: 1,
+  it('the item form gives the same messages as the API', () => {
+    const form = itemForm(1);
+    const messages = () =>
+      Object.fromEntries(
+        (Object.keys(form.controls) as (keyof typeof form.controls)[])
+          .map((field) => [field, messageOf(form, field)])
+          .filter(([, message]) => message),
+      );
+    const check = (change: Record<string, unknown>) => {
+      form.reset(itemForm(1).getRawValue());
+      form.patchValue({ name: ' Milk ', purchaseDate: '2026-05-01', ...change });
+      return messages();
     };
-    const check = (change: Partial<FoodItem>) => validateItem({ ...valid, ...change });
 
     expect(check({})).toEqual({});
+    expect(form.valid).toBe(true);
     expect(check({ name: '', quantity: null, storageLocationId: null, purchaseDate: '' })).toEqual({
       name: 'Enter a name.',
       quantity: 'Quantity must be at least 1.',
       storageLocationId: 'Choose a storage location.',
       purchaseDate: 'Enter a purchase date.',
     });
+    expect(form.valid).toBe(false);
+    expect(check({ name: '   ' })).toEqual({ name: 'Enter a name.' });
     expect(check({ name: 'x'.repeat(51) })).toEqual({ name: 'Name can be at most 50 characters.' });
     expect(check({ name: `  ${'x'.repeat(50)}  ` })).toEqual({});
     for (const quantity of [0, -1, 1.5])
@@ -36,6 +40,27 @@ describe('rules', () => {
       bestBeforeDate: 'Best before date cannot be before the purchase date.',
     });
     expect(check({ bestBeforeDate: '2026-05-01' })).toEqual({});
+  });
+
+  it('a new purchase date checks the best before date again', () => {
+    const form = itemForm(1);
+    form.patchValue({ name: 'Milk', purchaseDate: '2026-05-01', bestBeforeDate: '2026-05-03' });
+    expect(messageOf(form, 'bestBeforeDate')).toBe('');
+    form.controls.purchaseDate.setValue('2026-05-10');
+    expect(messageOf(form, 'bestBeforeDate')).toBe(
+      'Best before date cannot be before the purchase date.',
+    );
+  });
+
+  it('a new item: quantity 1, bought today, in the given storage location', () => {
+    expect(itemForm(2).getRawValue()).toEqual({
+      name: '',
+      quantity: 1,
+      storageLocationId: 2,
+      categoryId: null,
+      purchaseDate: todayLocal(),
+      bestBeforeDate: null,
+    });
   });
 
   it('addDays crosses months and years', () => {

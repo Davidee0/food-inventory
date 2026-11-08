@@ -1,9 +1,12 @@
 // The form's rules and the dates. The API checks the same rules with the same messages
 // (data annotations in backend/FoodInventory.Model/Entities/FoodItem.cs). Dates are plain "YYYY-MM-DD" strings.
-import { FoodItem } from './model/food-item';
-
-/** One message per field, e.g. { name: 'Enter a name.' }. */
-export type Errors = Record<string, string>;
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -11,23 +14,68 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export const todayLocal = (now = new Date()) =>
   `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
-/** One message per field; empty when the item can be saved. The name is trimmed first. */
-export function validateItem(item: FoodItem): Errors {
-  const errors: Errors = {};
-  const name = item.name.trim();
-  if (!name) errors['name'] = 'Enter a name.';
-  else if (name.length > 50) errors['name'] = 'Name can be at most 50 characters.';
+/** The name is required and at most 50 characters, both after trimming (" Milk " is "Milk"). */
+function nameRule(control: AbstractControl): ValidationErrors | null {
+  const name = String(control.value ?? '').trim();
+  if (!name) return { required: true };
+  return name.length > 50 ? { maxlength: true } : null;
+}
 
-  const quantity = item.quantity ?? 0;
-  if (!Number.isInteger(quantity) || quantity < 1)
-    errors['quantity'] = 'Quantity must be at least 1.';
+/** The best before date cannot be before the purchase date. */
+function notBeforePurchase(control: AbstractControl): ValidationErrors | null {
+  const purchaseDate = control.parent?.get('purchaseDate')?.value;
+  return control.value && purchaseDate && control.value < purchaseDate
+    ? { beforePurchase: true }
+    : null;
+}
 
-  if (item.storageLocationId == null) errors['storageLocationId'] = 'Choose a storage location.';
+/**
+ * The Add/Edit form as a reactive form (lecture 8): one FormControl per field, with its Validators.
+ * A new item: quantity 1, bought today, in the given storage location.
+ */
+export function itemForm(storageLocationId: number | null = null) {
+  const form = new FormGroup({
+    name: new FormControl('', { nonNullable: true, validators: nameRule }),
+    // a whole number of at least 1 (pattern refuses 1.5)
+    quantity: new FormControl<number | null>(1, [
+      Validators.required,
+      Validators.min(1),
+      Validators.pattern(/^\d+$/),
+    ]),
+    storageLocationId: new FormControl<number | null>(storageLocationId, Validators.required),
+    categoryId: new FormControl<number | null>(null),
+    purchaseDate: new FormControl(todayLocal(), {
+      nonNullable: true,
+      validators: Validators.required,
+    }),
+    bestBeforeDate: new FormControl<string | null>(null, notBeforePurchase),
+  });
+  // A new purchase date can make the best before date right or wrong.
+  form.controls.purchaseDate.valueChanges.subscribe(() =>
+    form.controls.bestBeforeDate.updateValueAndValidity(),
+  );
+  return form;
+}
+export type ItemForm = ReturnType<typeof itemForm>;
 
-  if (!item.purchaseDate) errors['purchaseDate'] = 'Enter a purchase date.';
-  else if (item.bestBeforeDate && item.bestBeforeDate < item.purchaseDate)
-    errors['bestBeforeDate'] = 'Best before date cannot be before the purchase date.';
-  return errors;
+/** The message for each field and rule, the same as the API's. */
+const MESSAGES: Record<string, Record<string, string>> = {
+  name: { required: 'Enter a name.', maxlength: 'Name can be at most 50 characters.' },
+  quantity: {
+    required: 'Quantity must be at least 1.',
+    min: 'Quantity must be at least 1.',
+    pattern: 'Quantity must be at least 1.',
+  },
+  storageLocationId: { required: 'Choose a storage location.' },
+  purchaseDate: { required: 'Enter a purchase date.' },
+  bestBeforeDate: { beforePurchase: 'Best before date cannot be before the purchase date.' },
+};
+
+/** The message under a field, e.g. 'Enter a name.'; empty when the field is fine. */
+export function messageOf(form: ItemForm, field: keyof ItemForm['controls']): string {
+  const errors = form.controls[field].errors;
+  const rule = errors && Object.keys(errors)[0];
+  return rule ? (MESSAGES[field]?.[rule] ?? '') : '';
 }
 
 /** The date `n` days after `date` (n may be negative), as YYYY-MM-DD. */

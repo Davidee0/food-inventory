@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodInventory.API", "FoodIn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodInventory.Model", "FoodInventory.Model\FoodInventory.Model.csproj", "{5A0E39D0-D745-46EC-B871-6232DBA6BEF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodInventory.Tests", "FoodInventory.Tests\FoodInventory.Tests.csproj", "{3C1B6E2A-8F4D-4B7E-9A51-7D2E6F0C9B14}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{5A0E39D0-D745-46EC-B871-6232DBA6BEF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A0E39D0-D745-46EC-B871-6232DBA6BEF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A0E39D0-D745-46EC-B871-6232DBA6BEF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C1B6E2A-8F4D-4B7E-9A51-7D2E6F0C9B14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C1B6E2A-8F4D-4B7E-9A51-7D2E6F0C9B14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C1B6E2A-8F4D-4B7E-9A51-7D2E6F0C9B14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C1B6E2A-8F4D-4B7E-9A51-7D2E6F0C9B14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

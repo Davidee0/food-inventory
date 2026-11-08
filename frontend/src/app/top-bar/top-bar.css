@@ -5,13 +5,18 @@
   z-index: 3;
   display: block;
 }
-.top {
+/* The Material toolbar laid out as the U8 header: U8 or back | titles | gear. */
+.mat-toolbar.top {
   display: grid;
   grid-template-columns: 56px 1fr 56px;
   align-items: center;
+  height: auto;
+  min-height: 0;
   padding: 22px 20px 16px;
   background: var(--band);
+  color: var(--ink);
   border-bottom: 2px solid var(--line);
+  white-space: normal;
 }
 .titles {
   grid-column: 2;
@@ -39,8 +44,6 @@ h1 {
   grid-column: 1;
   width: 48px;
   height: 48px;
-  display: grid;
-  place-items: center;
   background: #fff;
   border: 2px solid var(--line);
   color: var(--ink);
@@ -48,6 +51,7 @@ h1 {
 .gear {
   grid-column: 3;
   justify-self: end;
-  background: transparent;
-  border-color: transparent;
+  width: 48px;
+  height: 48px;
+  color: var(--ink);
 }

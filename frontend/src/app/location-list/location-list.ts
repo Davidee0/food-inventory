@@ -1,5 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
 import { Inventory, errorMessage } from '../inventory';
 import { StorageLocation } from '../model/storage-location';
@@ -8,10 +11,11 @@ import { TopBar } from '../top-bar/top-bar';
 
 type Row = StorageLocation & { draft: string }; // a location and the name typed in its field
 
-/** Storage locations, opened from Settings: add, rename and delete. The API checks the names and answers in plain language. */
+/** Storage locations, opened from the gear menu: add, rename and delete. The fields stay two-way bound with [(ngModel)];
+ * the API checks the names and answers in plain language. */
 @Component({
   selector: 'app-location-list',
-  imports: [FormsModule, TopBar],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, TopBar],
   templateUrl: './location-list.html',
   styleUrl: '../category-list/category-list.css',
 })

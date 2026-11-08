@@ -12,6 +12,7 @@
           <p class="meta">{{ meta(item) }}</p>
         </div>
         <button
+          mat-stroked-button
           type="button"
           class="ate"
           [disabled]="busy().includes(item.id)"
@@ -27,7 +28,9 @@
   <div class="list-state">
     @if (inventory.loadError()) {
       <p>{{ inventory.loadError() }}</p>
-      <button type="button" class="small" (click)="inventory.load()">Try again</button>
+      <button mat-stroked-button type="button" class="small" (click)="inventory.load()">
+        Try again
+      </button>
     } @else if (inventory.loaded() && !inventory.items().length) {
       <p>Nothing in stock right now.</p>
     }

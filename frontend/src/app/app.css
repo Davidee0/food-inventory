@@ -47,33 +47,3 @@
   font-weight: 700;
   box-shadow: 0 4px 0 var(--line);
 }
-
-/* The message bar, just above the tab bar. */
-.toast {
-  position: fixed;
-  bottom: calc(100px + env(safe-area-inset-bottom));
-  left: 50%;
-  z-index: 5;
-  width: min(398px, calc(100% - 32px));
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--ink);
-  color: #fff;
-  box-shadow: 5px 5px 0 var(--shadow);
-  font-weight: 700;
-}
-.toast-text {
-  flex: 1;
-}
-.toast button {
-  min-height: 44px;
-  padding: 0 4px;
-  background: none;
-  border: 0;
-  color: #fff;
-  font: 600 15px var(--sans);
-  text-decoration: underline;
-}

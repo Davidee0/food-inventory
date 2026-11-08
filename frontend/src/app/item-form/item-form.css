@@ -1,11 +1,14 @@
+form {
+  display: flex;
+  flex-direction: column;
+}
 .two {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start; /* a two-line message under one field does not stretch the other */
   gap: 16px;
 }
-/* Two selects side by side are narrow at 360 px: less padding, so "No category" fits. */
-.two select {
-  padding-left: 12px;
-  padding-right: 32px !important;
-  background-position: right 8px center;
+mat-form-field {
+  width: 100%;
+  margin-top: 20px;
 }

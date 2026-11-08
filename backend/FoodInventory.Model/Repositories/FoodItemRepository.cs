@@ -16,7 +16,7 @@ public class FoodItemRepository : BaseRepository
 
     public FoodItemRepository(IConfiguration configuration) : base(configuration) { }
 
-    public FoodItem? GetFoodItemById(int id)
+    public virtual FoodItem? GetFoodItemById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -27,7 +27,7 @@ public class FoodItemRepository : BaseRepository
     }
 
     // Soonest best before date first; food without one comes last.
-    public List<FoodItem> GetFoodItems()
+    public virtual List<FoodItem> GetFoodItems()
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -41,7 +41,7 @@ public class FoodItemRepository : BaseRepository
         return foodItems;
     }
 
-    public bool InsertFoodItem(FoodItem f)
+    public virtual bool InsertFoodItem(FoodItem f)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -52,7 +52,7 @@ public class FoodItemRepository : BaseRepository
         return InsertData(dbConn, cmd);
     }
 
-    public bool UpdateFoodItem(FoodItem f)
+    public virtual bool UpdateFoodItem(FoodItem f)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -65,7 +65,7 @@ public class FoodItemRepository : BaseRepository
         return UpdateData(dbConn, cmd);
     }
 
-    public bool DeleteFoodItem(int id)
+    public virtual bool DeleteFoodItem(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();

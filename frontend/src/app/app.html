@@ -1,16 +1,6 @@
 <div class="app">
   <main class="page"><router-outlet /></main>
 
-  @if (inventory.toast(); as toast) {
-    <p class="toast" role="status">
-      <app-icon name="tick" [size]="26" />
-      <span class="toast-text">{{ toast.text }}</span>
-      @if (toast.undo; as undo) {
-        <button type="button" (click)="undo()">Undo</button>
-      }
-    </p>
-  }
-
   <nav class="tabbar" aria-label="Main">
     <ul>
       <li>

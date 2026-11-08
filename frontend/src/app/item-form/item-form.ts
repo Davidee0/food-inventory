@@ -1,28 +1,34 @@
 import { Component, ElementRef, OnInit, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Icon } from '../icon/icon';
 import { Inventory, errorMessage } from '../inventory';
 import { FoodItem } from '../model/food-item';
 import { FoodItemService } from '../services/food-item-service';
-import { Errors, todayLocal, validateItem } from '../rules';
+import { itemForm, messageOf, todayLocal } from '../rules';
 import { TopBar } from '../top-bar/top-bar';
 
-const empty = (storageLocationId: number | null = null): FoodItem => ({
-  id: 0,
-  name: '',
-  quantity: 1,
-  purchaseDate: todayLocal(), // date purchased is today unless the user changes it
-  bestBeforeDate: null,
-  categoryId: null,
-  storageLocationId,
-});
-
-/** The Add item page (/add) and the Edit item page (/edit/:id). The fields are two-way bound to `form`. */
+/**
+ * The Add item page (/add) and the Edit item page (/edit/:id): a reactive form with Angular Material fields (lecture 8).
+ * The rules and messages are in rules.ts.
+ */
 @Component({
   selector: 'app-item-form',
-  imports: [FormsModule, RouterLink, Icon, TopBar],
+  imports: [
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    RouterLink,
+    Icon,
+    TopBar,
+  ],
   templateUrl: './item-form.html',
   styleUrl: './item-form.css',
 })
@@ -35,12 +41,13 @@ export class ItemForm implements OnInit {
   /** From the route /edit/:id. Without it, the page adds a new item. */
   readonly id = input<string>();
 
-  protected form: FoodItem = empty();
+  protected readonly form = itemForm();
+  protected readonly messageOf = (field: keyof typeof this.form.controls) =>
+    messageOf(this.form, field);
   protected readonly editing = signal<FoodItem | null>(null);
   /** The form shows once the storage locations are there (the form cannot be filled in without them). */
   protected readonly ready = signal(false);
   protected readonly notFound = signal(false);
-  protected readonly errors = signal<Errors>({});
   protected readonly message = signal('');
   protected readonly saving = signal(false);
   protected readonly today = todayLocal();
@@ -52,7 +59,7 @@ export class ItemForm implements OnInit {
       const item = this.inventory.items().find((i) => i.id === Number(this.id()));
       if (!item) return this.notFound.set(true);
       this.editing.set(item);
-      this.form = { ...item };
+      this.form.patchValue(item);
     }
     this.ready.set(true);
     this.focus('#f-name');
@@ -62,23 +69,24 @@ export class ItemForm implements OnInit {
     await this.ngOnInit();
   }
 
-  /** Typing in a field removes its message. */
-  protected clear(field: string) {
-    if (this.errors()[field]) this.errors.update((errors) => ({ ...errors, [field]: '' }));
-  }
-
   /** Nothing is sent while the form is invalid. If saving fails, what was typed stays in the form. */
   protected async save(addAnother = false) {
     if (this.saving()) return;
     this.message.set('');
-    if (this.fail(validateItem(this.form))) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched(); // shows every field's message
+      this.focus('[aria-invalid="true"]');
+      return;
+    }
 
     this.saving.set(true);
-    // A cleared date field gives '', which the API cannot read as a date.
-    const item = {
-      ...this.form,
-      name: this.form.name.trim(),
-      bestBeforeDate: this.form.bestBeforeDate || null,
+    const value = this.form.getRawValue();
+    const item: FoodItem = {
+      id: this.editing()?.id ?? 0,
+      ...value,
+      name: value.name.trim(),
+      // A cleared date field gives '', which the API cannot read as a date.
+      bestBeforeDate: value.bestBeforeDate || null,
     };
     try {
       const adding = !this.editing();
@@ -87,12 +95,8 @@ export class ItemForm implements OnInit {
       );
       await this.inventory.load();
       if (adding && addAnother) {
-        this.form = empty(this.form.storageLocationId); // the next item, same storage location
-        this.ready.set(false);
-        setTimeout(() => {
-          this.ready.set(true);
-          this.focus('#f-name');
-        });
+        this.form.reset(itemForm(item.storageLocationId).getRawValue()); // the next item, same storage location
+        this.focus('#f-name');
       } else {
         this.router.navigateByUrl('/items');
       }
@@ -107,14 +111,6 @@ export class ItemForm implements OnInit {
   protected async remove() {
     const item = this.editing();
     if (item && (await this.inventory.remove(item, 'deleted'))) this.router.navigateByUrl('/items');
-  }
-
-  /** Shows the messages and moves the focus to the first field with one. False when there are none. */
-  private fail(errors: Errors): boolean {
-    this.errors.set(errors);
-    if (!Object.values(errors).some(Boolean)) return false;
-    this.focus('[aria-invalid="true"]');
-    return true;
   }
 
   private focus(selector: string) {
