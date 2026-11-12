@@ -18,7 +18,7 @@ public class FoodItemController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<FoodItem> GetFoodItem([FromRoute] int id)
     {
-        FoodItem? foodItem = Repository.GetFoodItemById(id);
+        FoodItem foodItem = Repository.GetFoodItemById(id);
         if (foodItem == null) return NotFound();
         return Ok(foodItem);
     }

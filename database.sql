@@ -2,18 +2,18 @@
 
 create table storage_location (
     id   serial primary key,
-    name varchar(30) not null
+    name varchar(30) not null check (name <> '')
 );
 
 create table category (
     id   serial primary key,
-    name varchar(30) not null
+    name varchar(30) not null check (name <> '')
 );
 
 -- A category or storage location that still has food in it cannot be deleted: the foreign key refuses it.
 create table food_item (
     id                  serial primary key,
-    name                varchar(50) not null,
+    name                varchar(50) not null check (name <> ''),
     quantity            integer not null check (quantity > 0),
     purchase_date       date not null,
     best_before_date    date,

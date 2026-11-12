@@ -1,66 +1,38 @@
-<app-top-bar [eyebrow]="inventory.loaded() ? countText() : ''" title="My food" />
+<mat-form-field appearance="outline">
+  <mat-label>Search food, category or storage</mat-label>
+  <input matInput [(ngModel)]="searchTerm" (ngModelChange)="filterItems()" />
+  <mat-icon matPrefix>search</mat-icon>
+</mat-form-field>
 
-<div class="body">
-  <div class="filters">
-    <select name="category" aria-label="Filter by category" [(ngModel)]="categoryId">
-      <option [ngValue]="null">All categories</option>
-      @for (category of inventory.categories(); track category.id) {
-        <option [ngValue]="category.id">{{ category.name }}</option>
-      }
-    </select>
-    <select name="storage" aria-label="Filter by storage location" [(ngModel)]="storageLocationId">
-      <option [ngValue]="null">All storage</option>
-      @for (location of inventory.locations(); track location.id) {
-        <option [ngValue]="location.id">{{ location.name }}</option>
-      }
-    </select>
-  </div>
-  @if (filtered()) {
-    <button type="button" class="small clear" (click)="clearFilters()">Clear filters</button>
-  }
+@if (filteredItems.length === 0) {
+  <p>No food found</p>
+} @else {
+  <p>Showing {{ filteredItems.length }} of {{ items.length }} items</p>
+}
 
-  @for (group of groups(); track group.name) {
-    <div class="cat-head">
-      <span>{{ group.name }}</span
-      ><span>{{ group.items.length }}</span>
-    </div>
-    @for (item of group.items; track item.id) {
-      <a
-        class="irow"
-        [routerLink]="['/edit', item.id]"
-        [attr.aria-label]="'Edit ' + item.name + (expiring(item) ? ', ' + leftText(item) : '')"
-      >
-        <span class="slot"
-          ><span class="shape {{ shapeOf(item) }}" [class.dashed]="expiring(item)"></span
-        ></span>
-        <span class="itext">
-          <strong class="name">{{ item.name }}</strong>
-          <span class="meta">{{ meta(item) }}</span>
-          <span class="meta"
-            >Bought {{ item.purchaseDate | date: 'd MMM' }}
-            @if (item.bestBeforeDate) {
-              · Best before {{ item.bestBeforeDate | date: 'd MMM' }}
-            }
-          </span>
-        </span>
-        @if (expiring(item)) {
-          <app-icon class="warn-sign" name="warn" [size]="28" />
+@for (item of filteredItems; track item.id) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{ item.name }}
+        @if (expiryText(item)) {
+          <mat-icon class="warning" [attr.aria-label]="expiryText(item)">warning</mat-icon>
         }
-        <app-icon class="pencil" name="pencil" [size]="20" />
-      </a>
-    }
-  }
-
-  <div class="list-state">
-    @if (inventory.loadError()) {
-      <p>{{ inventory.loadError() }}</p>
-      <button type="button" class="small" (click)="inventory.load()">Try again</button>
-    } @else if (inventory.loaded() && !inventory.items().length) {
-      <p>No items yet. Tap "Add" and start with what you have at home.</p>
-      <a class="small" routerLink="/add">Add item</a>
-    } @else if (noMatch()) {
-      <p>No items match the filters</p>
-      <button type="button" class="small" (click)="clearFilters()">Clear filters</button>
-    }
-  </div>
-</div>
+      </mat-card-title>
+      <mat-card-subtitle>{{ item.categoryName ?? 'No category' }} · {{ item.storageLocationName }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      Quantity {{ item.quantity }} · Bought {{ item.purchaseDate | date }}
+      @if (item.bestBeforeDate) {
+        · Best before {{ item.bestBeforeDate | date }}
+      }
+      @if (expiryText(item)) {
+        <strong> · {{ expiryText(item) }}</strong>
+      }
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a mat-button [routerLink]="['/edit', item.id]"><mat-icon>edit</mat-icon> Edit</a>
+      <button mat-button (click)="deleteItem(item)"><mat-icon>delete</mat-icon> Delete</button>
+    </mat-card-actions>
+  </mat-card>
+}

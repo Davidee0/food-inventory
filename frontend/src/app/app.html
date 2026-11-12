@@ -1,33 +1,13 @@
-<div class="app">
-  <main class="page"><router-outlet /></main>
+<mat-toolbar>
+  <span>U8 · My food</span>
+  <span class="spacer"></span>
+  <a mat-icon-button routerLink="/settings" aria-label="Settings"><mat-icon>settings</mat-icon></a>
+</mat-toolbar>
 
-  @if (inventory.toast(); as toast) {
-    <p class="toast" role="status">
-      <app-icon name="tick" [size]="26" />
-      <span class="toast-text">{{ toast.text }}</span>
-      @if (toast.undo; as undo) {
-        <button type="button" (click)="undo()">Undo</button>
-      }
-    </p>
-  }
+<main><router-outlet /></main>
 
-  <nav class="tabbar" aria-label="Main">
-    <ul>
-      <li>
-        <a class="tab" routerLink="/add" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="plus" /><span>Add</span>
-        </a>
-      </li>
-      <li>
-        <a class="tab" routerLink="/items" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="list" /><span>Inventory</span>
-        </a>
-      </li>
-      <li>
-        <a class="tab" routerLink="/eat" routerLinkActive="active" ariaCurrentWhenActive="page">
-          <app-icon name="check" /><span>Ate it</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
+<nav class="tabbar">
+  <a mat-button routerLink="/add" routerLinkActive="active"><mat-icon>add</mat-icon>Add</a>
+  <a mat-button routerLink="/items" routerLinkActive="active"><mat-icon>list</mat-icon>Inventory</a>
+  <a mat-button routerLink="/eat" routerLinkActive="active"><mat-icon>check</mat-icon>Ate it</a>
+</nav>

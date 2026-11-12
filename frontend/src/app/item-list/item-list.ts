@@ -1,81 +1,67 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Icon } from '../icon/icon';
-import { Inventory, shapeOf } from '../inventory';
-import { FoodItem } from '../model/food-item';
-import { leftText, statusOf } from '../rules';
-import { TopBar } from '../top-bar/top-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FoodItem, expiryText } from '../model/food-item';
+import { FoodItemService } from '../services/food-item-service';
+import { NotificationService } from '../services/notification-service';
 
-const NO_CATEGORY = 'No category';
-
-/** The inventory (the start page): filters, then all items grouped by category, expiring ones first. Tap an item to edit it. */
 @Component({
   selector: 'app-item-list',
-  imports: [DatePipe, FormsModule, RouterLink, Icon, TopBar],
+  imports: [DatePipe, FormsModule, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule],
   templateUrl: './item-list.html',
-  styleUrl: './item-list.css',
 })
 export class ItemList implements OnInit {
-  protected readonly inventory = inject(Inventory);
-  /** The filters: a category id and a storage location id; null shows all. */
-  protected readonly categoryId = signal<number | null>(null);
-  protected readonly storageLocationId = signal<number | null>(null);
+  constructor(
+    private foodItemService: FoodItemService,
+    private notification: NotificationService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  protected readonly shapeOf = shapeOf;
-  protected readonly leftText = (item: FoodItem) => leftText(item.bestBeforeDate);
-  protected readonly expiring = (item: FoodItem) => statusOf(item.bestBeforeDate) !== null;
+  items: FoodItem[] = []; // sorted by the API: soonest best before date first
+  filteredItems: FoodItem[] = [];
+  searchTerm: string = '';
+  expiryText = expiryText;
 
-  /** "6 items · 2 expiring" */
-  protected readonly countText = computed(() => {
-    const items = this.inventory.items();
-    const warnings = items.filter(this.expiring).length;
-    return `${items.length} ${items.length === 1 ? 'item' : 'items'}${warnings ? ` · ${warnings} expiring` : ''}`;
-  });
-
-  protected readonly filtered = computed(
-    () => this.categoryId() !== null || this.storageLocationId() !== null,
-  );
-
-  private readonly shown = computed(() =>
-    this.inventory
-      .items()
-      .filter(
-        (i) =>
-          (this.categoryId() === null || i.categoryId === this.categoryId()) &&
-          (this.storageLocationId() === null || i.storageLocationId === this.storageLocationId()),
-      ),
-  );
-
-  /** One group per category in the categories' order, then "No category". Expiring items go on top. */
-  protected readonly groups = computed(() =>
-    [...this.inventory.categories().map((c) => c.name), NO_CATEGORY]
-      .map((name) => ({
-        name,
-        items: this.shown()
-          .filter((i) => (i.categoryName ?? NO_CATEGORY) === name)
-          // the rest keep the API's order: soonest best before date first
-          .sort((a, b) => Number(this.expiring(b)) - Number(this.expiring(a))),
-      }))
-      .filter((group) => group.items.length),
-  );
-
-  protected readonly noMatch = computed(
-    () => this.inventory.items().length > 0 && this.shown().length === 0,
-  );
-
-  ngOnInit() {
-    this.inventory.lastMain = '/items';
-    this.inventory.load();
+  ngOnInit(): void {
+    this.loadItems();
   }
 
-  protected clearFilters() {
-    this.categoryId.set(null);
-    this.storageLocationId.set(null);
+  loadItems(): void {
+    this.foodItemService.getFoodItems().subscribe({
+      next: (items) => {
+        this.items = items;
+        this.filterItems();
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.notification.showError('Could not load the food items');
+        console.error('API error fetching food items', error);
+      },
+    });
   }
 
-  /** "Fridge · Qty 2 · 3 days left" */
-  protected meta = (item: FoodItem) =>
-    [item.storageLocationName, `Qty ${item.quantity}`, this.leftText(item)].join(' · ');
+  filterItems(): void {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredItems = this.items.filter(
+      (item) =>
+        item.name.toLowerCase().includes(term) ||
+        (item.categoryName ?? '').toLowerCase().includes(term) ||
+        (item.storageLocationName ?? '').toLowerCase().includes(term),
+    );
+  }
+
+  deleteItem(item: FoodItem): void {
+    if (confirm(`Delete ${item.name}?`)) {
+      this.foodItemService.deleteFoodItem(item.id).subscribe(() => {
+        this.notification.showSuccess(`${item.name} deleted`);
+        this.loadItems();
+      });
+    }
+  }
 }

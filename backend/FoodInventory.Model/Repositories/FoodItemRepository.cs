@@ -16,7 +16,7 @@ public class FoodItemRepository : BaseRepository
 
     public FoodItemRepository(IConfiguration configuration) : base(configuration) { }
 
-    public FoodItem? GetFoodItemById(int id)
+    public virtual FoodItem GetFoodItemById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -27,7 +27,7 @@ public class FoodItemRepository : BaseRepository
     }
 
     // Soonest best before date first; food without one comes last.
-    public List<FoodItem> GetFoodItems()
+    public virtual List<FoodItem> GetFoodItems()
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -41,7 +41,7 @@ public class FoodItemRepository : BaseRepository
         return foodItems;
     }
 
-    public bool InsertFoodItem(FoodItem f)
+    public virtual bool InsertFoodItem(FoodItem f)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -52,7 +52,7 @@ public class FoodItemRepository : BaseRepository
         return InsertData(dbConn, cmd);
     }
 
-    public bool UpdateFoodItem(FoodItem f)
+    public virtual bool UpdateFoodItem(FoodItem f)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -65,7 +65,7 @@ public class FoodItemRepository : BaseRepository
         return UpdateData(dbConn, cmd);
     }
 
-    public bool DeleteFoodItem(int id)
+    public virtual bool DeleteFoodItem(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -90,9 +90,9 @@ public class FoodItemRepository : BaseRepository
     {
         cmd.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, f.Name);
         cmd.Parameters.AddWithValue("@quantity", NpgsqlDbType.Integer, f.Quantity);
-        cmd.Parameters.AddWithValue("@purchase_date", NpgsqlDbType.Date, f.PurchaseDate!.Value);
-        cmd.Parameters.AddWithValue("@best_before_date", NpgsqlDbType.Date, (object?)f.BestBeforeDate ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@category_id", NpgsqlDbType.Integer, (object?)f.CategoryId ?? DBNull.Value);
-        cmd.Parameters.AddWithValue("@storage_location_id", NpgsqlDbType.Integer, f.StorageLocationId!.Value);
+        cmd.Parameters.AddWithValue("@purchase_date", NpgsqlDbType.Date, f.PurchaseDate);
+        cmd.Parameters.AddWithValue("@best_before_date", NpgsqlDbType.Date, (object)f.BestBeforeDate ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@category_id", NpgsqlDbType.Integer, (object)f.CategoryId ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("@storage_location_id", NpgsqlDbType.Integer, f.StorageLocationId);
     }
 }

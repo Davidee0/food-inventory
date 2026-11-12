@@ -19,7 +19,7 @@ public class CategoryController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<Category> GetCategory([FromRoute] int id)
     {
-        Category? category = Repository.GetCategoryById(id);
+        Category category = Repository.GetCategoryById(id);
         if (category == null) return NotFound();
         return Ok(category);
     }
@@ -46,7 +46,7 @@ public class CategoryController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteCategory([FromRoute] int id)
     {
-        Category? category = Repository.GetCategoryById(id);
+        Category category = Repository.GetCategoryById(id);
         if (category == null) return NotFound($"Category with id {id} not found");
         try
         {

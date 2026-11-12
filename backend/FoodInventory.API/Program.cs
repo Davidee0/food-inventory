@@ -8,14 +8,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<FoodItemRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<StorageLocationRepository>();
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors();
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.MapControllers();
 
 app.Run();

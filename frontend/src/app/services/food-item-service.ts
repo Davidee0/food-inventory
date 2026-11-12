@@ -13,6 +13,10 @@ export class FoodItemService {
     return this.http.get<FoodItem[]>(`${this.baseUrl}/fooditem`);
   }
 
+  getFoodItem(id: number): Observable<FoodItem> {
+    return this.http.get<FoodItem>(`${this.baseUrl}/fooditem/${id}`);
+  }
+
   addFoodItem(foodItem: FoodItem): Observable<any> {
     return this.http.post(`${this.baseUrl}/fooditem`, foodItem);
   }

@@ -9,7 +9,7 @@ public class StorageLocationRepository : BaseRepository
 {
     public StorageLocationRepository(IConfiguration configuration) : base(configuration) { }
 
-    public StorageLocation? GetStorageLocationById(int id)
+    public StorageLocation GetStorageLocationById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();

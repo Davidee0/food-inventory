@@ -1,30 +1,24 @@
 # CLAUDE.md
 
-Food inventory, CBS course project (Designing and Developing Digital Business Applications). PostgreSQL, ASP.NET Core Web API (C#, .NET 8), Angular 22. No login, no users; one shared inventory.
+Food inventory, CBS course project (Designing and Developing Digital Business Applications). PostgreSQL, ASP.NET Core Web API (C#, .NET 8), Angular 22 + Angular Material. No login, no users, no encryption; one shared inventory.
 
 ## How to work
-Follow the project guide (DDDBA Project and Exam Guide), the team roadmap and user stories, and the professor's notes (course project CourseAdminSystem). Less is more: no code, libraries or files the app does not need.
-Guide: several related tables with PK/FK and at least 10 records; CRUD with GET/POST/PUT/DELETE for at least two entities; at least 4 Angular components; services for the API; a form with two-way binding and basic validation.
-Built: US1-US10 (add, view, edit, delete with confirmation, validation, mobile, quantity, category drop-down, manage categories, filters), US11-US12 (expiring food marked, sorted by best before date) and US13 (manage storage locations).
+- Write the code the way the lecture slides do (CourseAdminSystem, Lectures 4 to 10). Less is more: no code, libraries or files the app does not need, and nothing twice.
+- Project guide: several related tables with PK/FK and at least 10 records; CRUD with GET/POST/PUT/DELETE for at least two entities; at least 4 Angular components; services for the API; a form with two-way binding and basic validation.
+- README.md describes the app, the structure and the demo script: keep it up to date.
 
-## Database (`database.sql`)
-`storage_location`, `category`, `food_item` (name, quantity > 0, purchase_date, optional best_before_date not before purchase_date, optional category_id, storage_location_id). A category or storage location that still has food in it cannot be deleted: the foreign key refuses it.
+## Backend (Lectures 4 and 9)
+- `FoodInventory.Model`: `Entities/` (plain classes, constructor with the id), `Repositories/` (`XRepository : BaseRepository`, SQL with `@parameters`). `BaseRepository` is the course's file. `Nullable` is disabled, as in the slides.
+- `FoodInventory.API`: `[Route("api/[controller]")]` controllers get their repository in the constructor (`AddScoped` in `Program.cs`). PUT gets the whole object; NotFound when the id does not exist; 409 with a message when a category or storage location still has food. Port 5050, connection string `AppProgDb`, CORS as in Lecture 6.
+- `FoodInventory.Tests`: xUnit + Moq, like Lecture 9; the mocked repository methods are `virtual`.
+- Dates: `date` columns, `DateOnly`, JSON "YYYY-MM-DD".
 
-## Backend (as in the course)
-- `FoodInventory.Model`: `Entities/` (a class per table, constructor with the id, validation as data annotations), `Repositories/` (`XRepository : BaseRepository`; SQL with `@parameters`). `BaseRepository` is the course's file.
-- `FoodInventory.API`: `[Route("api/[controller]")]` controllers (`/api/FoodItem`, `/api/Category`, `/api/StorageLocation`) get their repository in the constructor (`AddScoped` in `Program.cs`). PUT gets the whole object, id included; NotFound when the id does not exist; 409 with a message when a category or storage location still has food. Port 5050, connection string `AppProgDb`, CORS for http://localhost:4200.
-- JSON is camelCase (ASP.NET default). Dates: `date` columns, `DateOnly`, "YYYY-MM-DD".
-- The rules and messages in `FoodItem.cs` / `Category.cs` and in `frontend/src/app/rules.ts` are the same: change them together.
-
-## Frontend: design "U8" (Kilian's prototype)
-`ng new` project FoodInventory.NG (Angular CLI 22.2.0, zoneless, Vitest, Prettier). `app.html`: `<router-outlet />`, the message bar and a bottom tab bar (Add / Inventory / Ate it).
-Pages: `/items` ItemList (filters by category and storage location, grouped by category, expiring first with a warning sign), `/add` and `/edit/:id` ItemForm (`:id` arrives as an input through `withComponentInputBinding`),
-`/eat` EatList ("Ate it" = one eaten: quantity - 1, the last one deletes the item; Undo in the message bar, no confirmation), `/settings` Settings (the gear in the top bar) with `/settings/categories` CategoryList and `/settings/locations` LocationList. Parts: TopBar, Icon.
-Data as in class: `model/` (interfaces), `services/` (one per controller; HttpClient, Observables). `inventory.ts` keeps the loaded data as signals for all pages, with `load()`, `remove()` (Delete in the form, after a confirmation), `eatOne()` and the message bar (with an optional Undo). The top bar and the tab bar are sticky.
-"Today" is the LOCAL date (`todayLocal()`, never `toISOString()`); "soon" = best before within 3 days, "past" = before today.
-Zoneless: state that a template shows must be a signal, because a plain field changed after an `await` does not re-render. Form fields stay two-way bound with `[(ngModel)]`.
-Mobile: 16 px text, 44 px buttons and fields, no sideways scrolling at 360 px, the tab bar always visible.
-U8 look: paper #f5f5f1, band #e8e8e3, ink #242424, muted #6d6d68, error #a3200f, warning #f5c400, 2px dark outlines, no rounding, hard offset shadows, monospace labels, one 430px column.
+## Frontend (Lectures 6 to 10)
+- Components: App (mat-toolbar with the gear, bottom tab bar Add / Inventory / Ate it), ItemList (`/items`, search), ItemForm (`/add`, `/edit/:id`, reactive form with Validators and mat-error), EatList (`/eat`), Settings (`/settings`, `[(ngModel)]`).
+- Each component calls its services in `ngOnInit` with `.subscribe(...)`. Angular 22 components are OnPush by default, so call `this.cdr.markForCheck()` after data arrives (Lecture 10).
+- `NotificationService` (MatSnackBar) for messages, Undo for "Ate it". Delete asks with `confirm()`.
+- `model/food-item.ts` also has `today()` (local date) and `expiryText()` ("soon" = within 3 days).
+- Material Icons come from the Google Fonts link in `index.html` (Lecture 10). Styles: `src/styles.css` only (U8 colours: paper #f5f5f1, band #e8e8e3, ink #242424, warning #f5c400; one 430px column).
 
 ## Commands
-`dotnet build backend/FoodInventory.sln` · `dotnet run --project backend/FoodInventory.API` · in `frontend/` (Node 22.22.3+): `npx ng serve`, `npx ng build`, `npx ng test --watch=false` (also with `TZ=Pacific/Auckland`), `npx prettier --write src`.
+`dotnet build backend/FoodInventory.sln` · `dotnet test backend/FoodInventory.sln` · `dotnet run --project backend/FoodInventory.API` · in `frontend/`: `ng serve`, `ng build`, `ng test --watch=false`.
