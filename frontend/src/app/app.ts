@@ -1,15 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Icon } from './icon/icon';
-import { Inventory } from './inventory';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
-/** The frame of every page: the page of the current route, the message bar, and the tab bar at the bottom. */
 @Component({
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
   selector: 'app-root',
-  styleUrl: './app.css',
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbarModule, MatButtonModule, MatIconModule],
   templateUrl: './app.html',
 })
-export class App {
-  protected readonly inventory = inject(Inventory);
-}
+export class App {}

@@ -1,131 +1,59 @@
-<app-top-bar eyebrow="Food inventory" [title]="id() ? 'Edit item' : 'Add new item'" />
+<h2>{{ id ? 'Edit item' : 'Add item' }}</h2>
 
-<div class="body">
-  @if (notFound()) {
-    <div class="list-state">
-      <p>This item does not exist any more.</p>
-      <a class="small" routerLink="/items">Back to the inventory</a>
-    </div>
-  } @else if (inventory.loadError() && !ready()) {
-    <div class="list-state">
-      <p>{{ inventory.loadError() }}</p>
-      <button type="button" class="small" (click)="retry()">Try again</button>
-    </div>
-  } @else if (ready()) {
-    <!-- novalidate: our own messages show under each field -->
-    <form novalidate (ngSubmit)="save()">
-      @if (message()) {
-        <p class="form-error" role="alert">{{ message() }}</p>
+<form [formGroup]="itemFormGroup">
+  <mat-form-field>
+    <mat-label>Item name</mat-label>
+    <input matInput type="text" formControlName="name" />
+    @if (name.hasError('required')) {
+      <mat-error>Item name is required</mat-error>
+    }
+    @if (name.hasError('maxlength')) {
+      <mat-error>Item name can be at most 50 characters</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Quantity</mat-label>
+    <input matInput type="number" formControlName="quantity" />
+    @if (quantity.hasError('required') || quantity.hasError('min')) {
+      <mat-error>Quantity must be at least 1</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Storage location</mat-label>
+    <mat-select formControlName="storageLocationId">
+      @for (location of locations; track location.id) {
+        <mat-option [value]="location.id">{{ location.name }}</mat-option>
       }
+    </mat-select>
+    @if (storageLocationId.hasError('required')) {
+      <mat-error>Storage location is required</mat-error>
+    }
+  </mat-form-field>
 
-      <label class="field">
-        <span class="lbl">Item name <b>*</b></span>
-        <input
-          id="f-name"
-          name="name"
-          autocomplete="off"
-          placeholder="e.g. Greek yogurt"
-          aria-describedby="e-name"
-          [(ngModel)]="form.name"
-          (ngModelChange)="clear('name')"
-          [attr.aria-invalid]="errors()['name'] ? true : null"
-        />
-      </label>
-      <p class="error" id="e-name" aria-live="polite">{{ errors()['name'] }}</p>
-
-      <div class="two">
-        <div>
-          <label class="field">
-            <span class="lbl">Quantity <b>*</b></span>
-            <input
-              name="quantity"
-              type="number"
-              min="1"
-              step="1"
-              inputmode="numeric"
-              aria-describedby="e-quantity"
-              [(ngModel)]="form.quantity"
-              (ngModelChange)="clear('quantity')"
-              [attr.aria-invalid]="errors()['quantity'] ? true : null"
-            />
-          </label>
-          <p class="error" id="e-quantity" aria-live="polite">{{ errors()['quantity'] }}</p>
-        </div>
-        <div>
-          <label class="field">
-            <span class="lbl">Storage <b>*</b></span>
-            <select
-              name="storageLocationId"
-              aria-label="Storage location"
-              aria-describedby="e-location"
-              [(ngModel)]="form.storageLocationId"
-              (ngModelChange)="clear('storageLocationId')"
-              [attr.aria-invalid]="errors()['storageLocationId'] ? true : null"
-            >
-              <option [ngValue]="null">Choose</option>
-              @for (location of inventory.locations(); track location.id) {
-                <option [ngValue]="location.id">{{ location.name }}</option>
-              }
-            </select>
-          </label>
-          <p class="error" id="e-location" aria-live="polite">
-            {{ errors()['storageLocationId'] }}
-          </p>
-        </div>
-      </div>
-
-      <label class="field">
-        <span class="lbl">Category</span>
-        <select name="categoryId" [(ngModel)]="form.categoryId">
-          <option [ngValue]="null">No category</option>
-          @for (category of inventory.categories(); track category.id) {
-            <option [ngValue]="category.id">{{ category.name }}</option>
-          }
-        </select>
-      </label>
-
-      <label class="field">
-        <span class="lbl">Date purchased <b>*</b></span>
-        <input
-          name="purchaseDate"
-          type="date"
-          [max]="today"
-          aria-describedby="e-purchase"
-          [(ngModel)]="form.purchaseDate"
-          (ngModelChange)="clear('purchaseDate')"
-          [attr.aria-invalid]="errors()['purchaseDate'] ? true : null"
-        />
-      </label>
-      <p class="error" id="e-purchase" aria-live="polite">{{ errors()['purchaseDate'] }}</p>
-
-      <label class="field">
-        <span class="lbl">Best before date</span>
-        <input
-          name="bestBeforeDate"
-          type="date"
-          aria-describedby="e-best"
-          [(ngModel)]="form.bestBeforeDate"
-          (ngModelChange)="clear('bestBeforeDate')"
-          [attr.aria-invalid]="errors()['bestBeforeDate'] ? true : null"
-        />
-      </label>
-      <p class="error" id="e-best" aria-live="polite">{{ errors()['bestBeforeDate'] }}</p>
-
-      <button type="submit" class="cta" [disabled]="saving()">
-        @if (editing()) {
-          Save changes
-        } @else {
-          <app-icon name="plus" [size]="22" /> Add item
-        }
-      </button>
-      @if (editing()) {
-        <a class="ghost" routerLink="/items">Cancel</a>
-        <button type="button" class="ghost danger" (click)="remove()">Delete item</button>
-      } @else {
-        <button type="button" class="ghost" [disabled]="saving()" (click)="save(true)">
-          Save and add another
-        </button>
+  <mat-form-field>
+    <mat-label>Category</mat-label>
+    <mat-select formControlName="categoryId">
+      <mat-option [value]="null">No category</mat-option>
+      @for (category of categories; track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
       }
-    </form>
-  }
-</div>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Purchase date</mat-label>
+    <input matInput type="date" formControlName="purchaseDate" />
+    @if (purchaseDate.hasError('required')) {
+      <mat-error>Purchase date is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Best before date (optional)</mat-label>
+    <input matInput type="date" formControlName="bestBeforeDate" />
+  </mat-form-field>
+
+  <button mat-flat-button [disabled]="!itemFormGroup.valid" (click)="saveItem()">Save</button>
+</form>

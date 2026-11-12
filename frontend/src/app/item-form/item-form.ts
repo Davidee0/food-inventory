@@ -1,123 +1,100 @@
-import { Component, ElementRef, OnInit, inject, input, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
-import { Icon } from '../icon/icon';
-import { Inventory, errorMessage } from '../inventory';
-import { FoodItem } from '../model/food-item';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { Category } from '../model/category';
+import { StorageLocation } from '../model/storage-location';
+import { today } from '../model/food-item';
+import { CategoryService } from '../services/category-service';
 import { FoodItemService } from '../services/food-item-service';
-import { Errors, todayLocal, validateItem } from '../rules';
-import { TopBar } from '../top-bar/top-bar';
+import { StorageLocationService } from '../services/storage-location-service';
+import { NotificationService } from '../services/notification-service';
 
-const empty = (storageLocationId: number | null = null): FoodItem => ({
-  id: 0,
-  name: '',
-  quantity: 1,
-  purchaseDate: todayLocal(), // date purchased is today unless the user changes it
-  bestBeforeDate: null,
-  categoryId: null,
-  storageLocationId,
-});
-
-/** The Add item page (/add) and the Edit item page (/edit/:id). The fields are two-way bound to `form`. */
+// Add item (/add) and Edit item (/edit/:id).
 @Component({
   selector: 'app-item-form',
-  imports: [FormsModule, RouterLink, Icon, TopBar],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
   templateUrl: './item-form.html',
-  styleUrl: './item-form.css',
 })
 export class ItemForm implements OnInit {
-  private readonly foodItemService = inject(FoodItemService);
-  private readonly router = inject(Router);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  protected readonly inventory = inject(Inventory);
+  constructor(
+    private foodItemService: FoodItemService,
+    private categoryService: CategoryService,
+    private storageLocationService: StorageLocationService,
+    private notification: NotificationService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  /** From the route /edit/:id. Without it, the page adds a new item. */
-  readonly id = input<string>();
+  @Input() id!: number; // from the route /edit/:id; empty when adding
+  categories: Category[] = [];
+  locations: StorageLocation[] = [];
 
-  protected form: FoodItem = empty();
-  protected readonly editing = signal<FoodItem | null>(null);
-  /** The form shows once the storage locations are there (the form cannot be filled in without them). */
-  protected readonly ready = signal(false);
-  protected readonly notFound = signal(false);
-  protected readonly errors = signal<Errors>({});
-  protected readonly message = signal('');
-  protected readonly saving = signal(false);
-  protected readonly today = todayLocal();
+  name: FormControl = new FormControl('', [Validators.required, Validators.maxLength(50)]);
+  quantity: FormControl = new FormControl(1, [Validators.required, Validators.min(1)]);
+  storageLocationId: FormControl = new FormControl(null, [Validators.required]);
+  categoryId: FormControl = new FormControl(null);
+  purchaseDate: FormControl = new FormControl(today(), [Validators.required]);
+  bestBeforeDate: FormControl = new FormControl('');
+  itemFormGroup: FormGroup = new FormGroup({
+    name: this.name,
+    quantity: this.quantity,
+    storageLocationId: this.storageLocationId,
+    categoryId: this.categoryId,
+    purchaseDate: this.purchaseDate,
+    bestBeforeDate: this.bestBeforeDate,
+  });
 
-  async ngOnInit() {
-    if (!this.inventory.locations().length || this.id()) await this.inventory.load();
-    if (!this.inventory.locations().length) return; // the page shows the load error and Try again
-    if (this.id()) {
-      const item = this.inventory.items().find((i) => i.id === Number(this.id()));
-      if (!item) return this.notFound.set(true);
-      this.editing.set(item);
-      this.form = { ...item };
+  ngOnInit(): void {
+    this.categoryService.getCategories().subscribe((categories) => {
+      this.categories = categories;
+      this.cdr.markForCheck();
+    });
+    this.storageLocationService.getStorageLocations().subscribe((locations) => {
+      this.locations = locations;
+      this.cdr.markForCheck();
+    });
+    if (this.id) {
+      this.foodItemService.getFoodItem(this.id).subscribe((item) => {
+        this.itemFormGroup.patchValue(item);
+        this.cdr.markForCheck();
+      });
     }
-    this.ready.set(true);
-    this.focus('#f-name');
   }
 
-  protected async retry() {
-    await this.ngOnInit();
-  }
-
-  /** Typing in a field removes its message. */
-  protected clear(field: string) {
-    if (this.errors()[field]) this.errors.update((errors) => ({ ...errors, [field]: '' }));
-  }
-
-  /** Nothing is sent while the form is invalid. If saving fails, what was typed stays in the form. */
-  protected async save(addAnother = false) {
-    if (this.saving()) return;
-    this.message.set('');
-    if (this.fail(validateItem(this.form))) return;
-
-    this.saving.set(true);
-    // A cleared date field gives '', which the API cannot read as a date.
+  saveItem(): void {
+    if (!this.itemFormGroup.valid) {
+      this.notification.showError('Please fill in all required fields');
+      return;
+    }
+    if (this.bestBeforeDate.value && this.bestBeforeDate.value < this.purchaseDate.value) {
+      this.notification.showError('Best before date cannot be before the purchase date');
+      return;
+    }
     const item = {
-      ...this.form,
-      name: this.form.name.trim(),
-      bestBeforeDate: this.form.bestBeforeDate || null,
+      id: Number(this.id ?? 0),
+      name: this.name.value.trim(),
+      quantity: this.quantity.value,
+      storageLocationId: this.storageLocationId.value,
+      categoryId: this.categoryId.value,
+      purchaseDate: this.purchaseDate.value,
+      bestBeforeDate: this.bestBeforeDate.value || null,
     };
-    try {
-      const adding = !this.editing();
-      await firstValueFrom(
-        adding ? this.foodItemService.addFoodItem(item) : this.foodItemService.updateFoodItem(item),
-      );
-      await this.inventory.load();
-      if (adding && addAnother) {
-        this.form = empty(this.form.storageLocationId); // the next item, same storage location
-        this.ready.set(false);
-        setTimeout(() => {
-          this.ready.set(true);
-          this.focus('#f-name');
-        });
-      } else {
-        this.router.navigateByUrl('/items');
-      }
-      this.inventory.say(`${item.name} ${adding ? 'added' : 'saved'}`);
-    } catch (error) {
-      this.message.set(errorMessage(error));
-    } finally {
-      this.saving.set(false);
-    }
-  }
-
-  protected async remove() {
-    const item = this.editing();
-    if (item && (await this.inventory.remove(item, 'deleted'))) this.router.navigateByUrl('/items');
-  }
-
-  /** Shows the messages and moves the focus to the first field with one. False when there are none. */
-  private fail(errors: Errors): boolean {
-    this.errors.set(errors);
-    if (!Object.values(errors).some(Boolean)) return false;
-    this.focus('[aria-invalid="true"]');
-    return true;
-  }
-
-  private focus(selector: string) {
-    setTimeout(() => this.host.nativeElement.querySelector<HTMLElement>(selector)?.focus());
+    const request = this.id
+      ? this.foodItemService.updateFoodItem(item)
+      : this.foodItemService.addFoodItem(item);
+    request.subscribe({
+      next: () => {
+        this.notification.showSuccess(`${item.name} saved`);
+        this.router.navigate(['/items']);
+      },
+      error: (err) => {
+        this.notification.showError('Could not save the item');
+        console.error('Something went wrong: ', err);
+      },
+    });
   }
 }

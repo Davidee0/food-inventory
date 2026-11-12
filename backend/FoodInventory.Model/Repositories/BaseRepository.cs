@@ -9,7 +9,7 @@ public class BaseRepository
 
     public BaseRepository(IConfiguration configuration)
     {
-        ConnectionString = configuration.GetConnectionString("AppProgDb")!;
+        ConnectionString = configuration.GetConnectionString("AppProgDb");
     }
 
     protected NpgsqlDataReader GetData(NpgsqlConnection conn, NpgsqlCommand cmd)

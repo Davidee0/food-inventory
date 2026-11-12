@@ -19,7 +19,7 @@ public class StorageLocationController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<StorageLocation> GetStorageLocation([FromRoute] int id)
     {
-        StorageLocation? location = Repository.GetStorageLocationById(id);
+        StorageLocation location = Repository.GetStorageLocationById(id);
         if (location == null) return NotFound();
         return Ok(location);
     }
@@ -46,7 +46,7 @@ public class StorageLocationController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteStorageLocation([FromRoute] int id)
     {
-        StorageLocation? location = Repository.GetStorageLocationById(id);
+        StorageLocation location = Repository.GetStorageLocationById(id);
         if (location == null) return NotFound($"Storage location with id {id} not found");
         try
         {

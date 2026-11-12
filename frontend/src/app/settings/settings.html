@@ -1,18 +1,35 @@
-<app-top-bar eyebrow="U8" title="Settings" [back]="inventory.lastMain" />
-
-<div class="body">
-  <div class="group">
-    <a class="srow" routerLink="/settings/categories">
-      <span>Categories</span>
-      <span class="val"
-        >{{ inventory.categories().length }} <app-icon name="chev" [size]="18"
-      /></span>
-    </a>
-    <a class="srow" routerLink="/settings/locations">
-      <span>Storage locations</span>
-      <span class="val"
-        >{{ inventory.locations().length }} <app-icon name="chev" [size]="18"
-      /></span>
-    </a>
+<h2>Categories</h2>
+@for (category of categories; track category.id) {
+  <div class="row">
+    <mat-form-field>
+      <input matInput [(ngModel)]="category.name" aria-label="Category name" />
+    </mat-form-field>
+    <button mat-icon-button [disabled]="!category.name.trim()" (click)="updateCategory(category)" aria-label="Save"><mat-icon>save</mat-icon></button>
+    <button mat-icon-button (click)="deleteCategory(category)" aria-label="Delete"><mat-icon>delete</mat-icon></button>
   </div>
+}
+<div class="row">
+  <mat-form-field>
+    <mat-label>New category</mat-label>
+    <input matInput [(ngModel)]="newCategory" />
+  </mat-form-field>
+  <button mat-flat-button [disabled]="!newCategory.trim()" (click)="addCategory()">Add</button>
+</div>
+
+<h2>Storage locations</h2>
+@for (location of locations; track location.id) {
+  <div class="row">
+    <mat-form-field>
+      <input matInput [(ngModel)]="location.name" aria-label="Storage location name" />
+    </mat-form-field>
+    <button mat-icon-button [disabled]="!location.name.trim()" (click)="updateLocation(location)" aria-label="Save"><mat-icon>save</mat-icon></button>
+    <button mat-icon-button (click)="deleteLocation(location)" aria-label="Delete"><mat-icon>delete</mat-icon></button>
+  </div>
+}
+<div class="row">
+  <mat-form-field>
+    <mat-label>New storage location</mat-label>
+    <input matInput [(ngModel)]="newLocation" />
+  </mat-form-field>
+  <button mat-flat-button [disabled]="!newLocation.trim()" (click)="addLocation()">Add</button>
 </div>

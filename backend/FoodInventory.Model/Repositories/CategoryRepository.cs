@@ -9,7 +9,7 @@ public class CategoryRepository : BaseRepository
 {
     public CategoryRepository(IConfiguration configuration) : base(configuration) { }
 
-    public Category? GetCategoryById(int id)
+    public Category GetCategoryById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
