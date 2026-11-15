@@ -1,0 +1,81 @@
+# Runs the Lecture 9 tests on every pull request and on main:
+# the xUnit tests, the database script, the API against PostgreSQL, and the Angular build and tests.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: food_inventory
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - name: xUnit tests (Lecture 9)
+        run: dotnet test backend/FoodInventory.sln
+      - name: Tables and example rows (database.sql)
+        run: psql -h localhost -U postgres -d food_inventory -v ON_ERROR_STOP=1 -f database.sql
+        env:
+          PGPASSWORD: postgres
+      - name: Start the API and check its answers
+        run: |
+          dotnet run --project backend/FoodInventory.API > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5050/api/FoodItem && break; sleep 2; done
+          api=http://localhost:5050/api
+          fail=0
+          check() { # expected status, method, url, optional JSON body
+            code=$(curl -s -o body.txt -w '%{http_code}' -X "$2" -H 'Content-Type: application/json' ${4:+-d "$4"} "$3")
+            if [ "$code" = "$1" ]; then echo "ok   $2 $3 -> $code"; else echo "FAIL $2 $3 -> $code, expected $1: $(cat body.txt)"; fail=1; fi
+          }
+          today=$(date +%F)
+          check 200 GET $api/FoodItem
+          [ "$(jq -r '.[0].name' body.txt)" = "Chicken breast" ] && [ "$(jq -r '.[-1].name' body.txt)" = "Pasta" ] || { echo "FAIL sort order"; fail=1; }
+          check 200 GET $api/FoodItem/1
+          check 404 GET $api/FoodItem/999
+          check 200 POST $api/FoodItem "{\"id\":0,\"name\":\"Bread\",\"quantity\":2,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":3}"
+          check 200 PUT $api/FoodItem "{\"id\":1,\"name\":\"Milk\",\"quantity\":3,\"purchaseDate\":\"$today\",\"bestBeforeDate\":\"$today\",\"categoryId\":1,\"storageLocationId\":1}"
+          check 404 PUT $api/FoodItem "{\"id\":999,\"name\":\"Milk\",\"quantity\":1,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":1}"
+          check 204 DELETE $api/FoodItem/7
+          check 404 DELETE $api/FoodItem/7
+          check 200 GET $api/Category
+          check 409 DELETE $api/Category/1
+          grep -q "Dairy still has food in it" body.txt || { echo "FAIL 409 message"; fail=1; }
+          check 200 POST $api/Category '{"id":0,"name":"Snacks"}'
+          check 200 PUT $api/Category '{"id":7,"name":"Sweets"}'
+          check 204 DELETE $api/Category/7
+          check 200 GET $api/StorageLocation
+          check 409 DELETE $api/StorageLocation/1
+          check 200 GET http://localhost:5050/swagger/v1/swagger.json
+          cors=$(curl -s -o /dev/null -D - -X OPTIONS -H 'Origin: http://localhost:4200' -H 'Access-Control-Request-Method: DELETE' $api/FoodItem/1 | grep -i '^access-control-allow-origin')
+          [ -n "$cors" ] && echo "ok   CORS: $cors" || { echo "FAIL CORS"; fail=1; }
+          [ $fail = 0 ] || { cat api.log; exit 1; }
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Production build
+        run: npx ng build
+      - name: Vitest tests (Lecture 9)
+        run: npx ng test --watch=false
