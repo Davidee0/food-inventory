@@ -12,8 +12,6 @@ import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
 import { FoodItemCard } from '../food-item-card/food-item-card';
 
-// The start page (US2, US10): the food from the API, two filters and one card per food item
-// (Lecture 5: list and card; Lecture 10: Search/Filter).
 @Component({
   selector: 'app-food-item-list',
   imports: [
@@ -34,15 +32,13 @@ export class FoodItemList implements OnInit {
     private storageLocationService: StorageLocationService,
   ) {}
 
-  // Signals: what arrives later from the API. The template reads them with () and
-  // Angular draws the page again when .set(...) gives them a new value.
   foodItems = signal<FoodItem[]>([]); // sorted by the API: soonest best before date first
   categories = signal<Category[]>([]);
   storageLocations = signal<StorageLocation[]>([]);
   message = signal('');
   loading = signal(true);
 
-  // The two filters, two-way bound with [(ngModel)]. 0 means "all".
+  // 0 means "all".
   categoryId: number = 0;
   storageLocationId: number = 0;
 
@@ -69,7 +65,6 @@ export class FoodItemList implements OnInit {
     });
   }
 
-  // US10: both filters can be combined.
   filteredFoodItems(): FoodItem[] {
     return this.foodItems().filter(
       (foodItem) =>

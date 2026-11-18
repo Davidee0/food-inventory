@@ -5,8 +5,6 @@ using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
-// Like TeacherController (Exercise 6.2): /api/FoodItem
-// Lecture 4: a Web API is consumed by systems (here the Angular app and Swagger). The data travels as JSON.
 [Route("api/[controller]")]
 [ApiController]
 public class FoodItemController : ControllerBase
@@ -42,7 +40,7 @@ public class FoodItemController : ControllerBase
         {
             return BadRequest("Food item info not correct");
         }
-        // Business rule that compares two fields (Lecture 7: cross-field validation).
+        // Data annotations check one field at a time, so the rule that compares two dates is here.
         if (foodItem.BestBeforeDate < foodItem.PurchaseDate)
         {
             return BadRequest("Best before date cannot be before the purchase date");
@@ -62,7 +60,7 @@ public class FoodItemController : ControllerBase
         }
     }
 
-    // PUT updates a resource: the whole food item is in the body, id included.
+    // The whole food item is in the body, id included.
     [HttpPut]
     public ActionResult UpdateFoodItem([FromBody] FoodItem foodItem)
     {

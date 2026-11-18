@@ -24,7 +24,6 @@ describe('FoodItemList', () => {
     expect(component).toBeTruthy();
   });
 
-  // Our own test (US10): the two filters work together; 0 means "all".
   it('should combine the category and the storage location filter', () => {
     const food = (id: number, categoryId: number, storageLocationId: number) =>
       ({ id, name: 'Food ' + id, categoryId, storageLocationId }) as FoodItem;

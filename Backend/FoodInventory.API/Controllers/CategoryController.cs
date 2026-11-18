@@ -5,7 +5,6 @@ using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
-// Like TeacherController (Exercise 6.2): /api/Category
 [Route("api/[controller]")]
 [ApiController]
 public class CategoryController : ControllerBase
@@ -69,8 +68,7 @@ public class CategoryController : ControllerBase
         return BadRequest("Something went wrong");
     }
 
-    // Business rule: a category that still has food in it cannot be deleted.
-    // The foreign key in the database refuses the delete; the API turns that into 409 Conflict with a readable message.
+    // The foreign key refuses the delete while food is still in it; the API answers 409.
     [HttpDelete("{id}")]
     public ActionResult DeleteCategory([FromRoute] int id)
     {

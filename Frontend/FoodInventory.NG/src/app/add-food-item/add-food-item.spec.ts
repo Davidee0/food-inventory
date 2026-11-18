@@ -23,7 +23,6 @@ describe('AddFoodItem', () => {
     expect(component).toBeTruthy();
   });
 
-  // Our own tests (US5): the rules of the form.
   it('should refuse a name of only spaces', () => {
     component.name.setValue('   ');
     expect(component.name.valid).toBeFalse();

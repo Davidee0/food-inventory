@@ -5,7 +5,7 @@ using NpgsqlTypes;
 
 namespace FoodInventory.Model.Repositories;
 
-// Like TeacherRepository (Exercise 6.4). The methods are virtual so that Moq can replace them in the tests (Lecture 9).
+// The methods are virtual so that Moq can replace them in the tests.
 public class StorageLocationRepository : BaseRepository
 {
     public StorageLocationRepository(IConfiguration configuration) : base(configuration) { }

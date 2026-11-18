@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { baseUrl, headers } from '../http-common';
 import { FoodItem } from '../model/food-item';
 
-// Lecture 6: the service talks to the API. Each method returns an Observable; the component subscribes to it.
 @Injectable({
   providedIn: 'root',
 })

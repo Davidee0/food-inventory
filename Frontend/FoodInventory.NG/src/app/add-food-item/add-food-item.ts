@@ -13,7 +13,6 @@ import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
 import { NotificationService } from '../services/notification-service';
 
-// Lecture 8: a reactive form with Angular Material, like add-student (with the snackbars of Lecture 10).
 @Component({
   selector: 'app-add-food-item',
   imports: [
@@ -37,8 +36,6 @@ export class AddFoodItem implements OnInit {
   categories = signal<Category[]>([]);
   storageLocations = signal<StorageLocation[]>([]);
 
-  // Lecture 7: client-side validation. The API checks the same with [Required] and [Range],
-  // the database with not null and check.
   // The pattern needs one character that is not a space, so "   " is not a name.
   name: FormControl = new FormControl('', [
     Validators.required,
@@ -51,8 +48,7 @@ export class AddFoodItem implements OnInit {
   ]);
   storageLocationId: FormControl = new FormControl(null, [Validators.required]);
   categoryId: FormControl = new FormControl(null);
-  // Today as the local date. (toISOString() would give the UTC date,
-  // which is yesterday or tomorrow in some time zones.)
+  // The local date: toISOString() would give the UTC date, a day off in some time zones.
   purchaseDate: FormControl = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'), [
     Validators.required,
   ]);
@@ -74,7 +70,7 @@ export class AddFoodItem implements OnInit {
       .subscribe((storageLocations) => this.storageLocations.set(storageLocations));
   }
 
-  // A rule that compares two fields. Both dates are "YYYY-MM-DD" texts, so < compares them correctly.
+  // Both dates are "YYYY-MM-DD" texts, so < compares them correctly.
   bestBeforeTooEarly(): boolean {
     return this.bestBeforeDate.value !== '' && this.bestBeforeDate.value < this.purchaseDate.value;
   }

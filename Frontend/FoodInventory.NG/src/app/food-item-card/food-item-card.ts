@@ -8,7 +8,6 @@ import { FoodItem } from '../model/food-item';
 import { FoodItemService } from '../services/food-item-service';
 import { NotificationService } from '../services/notification-service';
 
-// One food item, like student-card (Lectures 5, 7 and 10): Edit, Ate one and Delete.
 @Component({
   selector: 'app-food-item-card',
   imports: [DatePipe, MatCardModule, MatButtonModule, MatIconModule],
@@ -22,11 +21,10 @@ export class FoodItemCard {
     private router: Router,
   ) {}
 
-  @Input() foodItem!: FoodItem; // parent to child: the list gives the card its food item
-  @Output() changed = new EventEmitter<number>(); // child to parent: the list loads the food again
+  @Input() foodItem!: FoodItem;
+  @Output() changed = new EventEmitter<number>(); // the list then loads the food again
 
-  // US11: "Expired" or "Eat soon" (best before date within 3 days); food without a date is never flagged.
-  // formatDate gives the local date as "YYYY-MM-DD", the same format as the API, so the texts can be compared.
+  // Compared as "YYYY-MM-DD" texts; formatDate gives the local date, not the UTC one.
   warning(): string {
     if (!this.foodItem.bestBeforeDate) {
       return '';
@@ -47,7 +45,7 @@ export class FoodItemCard {
     this.router.navigate(['edit-food-item', id]);
   }
 
-  // US7: one less. PUT sends the whole food item (a copy with the new quantity); the last one is deleted instead.
+  // The last one is deleted, because the quantity must be at least 1.
   ateOne(): void {
     if (this.foodItem.quantity > 1) {
       this.foodItemService
@@ -65,7 +63,6 @@ export class FoodItemCard {
     }
   }
 
-  // US4 and Lecture 10: the browser asks first; after the delete the list loads the food again.
   deleteFoodItem(): void {
     if (confirm(`Delete ${this.foodItem.name}?`)) {
       this.foodItemService.deleteFoodItem(this.foodItem.id).subscribe({

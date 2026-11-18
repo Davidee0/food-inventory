@@ -1,5 +1,3 @@
-# Runs the tests on every pull request and on every push to main (Lecture 1: CI with automated testing; Lecture 9: tests):
-# the xUnit tests, the database script, the API against PostgreSQL, and the Angular build and Karma tests.
 name: Tests
 
 on:

@@ -19,6 +19,5 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './app.css',
 })
 export class App {
-  // A signal: the template reads it with double curly braces, {{ title() }}.
   protected readonly title = signal('Food inventory');
 }

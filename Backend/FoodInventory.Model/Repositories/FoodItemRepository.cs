@@ -5,10 +5,9 @@ using NpgsqlTypes;
 
 namespace FoodInventory.Model.Repositories;
 
-// Like TeacherRepository (Exercise 6.4). The methods are virtual so that Moq can replace them in the tests (Lecture 9).
+// The methods are virtual so that Moq can replace them in the tests.
 public class FoodItemRepository : BaseRepository
 {
-    // Each food item with the names of its category and storage location.
     // left join: food without a category is still in the result.
     private const string SelectFoodItems = @"
         select food_item.*, category.name as category_name, storage_location.name as storage_location_name
@@ -40,7 +39,7 @@ public class FoodItemRepository : BaseRepository
         }
     }
 
-    // US12: soonest best before date first. PostgreSQL puts empty (null) dates last when sorting ascending.
+    // Soonest best before date first; PostgreSQL sorts null dates last.
     public virtual List<FoodItem> GetFoodItems()
     {
         NpgsqlConnection dbConn = null;
@@ -130,7 +129,7 @@ public class FoodItemRepository : BaseRepository
         }
     }
 
-    // One row of the result becomes one FoodItem. Npgsql reads a date column as DateOnly; empty columns are DBNull.
+    // Npgsql reads a date column as DateOnly; empty columns are DBNull.
     private FoodItem ReadFoodItem(NpgsqlDataReader data)
     {
         return new FoodItem((int)data["id"])
@@ -146,7 +145,7 @@ public class FoodItemRepository : BaseRepository
         };
     }
 
-    // The same six parameters for insert and update. @parameters keep typed text out of the SQL (no SQL injection).
+    // @parameters keep typed text out of the SQL (no SQL injection).
     private void AddParameters(NpgsqlCommand cmd, FoodItem f)
     {
         cmd.Parameters.AddWithValue("@name", NpgsqlDbType.Text, f.Name);

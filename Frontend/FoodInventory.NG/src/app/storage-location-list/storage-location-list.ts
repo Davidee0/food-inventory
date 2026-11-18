@@ -5,7 +5,6 @@ import { StorageLocation } from '../model/storage-location';
 import { StorageLocationService } from '../services/storage-location-service';
 import { NotificationService } from '../services/notification-service';
 
-// Storage locations (US13): the same as the categories.
 @Component({
   selector: 'app-storage-location-list',
   imports: [FormsModule, MatButtonModule],
@@ -18,7 +17,7 @@ export class StorageLocationList implements OnInit {
   ) {}
 
   storageLocations = signal<StorageLocation[]>([]);
-  newName: string = ''; // two-way bound to the "New storage location" field
+  newName: string = '';
 
   ngOnInit(): void {
     this.loadStorageLocations();
@@ -49,8 +48,7 @@ export class StorageLocationList implements OnInit {
     });
   }
 
-  // The API refuses to delete a storage location that still has food in it (409) and says why;
-  // the snackbar shows that message. Other errors (e.g. the API is not running) get a general one.
+  // 409: the storage location still has food, and the API's message says so.
   deleteStorageLocation(storageLocation: StorageLocation): void {
     if (confirm(`Delete ${storageLocation.name}?`)) {
       this.storageLocationService.deleteStorageLocation(storageLocation.id).subscribe({

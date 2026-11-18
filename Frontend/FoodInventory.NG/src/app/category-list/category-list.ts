@@ -5,7 +5,6 @@ import { Category } from '../model/category';
 import { CategoryService } from '../services/category-service';
 import { NotificationService } from '../services/notification-service';
 
-// Categories (US9): rename with two-way data binding, add and delete.
 @Component({
   selector: 'app-category-list',
   imports: [FormsModule, MatButtonModule],
@@ -18,7 +17,7 @@ export class CategoryList implements OnInit {
   ) {}
 
   categories = signal<Category[]>([]);
-  newName: string = ''; // two-way bound to the "New category" field
+  newName: string = '';
 
   ngOnInit(): void {
     this.loadCategories();
@@ -47,8 +46,7 @@ export class CategoryList implements OnInit {
     });
   }
 
-  // The API refuses to delete a category that still has food in it (409) and says why;
-  // the snackbar shows that message. Other errors (e.g. the API is not running) get a general one.
+  // 409: the category still has food, and the API's message says so.
   deleteCategory(category: Category): void {
     if (confirm(`Delete ${category.name}?`)) {
       this.categoryService.deleteCategory(category.id).subscribe({

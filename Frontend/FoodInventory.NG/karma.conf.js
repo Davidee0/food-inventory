@@ -1,4 +1,3 @@
-// Lecture 9 (helper slide): Karma runs the Jasmine tests (*.spec.ts) in Chrome.
 module.exports = function (config) {
   config.set({
     basePath: '',

@@ -24,7 +24,7 @@ mat-card-actions button {
   min-height: 44px;
 }
 
-/* color="warn" (Lecture 10) only colours buttons in the older Material theme; this makes Delete red here too. */
+/* color="warn" only colours buttons in the older Material theme; this makes Delete red here too. */
 button[color='warn'] {
   --mat-button-text-label-text-color: #a3200f;
 }

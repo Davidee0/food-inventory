@@ -8,8 +8,7 @@ public class FoodItem
 
     public int Id { get; set; }
 
-    // Lecture 7: server-side validation. [ApiController] answers 400 with these messages
-    // before the controller method runs.
+    // [ApiController] answers 400 with these messages before the controller method runs.
     [Required(ErrorMessage = "Name is required")]
     [StringLength(50, ErrorMessage = "Name can be at most 50 characters")]
     public string Name { get; set; }
@@ -20,14 +19,14 @@ public class FoodItem
     [Required(ErrorMessage = "Purchase date is required")]
     public DateOnly? PurchaseDate { get; set; }
 
-    public DateOnly? BestBeforeDate { get; set; } // optional
+    public DateOnly? BestBeforeDate { get; set; }
 
-    public int? CategoryId { get; set; } // optional
+    public int? CategoryId { get; set; }
 
     [Range(1, int.MaxValue, ErrorMessage = "Storage location is required")]
     public int StorageLocationId { get; set; }
 
-    // Read only: the names that belong to the two ids, joined in by FoodItemRepository.
+    // Read only: joined in by FoodItemRepository, never saved.
     public string CategoryName { get; set; }
     public string StorageLocationName { get; set; }
 }

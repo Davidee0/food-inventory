@@ -6,7 +6,6 @@ import { EditFoodItem } from './edit-food-item';
 import { FoodItem } from '../model/food-item';
 import { baseUrl } from '../http-common';
 
-// Lecture 9 (slide 47): the @Input() id is set by hand and the API's answer is mocked with HttpTestingController.
 describe('EditFoodItem', () => {
   let component: EditFoodItem;
   let fixture: ComponentFixture<EditFoodItem>;

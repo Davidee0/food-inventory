@@ -1,6 +1,5 @@
 <h2>My food</h2>
 
-<!-- Lecture 10 (Search/Filter): the filters are two-way bound with [(ngModel)]. -->
 <div class="filters">
   <mat-form-field appearance="outline">
     <mat-label>Category</mat-label>
@@ -38,8 +37,6 @@
   </p>
 }
 
-<!-- Lecture 5 and 10: the list (parent) gives each card (child) its food item,
-     and the card tells the list to load the food again after Ate one and Delete. -->
 @for (foodItem of filteredFoodItems(); track foodItem.id) {
   <app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()"></app-food-item-card>
 }

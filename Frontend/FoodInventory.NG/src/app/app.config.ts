@@ -10,11 +10,9 @@ import { routes } from './app.routes';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    // Lecture 5 and 7: zone.js (imported in main.ts) tells Angular when to update the page.
     provideZoneChangeDetection({ eventCoalescing: true }),
-    // withComponentInputBinding: the :id of the route arrives in @Input() id of EditFoodItem (Lecture 7).
+    // withComponentInputBinding: the :id of the route arrives in @Input() id of EditFoodItem.
     provideRouter(routes, withComponentInputBinding()),
-    // Lecture 6: makes HttpClient available to the services.
     provideHttpClient(),
   ],
 };

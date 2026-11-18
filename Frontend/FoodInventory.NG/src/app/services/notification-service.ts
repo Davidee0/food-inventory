@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-// Lecture 10: user feedback for actions with success and error snackbars.
 @Injectable({
   providedIn: 'root',
 })

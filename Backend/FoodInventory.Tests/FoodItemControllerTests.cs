@@ -6,7 +6,6 @@ using FoodInventory.Model.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-// Lecture 9: unit tests with xUnit and Moq, like StudentControllerTests.
 // The repository is mocked, so the tests need no database.
 public class FoodItemControllerTests
 {
@@ -61,7 +60,6 @@ public class FoodItemControllerTests
         Assert.IsType<OkResult>(result);
     }
 
-    // Lecture 7: the cross-field rule in the backend.
     [Fact]
     public void Post_ReturnsBadRequest_WhenBestBeforeDateIsBeforePurchaseDate()
     {
@@ -94,7 +92,6 @@ public class FoodItemControllerTests
         Assert.IsType<NoContentResult>(result);
     }
 
-    // Our own tests: the other answers of PUT and DELETE.
     [Fact]
     public void UpdateFoodItem_ReturnsOk_WhenUpdateSucceeds()
     {

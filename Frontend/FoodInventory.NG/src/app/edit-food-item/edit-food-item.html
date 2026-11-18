@@ -1,9 +1,6 @@
 <h2>Edit food</h2>
 
-<!-- The fields are only drawn when the food item has arrived from the API (good practice from Lecture 7). -->
 @if (foodItem(); as foodItem) {
-  <!-- [(ngModel)] is two-way data binding: the field shows the value and typing changes it.
-       #name="ngModel" gives the template the state of the field, so the message sits next to it. -->
   <label>
     Name
     <input
@@ -68,7 +65,6 @@
     <p class="error">Best before date cannot be before the purchase date</p>
   }
 
-  <!-- Lecture 7: the Update button only appears when the data is valid. -->
   @if (name.invalid || quantity.invalid || purchaseDate.invalid || bestBeforeTooEarly(foodItem)) {
     <p>Error in data</p>
   } @else {

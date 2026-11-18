@@ -20,7 +20,6 @@ describe('FoodItemService', () => {
     expect(service).toBeTruthy();
   });
 
-  // Our own test: deleting sends DELETE to /api/fooditem/{id}.
   it('should send DELETE with the id', () => {
     service.deleteFoodItem(7).subscribe();
     const req = httpMock.expectOne(`${baseUrl}/fooditem/7`);

@@ -10,7 +10,6 @@ import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
 import { NotificationService } from '../services/notification-service';
 
-// Lecture 7: a template-driven form with two-way data binding, like edit-student.
 @Component({
   selector: 'app-edit-food-item',
   imports: [FormsModule, MatButtonModule],
@@ -46,12 +45,12 @@ export class EditFoodItem implements OnInit {
       .subscribe((storageLocations) => this.storageLocations.set(storageLocations));
   }
 
-  // A rule that compares two fields. Both dates are "YYYY-MM-DD" texts, so < compares them correctly.
+  // Both dates are "YYYY-MM-DD" texts, so < compares them correctly.
   bestBeforeTooEarly(foodItem: FoodItem): boolean {
     return !!foodItem.bestBeforeDate && foodItem.bestBeforeDate < foodItem.purchaseDate;
   }
 
-  // PUT sends the whole food item, id included. Lecture 10 ("Fix Navigation Bug"): back to the list with "/".
+  // PUT sends the whole food item, id included.
   updateFoodItem(foodItem: FoodItem): void {
     foodItem.name = foodItem.name.trim(); // " Milk " is saved as "Milk"
     if (!foodItem.bestBeforeDate) {

@@ -1,6 +1,4 @@
--- Food inventory: 3 tables and example rows (Lecture 3).
--- Run it on the database food_inventory (pgAdmin Query Tool, or through setup.sql).
--- It is safe to run again: tables are only created when missing, rows are only inserted into empty tables.
+-- Safe to run again: tables are only created when missing, rows only inserted into empty tables.
 
 create table if not exists storage_location
 	(id			serial,
@@ -14,8 +12,7 @@ create table if not exists category
 	 primary key (id)
 	);
 
--- The two foreign keys have no "on delete": a category or storage location
--- that still has food in it cannot be deleted (the API answers 409).
+-- No "on delete": a category or storage location with food in it cannot be deleted (API: 409).
 create table if not exists food_item
 	(id			serial,
 	 name			varchar(50) not null check (name <> ''),
@@ -43,7 +40,6 @@ from (values ('Dairy'), ('Vegetables'), ('Fruit'), ('Meat and fish'), ('Drinks')
 where not exists (select 1 from category);
 
 -- The dates are counted from today, so the list always has food that is expired, expires soon and is fine.
--- The joins look up the ids of the category and the storage location by name.
 insert into food_item (name, quantity, purchase_date, best_before_date, category_id, storage_location_id)
 select example.name, example.quantity, current_date - example.days_ago, current_date + example.days_left,
        category.id, storage_location.id

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Npgsql;
 
-// Lecture 9: the same tests as for StudentController, plus the 409 when the category still has food.
 public class CategoryControllerTests
 {
     private readonly Mock<CategoryRepository> _repoMock;

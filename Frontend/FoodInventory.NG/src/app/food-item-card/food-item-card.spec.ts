@@ -7,8 +7,6 @@ import { FoodItemCard } from './food-item-card';
 import { FoodItem } from '../model/food-item';
 import { baseUrl } from '../http-common';
 
-// Lecture 9: the generated test, fixed with the providers and a mock food item for @Input() (slide 46),
-// plus our own tests for the expiry warning (US11).
 describe('FoodItemCard', () => {
   let component: FoodItemCard;
   let fixture: ComponentFixture<FoodItemCard>;
@@ -64,7 +62,6 @@ describe('FoodItemCard', () => {
     expect(component.warning()).toBe('');
   });
 
-  // Our own test (US7): Ate one sends the whole food item with one less (PUT).
   it('should send PUT with one less when Ate one is clicked', () => {
     const httpMock = TestBed.inject(HttpTestingController);
     component.foodItem.quantity = 3;
