@@ -1,0 +1,10 @@
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+}
+
+.filters label {
+  flex: 1;
+  min-width: 0;
+}

@@ -1,27 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { baseUrl, headers } from '../http-common';
 import { StorageLocation } from '../model/storage-location';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class StorageLocationService {
-  baseUrl: string = 'http://localhost:5050/api';
-
   constructor(private http: HttpClient) {}
 
   getStorageLocations(): Observable<StorageLocation[]> {
-    return this.http.get<StorageLocation[]>(`${this.baseUrl}/storagelocation`);
+    return this.http.get<StorageLocation[]>(`${baseUrl}/storagelocation`);
   }
 
-  addStorageLocation(location: StorageLocation): Observable<any> {
-    return this.http.post(`${this.baseUrl}/storagelocation`, location);
+  addStorageLocation(storageLocation: StorageLocation): Observable<any> {
+    return this.http.post(`${baseUrl}/storagelocation`, storageLocation, { headers });
   }
 
-  updateStorageLocation(location: StorageLocation): Observable<any> {
-    return this.http.put(`${this.baseUrl}/storagelocation`, location);
+  updateStorageLocation(storageLocation: StorageLocation): Observable<any> {
+    return this.http.put(`${baseUrl}/storagelocation`, storageLocation, { headers });
   }
 
   deleteStorageLocation(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/storagelocation/${id}`);
+    return this.http.delete(`${baseUrl}/storagelocation/${id}`);
   }
 }

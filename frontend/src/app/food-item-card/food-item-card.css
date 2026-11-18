@@ -1,0 +1,25 @@
+mat-card {
+  margin-bottom: 12px;
+  border: 2px solid #242424;
+  border-radius: 0;
+  background: white;
+}
+
+p {
+  margin: 4px 0;
+}
+
+.warning {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.warning mat-icon {
+  color: #a3200f;
+}
+
+mat-card-actions button {
+  min-height: 44px;
+}

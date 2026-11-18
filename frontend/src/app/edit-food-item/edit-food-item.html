@@ -1,0 +1,69 @@
+<h2>Edit food</h2>
+
+@if (message()) {
+  <p class="message">{{ message() }}</p>
+}
+
+<!-- The form is only drawn when the food item has arrived from the API (good practice from Lecture 7). -->
+@if (foodItem(); as foodItem) {
+  <form #foodItemForm="ngForm">
+    <!-- [(ngModel)] is two-way data binding: the field shows the value and typing changes it.
+         #name="ngModel" gives the template the state of the field, so the message sits next to it. -->
+    <label>
+      Name
+      <input type="text" name="name" [(ngModel)]="foodItem.name" required maxlength="50" #name="ngModel" />
+    </label>
+    @if (name.invalid) {
+      <p class="error">Name is required</p>
+    }
+
+    <label>
+      Quantity
+      <input type="number" name="quantity" [(ngModel)]="foodItem.quantity" required pattern="[1-9][0-9]*" #quantity="ngModel" />
+    </label>
+    @if (quantity.invalid) {
+      <p class="error">Quantity must be a whole number, at least 1</p>
+    }
+
+    <label>
+      Storage location
+      <select name="storageLocationId" [(ngModel)]="foodItem.storageLocationId" required>
+        @for (storageLocation of storageLocations(); track storageLocation.id) {
+          <option [ngValue]="storageLocation.id">{{ storageLocation.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Category (optional)
+      <select name="categoryId" [(ngModel)]="foodItem.categoryId">
+        <option [ngValue]="null">No category</option>
+        @for (category of categories(); track category.id) {
+          <option [ngValue]="category.id">{{ category.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Purchase date
+      <input type="date" name="purchaseDate" [(ngModel)]="foodItem.purchaseDate" required #purchaseDate="ngModel" />
+    </label>
+    @if (purchaseDate.invalid) {
+      <p class="error">Purchase date is required</p>
+    }
+
+    <label>
+      Best before date (optional)
+      <input type="date" name="bestBeforeDate" [(ngModel)]="foodItem.bestBeforeDate" />
+    </label>
+    @if (bestBeforeTooEarly(foodItem)) {
+      <p class="error">Best before date cannot be before the purchase date</p>
+    }
+
+    @if (foodItemForm.invalid || bestBeforeTooEarly(foodItem)) {
+      <p>Error in data</p>
+    } @else {
+      <button mat-flat-button (click)="updateFoodItem(foodItem)">Update</button>
+    }
+  </form>
+}

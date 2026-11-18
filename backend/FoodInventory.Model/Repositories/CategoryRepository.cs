@@ -9,17 +9,21 @@ public class CategoryRepository : BaseRepository
 {
     public CategoryRepository(IConfiguration configuration) : base(configuration) { }
 
-    public Category GetCategoryById(int id)
+    public virtual Category GetCategoryById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
         cmd.CommandText = "select * from category where id = @id";
         cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
         var data = GetData(dbConn, cmd);
-        return data.Read() ? new Category((int)data["id"]) { Name = (string)data["name"] } : null;
+        if (data.Read())
+        {
+            return new Category((int)data["id"]) { Name = (string)data["name"] };
+        }
+        return null;
     }
 
-    public List<Category> GetCategories()
+    public virtual List<Category> GetCategories()
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -33,7 +37,7 @@ public class CategoryRepository : BaseRepository
         return categories;
     }
 
-    public bool InsertCategory(Category c)
+    public virtual bool InsertCategory(Category c)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -42,7 +46,7 @@ public class CategoryRepository : BaseRepository
         return InsertData(dbConn, cmd);
     }
 
-    public bool UpdateCategory(Category c)
+    public virtual bool UpdateCategory(Category c)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -52,7 +56,7 @@ public class CategoryRepository : BaseRepository
         return UpdateData(dbConn, cmd);
     }
 
-    public bool DeleteCategory(int id)
+    public virtual bool DeleteCategory(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();

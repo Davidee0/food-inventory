@@ -20,7 +20,10 @@ public class CategoryController : ControllerBase
     public ActionResult<Category> GetCategory([FromRoute] int id)
     {
         Category category = Repository.GetCategoryById(id);
-        if (category == null) return NotFound();
+        if (category == null)
+        {
+            return NotFound($"Category with id {id} not found");
+        }
         return Ok(category);
     }
 
@@ -33,24 +36,35 @@ public class CategoryController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] Category category)
     {
-        return Repository.InsertCategory(category) ? Ok() : BadRequest();
+        Repository.InsertCategory(category);
+        return Ok();
     }
 
     [HttpPut]
     public ActionResult UpdateCategory([FromBody] Category category)
     {
-        if (Repository.GetCategoryById(category.Id) == null) return NotFound($"Category with id {category.Id} not found");
-        return Repository.UpdateCategory(category) ? Ok() : BadRequest("Something went wrong");
+        if (Repository.GetCategoryById(category.Id) == null)
+        {
+            return NotFound($"Category with id {category.Id} not found");
+        }
+        Repository.UpdateCategory(category);
+        return Ok();
     }
 
+    // Business rule: a category that still has food in it cannot be deleted.
+    // The foreign key in the database refuses the delete; the API turns that into 409 Conflict with a readable message.
     [HttpDelete("{id}")]
     public ActionResult DeleteCategory([FromRoute] int id)
     {
         Category category = Repository.GetCategoryById(id);
-        if (category == null) return NotFound($"Category with id {id} not found");
+        if (category == null)
+        {
+            return NotFound($"Category with id {id} not found");
+        }
         try
         {
-            return Repository.DeleteCategory(id) ? NoContent() : BadRequest($"Unable to delete category with id {id}");
+            Repository.DeleteCategory(id);
+            return NoContent();
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {

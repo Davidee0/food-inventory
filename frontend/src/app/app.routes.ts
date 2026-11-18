@@ -1,14 +1,15 @@
 import { Routes } from '@angular/router';
-import { ItemList } from './item-list/item-list';
-import { ItemForm } from './item-form/item-form';
-import { EatList } from './eat-list/eat-list';
-import { Settings } from './settings/settings';
+import { FoodItemList } from './food-item-list/food-item-list';
+import { AddFoodItem } from './add-food-item/add-food-item';
+import { EditFoodItem } from './edit-food-item/edit-food-item';
+import { CategoryList } from './category-list/category-list';
+import { StorageLocationList } from './storage-location-list/storage-location-list';
 
 export const routes: Routes = [
-  { path: 'items', component: ItemList },
-  { path: 'add', component: ItemForm },
-  { path: 'edit/:id', component: ItemForm },
-  { path: 'eat', component: EatList },
-  { path: 'settings', component: Settings },
-  { path: '', redirectTo: '/items', pathMatch: 'full' },
+  { path: 'food-items', component: FoodItemList },
+  { path: 'add-food-item', component: AddFoodItem },
+  { path: 'edit-food-item/:id', component: EditFoodItem },
+  { path: 'categories', component: CategoryList },
+  { path: 'storage-locations', component: StorageLocationList },
+  { path: '', redirectTo: '/food-items', pathMatch: 'full' },
 ];

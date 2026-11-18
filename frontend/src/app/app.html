@@ -1,13 +1,21 @@
+<!-- Lecture 8: Angular Material toolbar with a menu of router links. -->
 <mat-toolbar>
-  <span>U8 · My food</span>
+  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>Food inventory</span>
   <span class="spacer"></span>
-  <a mat-icon-button routerLink="/settings" aria-label="Settings"><mat-icon>settings</mat-icon></a>
+  <a mat-button routerLink="/add-food-item">Add food</a>
 </mat-toolbar>
 
-<main><router-outlet /></main>
+<mat-menu #menu="matMenu">
+  <button mat-menu-item routerLink="/food-items">My food</button>
+  <button mat-menu-item routerLink="/add-food-item">Add food</button>
+  <button mat-menu-item routerLink="/categories">Categories</button>
+  <button mat-menu-item routerLink="/storage-locations">Storage locations</button>
+</mat-menu>
 
-<nav class="tabbar">
-  <a mat-button routerLink="/add" routerLinkActive="active"><mat-icon>add</mat-icon>Add</a>
-  <a mat-button routerLink="/items" routerLinkActive="active"><mat-icon>list</mat-icon>Inventory</a>
-  <a mat-button routerLink="/eat" routerLinkActive="active"><mat-icon>check</mat-icon>Ate it</a>
-</nav>
+<!-- The router shows the component that belongs to the address (app.routes.ts). -->
+<main>
+  <router-outlet />
+</main>

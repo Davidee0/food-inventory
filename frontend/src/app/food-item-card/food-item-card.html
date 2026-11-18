@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ foodItem.name }}</mat-card-title>
+    <mat-card-subtitle>
+      {{ foodItem.categoryName ?? 'No category' }} · {{ foodItem.storageLocationName }}
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>Quantity: {{ foodItem.quantity }}</p>
+    <p>Bought: {{ foodItem.purchaseDate | date }}</p>
+    @if (foodItem.bestBeforeDate) {
+      <p>Best before: {{ foodItem.bestBeforeDate | date }}</p>
+    }
+    <!-- Icon and text, so the warning does not depend on colour alone. -->
+    @if (warning()) {
+      <p class="warning"><mat-icon>warning</mat-icon> {{ warning() }}</p>
+    }
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button (click)="editFoodItem()">Edit</button>
+    <button mat-button (click)="ateOne()">Ate one</button>
+    <button mat-button (click)="deleteFoodItem()">Delete</button>
+  </mat-card-actions>
+</mat-card>

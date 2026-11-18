@@ -9,17 +9,21 @@ public class StorageLocationRepository : BaseRepository
 {
     public StorageLocationRepository(IConfiguration configuration) : base(configuration) { }
 
-    public StorageLocation GetStorageLocationById(int id)
+    public virtual StorageLocation GetStorageLocationById(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
         cmd.CommandText = "select * from storage_location where id = @id";
         cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
         var data = GetData(dbConn, cmd);
-        return data.Read() ? new StorageLocation((int)data["id"]) { Name = (string)data["name"] } : null;
+        if (data.Read())
+        {
+            return new StorageLocation((int)data["id"]) { Name = (string)data["name"] };
+        }
+        return null;
     }
 
-    public List<StorageLocation> GetStorageLocations()
+    public virtual List<StorageLocation> GetStorageLocations()
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -33,7 +37,7 @@ public class StorageLocationRepository : BaseRepository
         return locations;
     }
 
-    public bool InsertStorageLocation(StorageLocation l)
+    public virtual bool InsertStorageLocation(StorageLocation l)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -42,7 +46,7 @@ public class StorageLocationRepository : BaseRepository
         return InsertData(dbConn, cmd);
     }
 
-    public bool UpdateStorageLocation(StorageLocation l)
+    public virtual bool UpdateStorageLocation(StorageLocation l)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();
@@ -52,7 +56,7 @@ public class StorageLocationRepository : BaseRepository
         return UpdateData(dbConn, cmd);
     }
 
-    public bool DeleteStorageLocation(int id)
+    public virtual bool DeleteStorageLocation(int id)
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
         var cmd = dbConn.CreateCommand();

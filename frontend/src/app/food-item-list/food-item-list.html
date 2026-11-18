@@ -1,0 +1,38 @@
+<h2>My food</h2>
+
+<div class="filters">
+  <label>
+    Category
+    <select [(ngModel)]="categoryId">
+      <option [ngValue]="0">All</option>
+      @for (category of categories(); track category.id) {
+        <option [ngValue]="category.id">{{ category.name }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Storage location
+    <select [(ngModel)]="storageLocationId">
+      <option [ngValue]="0">All</option>
+      @for (storageLocation of storageLocations(); track storageLocation.id) {
+        <option [ngValue]="storageLocation.id">{{ storageLocation.name }}</option>
+      }
+    </select>
+  </label>
+  <button mat-stroked-button (click)="clearFilters()">Clear</button>
+</div>
+
+@if (message()) {
+  <p class="message">{{ message() }}</p>
+} @else if (foodItems().length === 0) {
+  <p>You have no food yet. <a routerLink="/add-food-item">Add your first item.</a></p>
+} @else if (filteredFoodItems().length === 0) {
+  <p>No food matches these filters.</p>
+} @else {
+  <p>Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before date first.</p>
+}
+
+<!-- Lecture 5: the list (parent) gives each card (child) its food item, and the card tells the list when it changed. -->
+@for (foodItem of filteredFoodItems(); track foodItem.id) {
+  <app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />
+}

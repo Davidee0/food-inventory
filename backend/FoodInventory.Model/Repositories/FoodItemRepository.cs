@@ -8,6 +8,7 @@ namespace FoodInventory.Model.Repositories;
 public class FoodItemRepository : BaseRepository
 {
     // Each food item with the names of its category and storage location.
+    // left join: food without a category is still in the result.
     private const string SelectFoodItems = @"
         select food_item.*, category.name as category_name, storage_location.name as storage_location_name
         from food_item
@@ -23,10 +24,14 @@ public class FoodItemRepository : BaseRepository
         cmd.CommandText = SelectFoodItems + " where food_item.id = @id";
         cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, id);
         var data = GetData(dbConn, cmd);
-        return data.Read() ? ReadFoodItem(data) : null;
+        if (data.Read())
+        {
+            return ReadFoodItem(data);
+        }
+        return null;
     }
 
-    // Soonest best before date first; food without one comes last.
+    // US12: soonest best before date first. PostgreSQL puts empty (null) dates last when sorting ascending.
     public virtual List<FoodItem> GetFoodItems()
     {
         using var dbConn = new NpgsqlConnection(ConnectionString);
@@ -74,19 +79,24 @@ public class FoodItemRepository : BaseRepository
         return DeleteData(dbConn, cmd);
     }
 
-    private static FoodItem ReadFoodItem(NpgsqlDataReader data) => new((int)data["id"])
+    // One row of the result becomes one FoodItem. Npgsql reads a date column as DateOnly; empty columns are DBNull.
+    private FoodItem ReadFoodItem(NpgsqlDataReader data)
     {
-        Name = (string)data["name"],
-        Quantity = (int)data["quantity"],
-        PurchaseDate = DateOnly.FromDateTime((DateTime)data["purchase_date"]),
-        BestBeforeDate = data["best_before_date"] is DateTime bestBefore ? DateOnly.FromDateTime(bestBefore) : null,
-        CategoryId = data["category_id"] as int?,
-        StorageLocationId = (int)data["storage_location_id"],
-        CategoryName = data["category_name"] as string,
-        StorageLocationName = (string)data["storage_location_name"],
-    };
+        return new FoodItem((int)data["id"])
+        {
+            Name = (string)data["name"],
+            Quantity = (int)data["quantity"],
+            PurchaseDate = (DateOnly)data["purchase_date"],
+            BestBeforeDate = data["best_before_date"] as DateOnly?,
+            CategoryId = data["category_id"] as int?,
+            StorageLocationId = (int)data["storage_location_id"],
+            CategoryName = data["category_name"] as string,
+            StorageLocationName = (string)data["storage_location_name"]
+        };
+    }
 
-    private static void AddParameters(NpgsqlCommand cmd, FoodItem f)
+    // The same six parameters for insert and update. @parameters keep typed text out of the SQL (no SQL injection).
+    private void AddParameters(NpgsqlCommand cmd, FoodItem f)
     {
         cmd.Parameters.AddWithValue("@name", NpgsqlDbType.Varchar, f.Name);
         cmd.Parameters.AddWithValue("@quantity", NpgsqlDbType.Integer, f.Quantity);

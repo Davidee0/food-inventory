@@ -5,7 +5,8 @@ using FoodInventory.Model.Entities;
 using FoodInventory.Model.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-// The tests from Lecture 9 (StudentControllerTests), for our FoodItemController.
+// Lecture 9: unit tests with xUnit and Moq, like StudentControllerTests.
+// The repository is mocked, so the tests need no database.
 public class FoodItemControllerTests
 {
     private readonly Mock<FoodItemRepository> _repoMock;
@@ -31,7 +32,7 @@ public class FoodItemControllerTests
     {
         _repoMock.Setup(r => r.GetFoodItemById(1)).Returns((FoodItem)null);
         var result = _controller.GetFoodItem(1);
-        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.IsType<NotFoundObjectResult>(result.Result);
     }
 
     [Fact]
@@ -46,10 +47,23 @@ public class FoodItemControllerTests
     [Fact]
     public void Post_ReturnsOk_WhenInsertSucceeds()
     {
-        var foodItem = new FoodItem(1);
+        var foodItem = new FoodItem(0) { Name = "Milk", Quantity = 1 };
         _repoMock.Setup(r => r.InsertFoodItem(foodItem)).Returns(true);
         var result = _controller.Post(foodItem);
         Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public void Post_ReturnsBadRequest_WhenBestBeforeDateIsBeforePurchaseDate()
+    {
+        var foodItem = new FoodItem(0)
+        {
+            Name = "Milk",
+            PurchaseDate = new DateOnly(2026, 11, 10),
+            BestBeforeDate = new DateOnly(2026, 11, 1)
+        };
+        var result = _controller.Post(foodItem);
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact]

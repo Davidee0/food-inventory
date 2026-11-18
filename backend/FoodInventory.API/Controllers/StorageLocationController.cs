@@ -19,9 +19,12 @@ public class StorageLocationController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult<StorageLocation> GetStorageLocation([FromRoute] int id)
     {
-        StorageLocation location = Repository.GetStorageLocationById(id);
-        if (location == null) return NotFound();
-        return Ok(location);
+        StorageLocation storageLocation = Repository.GetStorageLocationById(id);
+        if (storageLocation == null)
+        {
+            return NotFound($"Storage location with id {id} not found");
+        }
+        return Ok(storageLocation);
     }
 
     [HttpGet]
@@ -31,30 +34,41 @@ public class StorageLocationController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post([FromBody] StorageLocation location)
+    public ActionResult Post([FromBody] StorageLocation storageLocation)
     {
-        return Repository.InsertStorageLocation(location) ? Ok() : BadRequest();
+        Repository.InsertStorageLocation(storageLocation);
+        return Ok();
     }
 
     [HttpPut]
-    public ActionResult UpdateStorageLocation([FromBody] StorageLocation location)
+    public ActionResult UpdateStorageLocation([FromBody] StorageLocation storageLocation)
     {
-        if (Repository.GetStorageLocationById(location.Id) == null) return NotFound($"Storage location with id {location.Id} not found");
-        return Repository.UpdateStorageLocation(location) ? Ok() : BadRequest("Something went wrong");
+        if (Repository.GetStorageLocationById(storageLocation.Id) == null)
+        {
+            return NotFound($"Storage location with id {storageLocation.Id} not found");
+        }
+        Repository.UpdateStorageLocation(storageLocation);
+        return Ok();
     }
 
+    // Business rule: a storage location that still has food in it cannot be deleted.
+    // The foreign key in the database refuses the delete; the API turns that into 409 Conflict with a readable message.
     [HttpDelete("{id}")]
     public ActionResult DeleteStorageLocation([FromRoute] int id)
     {
-        StorageLocation location = Repository.GetStorageLocationById(id);
-        if (location == null) return NotFound($"Storage location with id {id} not found");
+        StorageLocation storageLocation = Repository.GetStorageLocationById(id);
+        if (storageLocation == null)
+        {
+            return NotFound($"Storage location with id {id} not found");
+        }
         try
         {
-            return Repository.DeleteStorageLocation(id) ? NoContent() : BadRequest($"Unable to delete storage location with id {id}");
+            Repository.DeleteStorageLocation(id);
+            return NoContent();
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {
-            return Conflict($"{location.Name} still has food in it, so it cannot be deleted.");
+            return Conflict($"{storageLocation.Name} still has food in it, so it cannot be deleted.");
         }
     }
 }
