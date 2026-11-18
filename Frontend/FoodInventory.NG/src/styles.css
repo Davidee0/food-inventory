@@ -20,7 +20,7 @@ label {
   margin-bottom: 12px;
 }
 
-/* The plain fields (filters, edit form, categories); the Material fields of the add form have their own look. */
+/* The plain fields (edit form, categories, storage locations); the add form and the filters are Material fields. */
 label input,
 label select,
 .row input {
