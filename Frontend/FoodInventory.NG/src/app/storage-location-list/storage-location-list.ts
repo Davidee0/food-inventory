@@ -49,7 +49,7 @@ export class StorageLocationList implements OnInit {
   }
 
   // The API refuses to delete a storage location that still has food in it (409) and says why;
-  // the snackbar shows that message.
+  // the snackbar shows that message. Other errors (e.g. the API is not running) get a general one.
   deleteStorageLocation(storageLocation: StorageLocation): void {
     if (confirm(`Delete ${storageLocation.name}?`)) {
       this.storageLocationService.deleteStorageLocation(storageLocation.id).subscribe({
@@ -57,7 +57,13 @@ export class StorageLocationList implements OnInit {
           this.notification.showSuccess(`${storageLocation.name} deleted`);
           this.loadStorageLocations();
         },
-        error: (error) => this.notification.showError(error.error),
+        error: (error) => {
+          if (error.status === 409) {
+            this.notification.showError(error.error);
+          } else {
+            this.notification.showError('Failed to delete the storage location');
+          }
+        },
       });
     }
   }

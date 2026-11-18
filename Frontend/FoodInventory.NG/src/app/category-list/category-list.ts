@@ -46,7 +46,8 @@ export class CategoryList implements OnInit {
     });
   }
 
-  // The API refuses to delete a category that still has food in it (409) and says why; the snackbar shows that message.
+  // The API refuses to delete a category that still has food in it (409) and says why;
+  // the snackbar shows that message. Other errors (e.g. the API is not running) get a general one.
   deleteCategory(category: Category): void {
     if (confirm(`Delete ${category.name}?`)) {
       this.categoryService.deleteCategory(category.id).subscribe({
@@ -54,7 +55,13 @@ export class CategoryList implements OnInit {
           this.notification.showSuccess(`${category.name} deleted`);
           this.loadCategories();
         },
-        error: (error) => this.notification.showError(error.error),
+        error: (error) => {
+          if (error.status === 409) {
+            this.notification.showError(error.error);
+          } else {
+            this.notification.showError('Failed to delete the category');
+          }
+        },
       });
     }
   }
