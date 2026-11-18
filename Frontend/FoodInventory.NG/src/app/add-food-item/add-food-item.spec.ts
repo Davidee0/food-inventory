@@ -22,4 +22,22 @@ describe('AddFoodItem', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  // Our own tests (US5): the rules of the form.
+  it('should refuse a name of only spaces', () => {
+    component.name.setValue('   ');
+    expect(component.name.valid).toBeFalse();
+    component.name.setValue('Milk');
+    expect(component.name.valid).toBeTrue();
+  });
+
+  it('should refuse a best before date before the purchase date', () => {
+    component.purchaseDate.setValue('2026-11-10');
+    component.bestBeforeDate.setValue('2026-11-01');
+    expect(component.bestBeforeTooEarly()).toBeTrue();
+    component.bestBeforeDate.setValue('2026-11-10');
+    expect(component.bestBeforeTooEarly()).toBeFalse();
+    component.bestBeforeDate.setValue('');
+    expect(component.bestBeforeTooEarly()).toBeFalse();
+  });
 });

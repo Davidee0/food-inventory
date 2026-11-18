@@ -77,7 +77,7 @@ export class AddFoodItem implements OnInit {
     this.foodItemService
       .addFoodItem({
         id: 0, // the database gives the real id
-        name: this.name.value,
+        name: this.name.value.trim(), // " Milk " is saved as "Milk"
         quantity: this.quantity.value,
         storageLocationId: this.storageLocationId.value,
         categoryId: this.categoryId.value,
@@ -86,7 +86,7 @@ export class AddFoodItem implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.notification.showSuccess(`${this.name.value} added`);
+          this.notification.showSuccess(`${this.name.value.trim()} added`);
           this.router.navigate(['/food-items']);
         },
         error: (error) => {

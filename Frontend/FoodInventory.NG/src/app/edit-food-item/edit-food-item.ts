@@ -53,6 +53,7 @@ export class EditFoodItem implements OnInit {
 
   // PUT sends the whole food item, id included. Lecture 10 ("Fix Navigation Bug"): back to the list with "/".
   updateFoodItem(foodItem: FoodItem): void {
+    foodItem.name = foodItem.name.trim(); // " Milk " is saved as "Milk"
     if (!foodItem.bestBeforeDate) {
       foodItem.bestBeforeDate = null; // an emptied date field is '', the API wants null
     }

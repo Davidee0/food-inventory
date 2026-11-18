@@ -29,9 +29,9 @@ export class CategoryList implements OnInit {
   }
 
   addCategory(): void {
-    this.categoryService.addCategory({ id: 0, name: this.newName }).subscribe({
+    this.categoryService.addCategory({ id: 0, name: this.newName.trim() }).subscribe({
       next: () => {
-        this.notification.showSuccess(`${this.newName} added`);
+        this.notification.showSuccess(`${this.newName.trim()} added`);
         this.newName = '';
         this.loadCategories();
       },
@@ -40,6 +40,7 @@ export class CategoryList implements OnInit {
   }
 
   updateCategory(category: Category): void {
+    category.name = category.name.trim();
     this.categoryService.updateCategory(category).subscribe({
       next: () => this.notification.showSuccess(`${category.name} saved`),
       error: () => this.notification.showError('Failed to save the category'),

@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { FoodItemList } from './food-item-list';
+import { FoodItem } from '../model/food-item';
 
 describe('FoodItemList', () => {
   let component: FoodItemList;
@@ -21,5 +22,18 @@ describe('FoodItemList', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  // Our own test (US10): the two filters work together; 0 means "all".
+  it('should combine the category and the storage location filter', () => {
+    const food = (id: number, categoryId: number, storageLocationId: number) =>
+      ({ id, name: 'Food ' + id, categoryId, storageLocationId }) as FoodItem;
+    component.foodItems.set([food(1, 1, 1), food(2, 1, 2), food(3, 2, 2)]);
+    component.categoryId = 1;
+    expect(component.filteredFoodItems().length).toBe(2);
+    component.storageLocationId = 2;
+    expect(component.filteredFoodItems().map((foodItem) => foodItem.id)).toEqual([2]);
+    component.clearFilters();
+    expect(component.filteredFoodItems().length).toBe(3);
   });
 });

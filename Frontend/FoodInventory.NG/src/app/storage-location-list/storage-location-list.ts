@@ -31,9 +31,9 @@ export class StorageLocationList implements OnInit {
   }
 
   addStorageLocation(): void {
-    this.storageLocationService.addStorageLocation({ id: 0, name: this.newName }).subscribe({
+    this.storageLocationService.addStorageLocation({ id: 0, name: this.newName.trim() }).subscribe({
       next: () => {
-        this.notification.showSuccess(`${this.newName} added`);
+        this.notification.showSuccess(`${this.newName.trim()} added`);
         this.newName = '';
         this.loadStorageLocations();
       },
@@ -42,6 +42,7 @@ export class StorageLocationList implements OnInit {
   }
 
   updateStorageLocation(storageLocation: StorageLocation): void {
+    storageLocation.name = storageLocation.name.trim();
     this.storageLocationService.updateStorageLocation(storageLocation).subscribe({
       next: () => this.notification.showSuccess(`${storageLocation.name} saved`),
       error: () => this.notification.showError('Failed to save the storage location'),

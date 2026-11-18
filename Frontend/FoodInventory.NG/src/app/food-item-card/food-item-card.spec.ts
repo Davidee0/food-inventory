@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { formatDate } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { FoodItemCard } from './food-item-card';
 import { FoodItem } from '../model/food-item';
+import { baseUrl } from '../http-common';
 
 // Lecture 9: the generated test, fixed with the providers and a mock food item for @Input() (slide 46),
 // plus our own tests for the expiry warning (US11).
@@ -61,5 +62,17 @@ describe('FoodItemCard', () => {
   it('should not warn when the best before date is 4 days ahead', () => {
     component.foodItem.bestBeforeDate = day(4);
     expect(component.warning()).toBe('');
+  });
+
+  // Our own test (US7): Ate one sends the whole food item with one less (PUT).
+  it('should send PUT with one less when Ate one is clicked', () => {
+    const httpMock = TestBed.inject(HttpTestingController);
+    component.foodItem.quantity = 3;
+    component.ateOne();
+    const req = httpMock.expectOne(`${baseUrl}/fooditem`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body.quantity).toBe(2);
+    expect(req.request.body.name).toBe('Milk');
+    req.flush(null);
   });
 });
