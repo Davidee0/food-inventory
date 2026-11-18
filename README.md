@@ -275,4 +275,4 @@ More from the lectures:
 ## Credits
 
 - The course *Designing and Developing Digital Business Applications* at CBS and its course project **CourseAdminSystem**: this app follows its structure (`.API` and `.Model` projects, `BaseRepository`, list / card / add / edit components, one service per controller).
-- README layout, the animated architecture picture and the single `http-common` file for the API address are inspired by Giacomo Sanna's crud-app.
+- README layout, the animated architecture picture and the single `http-common` file for the API address are inspired by Giacomo Sanna's [crud-app](https://github.com/Giacomo-Sanna/crud-app).
