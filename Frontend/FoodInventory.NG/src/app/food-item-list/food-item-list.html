@@ -1,0 +1,48 @@
+<h2>My food</h2>
+
+<mat-form-field appearance="outline">
+  <mat-label>Search food</mat-label>
+  <input matInput [(ngModel)]="searchTerm" />
+  <mat-icon matPrefix>search</mat-icon>
+</mat-form-field>
+
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Category</mat-label>
+    <mat-select [(ngModel)]="categoryId">
+      <mat-option [value]="0">All</mat-option>
+      @for (category of categories(); track category.id) {
+        <mat-option [value]="category.id">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Storage location</mat-label>
+    <mat-select [(ngModel)]="storageLocationId">
+      <mat-option [value]="0">All</mat-option>
+      @for (storageLocation of storageLocations(); track storageLocation.id) {
+        <mat-option [value]="storageLocation.id">{{ storageLocation.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+<button mat-stroked-button (click)="clearFilters()">Clear filters</button>
+
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (message()) {
+  <p class="message">{{ message() }}</p>
+} @else if (foodItems().length === 0) {
+  <p>You have no food yet. <a routerLink="/add-food-item">Add your first item.</a></p>
+} @else if (filteredFoodItems().length === 0) {
+  <p>No food matches these filters.</p>
+} @else {
+  <p>
+    Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before
+    date first.
+  </p>
+}
+
+@for (foodItem of filteredFoodItems(); track foodItem.id) {
+  <app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()"></app-food-item-card>
+}

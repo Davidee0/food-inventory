@@ -1,0 +1,98 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: xUnit tests
+        run: dotnet test
+      - name: Database, tables and example rows (Database/setup.sql, run twice)
+        run: |
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f ../Database/setup.sql
+          psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f ../Database/setup.sql
+          rows=$(psql -h localhost -U postgres -d food_inventory -tA -c "select (select count(*) from storage_location) || ' ' || (select count(*) from category) || ' ' || (select count(*) from food_item)")
+          echo "storage locations, categories, food items: $rows"
+          [ "$rows" = "3 6 12" ] || { echo "FAIL the second run must add nothing"; exit 1; }
+      - name: Start the API and check its answers
+        run: |
+          dotnet run --project FoodInventory.API > api.log 2>&1 &
+          for i in $(seq 1 60); do curl -s -o /dev/null http://localhost:5050/api/FoodItem && break; sleep 2; done
+          api=http://localhost:5050/api
+          fail=0
+          check() { # expected status, method, url, optional JSON body
+            code=$(curl -s -o body.txt -w '%{http_code}' -X "$2" -H 'Content-Type: application/json' ${4:+-d "$4"} "$3")
+            if [ "$code" = "$1" ]; then echo "ok   $2 $3 -> $code"; else echo "FAIL $2 $3 -> $code, expected $1: $(cat body.txt)"; fail=1; fi
+          }
+          today=$(date +%F)
+          check 200 GET $api/FoodItem
+          [ "$(jq -r '.[0].name' body.txt)" = "Chicken breast" ] && [ "$(jq -r '.[-1].name' body.txt)" = "Rice" ] || { echo "FAIL sort order"; fail=1; }
+          check 200 GET $api/FoodItem/1
+          check 200 GET $api/FoodItem/2
+          [ "$(jq -r '.name' body.txt)" = "Milk" ] || { echo "FAIL the example ids follow the list order"; fail=1; }
+          check 404 GET $api/FoodItem/999
+          check 200 POST $api/FoodItem "{\"id\":0,\"name\":\"Bread\",\"quantity\":2,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":3}"
+          check 400 POST $api/FoodItem "{\"id\":0,\"name\":\"\",\"quantity\":0,\"purchaseDate\":\"$today\",\"storageLocationId\":3}"
+          grep -q "Name is required" body.txt || { echo "FAIL 400 message"; fail=1; }
+          check 400 POST $api/FoodItem "{\"id\":0,\"name\":\"Bread\",\"quantity\":1,\"purchaseDate\":\"2026-11-10\",\"bestBeforeDate\":\"2026-11-01\",\"storageLocationId\":3}"
+          check 200 PUT $api/FoodItem "{\"id\":2,\"name\":\"Milk\",\"quantity\":3,\"purchaseDate\":\"$today\",\"bestBeforeDate\":\"$today\",\"categoryId\":1,\"storageLocationId\":1}"
+          check 404 PUT $api/FoodItem "{\"id\":999,\"name\":\"Milk\",\"quantity\":1,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":1}"
+          check 204 DELETE $api/FoodItem/13
+          check 404 DELETE $api/FoodItem/13
+          check 200 GET $api/Category
+          check 409 DELETE $api/Category/1
+          grep -q "Dairy still has food in it" body.txt || { echo "FAIL 409 message"; fail=1; }
+          check 200 POST $api/Category '{"id":0,"name":"Snacks"}'
+          check 200 PUT $api/Category '{"id":7,"name":"Sweets"}'
+          check 204 DELETE $api/Category/7
+          check 404 GET $api/Category/7
+          check 200 GET $api/StorageLocation
+          check 409 DELETE $api/StorageLocation/1
+          grep -q "Fridge still has food in it" body.txt || { echo "FAIL 409 message"; fail=1; }
+          check 200 GET http://localhost:5050/swagger/v1/swagger.json
+          cors=$(curl -s -o /dev/null -D - -X OPTIONS -H 'Origin: http://localhost:4200' -H 'Access-Control-Request-Method: PUT' $api/FoodItem | grep -i '^access-control-allow-origin')
+          [ -n "$cors" ] && echo "ok   CORS: $cors" || { echo "FAIL CORS"; fail=1; }
+          [ $fail = 0 ] || { cat api.log; exit 1; }
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend/FoodInventory.NG
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: Frontend/FoodInventory.NG/package-lock.json
+      - run: npm ci
+      - name: Production build
+        run: npx ng build
+      - name: Karma and Jasmine tests
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+      # In UTC a "today" from toISOString() would look right, so run the tests in a time zone far from it too.
+      - name: The same tests in another time zone
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+        env:
+          TZ: Pacific/Auckland

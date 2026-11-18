@@ -1,0 +1,9 @@
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filters mat-form-field {
+  flex: 1;
+  min-width: 0;
+}
