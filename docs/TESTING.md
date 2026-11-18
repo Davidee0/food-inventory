@@ -85,11 +85,12 @@ Result column: our own run on 18 November 2026 (Chromium at 360 x 740 for the fr
 | F9 | Delete Rice: OK; Delete Pasta: Cancel | "Delete Rice?", Rice gone, snackbar "Rice deleted"; Pasta stays | Pass |
 | F10 | Menu, Categories: add Snacks, rename to Sweets (Save), reload; delete Dairy; delete Sweets | Added; "Sweets saved" and still there after reload; red snackbar "Dairy still has food in it, so it cannot be deleted."; Sweets deleted | Pass |
 | F11 | Menu, Storage locations: add Cellar, rename to Balcony; delete Fridge; delete Balcony | "Cellar added", "Balcony saved"; red snackbar "Fridge still has food in it, so it cannot be deleted."; "Balcony deleted" | Pass |
-| F12 | Every page at 360 px | No sideways scrolling (`scrollWidth` 360); buttons, links and fields at least 44 px high, text at least 16 px | Pass |
+| F12 | Every page at 360 px | No sideways scrolling (`scrollWidth` 360); buttons, links and fields at least 44 px high, text at least 16 px (also in the menu and the snackbars) | Pass |
 | F13 | No food in the database (API answers `[]`) | "You have no food yet. Add your first item." | Pass |
 | F14 | Stop the API, reload the list | "Could not load your food. Check that the API is running." | Pass |
 | F15 | The browser console during F1 to F13 | No errors, apart from the browser's own "Failed to load resource: 409 (Conflict)" line for the two refused deletes | Pass |
 | F16 | Stop the API, then Delete a category | Red snackbar "Failed to delete the category" (the 409 text only comes from the API) | Pass |
+| F17 | Open http://localhost:4200/nothing-here | The list opens (`/food-items`), no console error | Pass |
 
 ## Known limitations (for the reflection in the report)
 

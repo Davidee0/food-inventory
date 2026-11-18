@@ -20,7 +20,8 @@ label {
   margin-bottom: 12px;
 }
 
-/* The plain fields (edit form, categories, storage locations); the add form and the filters are Material fields. */
+/* The plain fields (edit form, categories, storage locations).
+   The add form and the filters are Material fields with their own look. */
 label input,
 label select,
 .row input {
@@ -42,6 +43,12 @@ button.mat-mdc-button-base,
 a.mat-mdc-button-base {
   min-height: 44px;
   font-size: 16px;
+}
+
+/* US6: 16 px text in the menu and in the snackbars too (Material uses 14 px there). */
+html {
+  --mat-menu-item-label-text-size: 16px;
+  --mat-snack-bar-supporting-text-size: 16px;
 }
 
 /* One line with a field and its buttons (categories, storage locations). */
@@ -67,11 +74,14 @@ a.mat-mdc-button-base {
   background: #f5c400;
 }
 
-/* Lecture 10: the colours of the two snackbars of NotificationService (panelClass). */
+/* Lecture 10: the colours of the two snackbars of NotificationService (panelClass).
+   A white "Close" is readable on both. */
 .success-snackbar {
   --mat-snack-bar-container-color: #242424;
+  --mat-snack-bar-button-color: white;
 }
 
 .error-snackbar {
   --mat-snack-bar-container-color: #a3200f;
+  --mat-snack-bar-button-color: white;
 }

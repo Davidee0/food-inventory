@@ -12,4 +12,6 @@ export const routes: Routes = [
   { path: 'categories', component: CategoryList },
   { path: 'storage-locations', component: StorageLocationList },
   { path: '', redirectTo: '/food-items', pathMatch: 'full' },
+  // Any other address (a typo, an old link) opens the list instead of an empty page.
+  { path: '**', redirectTo: '/food-items' },
 ];
