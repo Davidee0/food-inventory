@@ -47,7 +47,8 @@ public class CategoryControllerTests
     public void DeleteCategory_ReturnsConflict_WhenCategoryStillHasFood()
     {
         _repoMock.Setup(r => r.GetCategoryById(1)).Returns(new Category(1) { Name = "Dairy" });
-        _repoMock.Setup(r => r.DeleteCategory(1)).Throws(new PostgresException("still referenced", "ERROR", "ERROR", "23503"));
+        _repoMock.Setup(r => r.DeleteCategory(1))
+            .Throws(new PostgresException("still referenced", "ERROR", "ERROR", "23503"));
         var result = _controller.DeleteCategory(1);
         Assert.IsType<ConflictObjectResult>(result);
     }

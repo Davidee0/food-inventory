@@ -22,7 +22,9 @@
   <button mat-stroked-button (click)="clearFilters()">Clear</button>
 </div>
 
-@if (message()) {
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (message()) {
   <p class="message">{{ message() }}</p>
 } @else if (foodItems().length === 0) {
   <p>You have no food yet. <a routerLink="/add-food-item">Add your first item.</a></p>
@@ -32,7 +34,8 @@
   <p>Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before date first.</p>
 }
 
-<!-- Lecture 5: the list (parent) gives each card (child) its food item, and the card tells the list when it changed. -->
+<!-- Lecture 5: the list (parent) gives each card (child) its food item,
+     and the card tells the list when it changed. -->
 @for (foodItem of filteredFoodItems(); track foodItem.id) {
   <app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />
 }

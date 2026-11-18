@@ -47,7 +47,8 @@ public class StorageLocationControllerTests
     public void DeleteStorageLocation_ReturnsConflict_WhenStorageLocationStillHasFood()
     {
         _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(new StorageLocation(1) { Name = "Fridge" });
-        _repoMock.Setup(r => r.DeleteStorageLocation(1)).Throws(new PostgresException("still referenced", "ERROR", "ERROR", "23503"));
+        _repoMock.Setup(r => r.DeleteStorageLocation(1))
+            .Throws(new PostgresException("still referenced", "ERROR", "ERROR", "23503"));
         var result = _controller.DeleteStorageLocation(1);
         Assert.IsType<ConflictObjectResult>(result);
     }

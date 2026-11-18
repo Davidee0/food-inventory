@@ -252,7 +252,7 @@ erDiagram
 
 | # | Concept | Where to see it |
 |---|---|---|
-| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ message() }}`. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/food-item-list/food-item-list.ts` and `food-item-list.html` |
+| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ title() }}` in the toolbar, `{{ message() }}` on the pages. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/app.ts` and `app.html`; `food-item-list/food-item-list.ts` and `food-item-list.html` |
 | 2 | Angular is **component based**: one folder per component; small components talk through `@Input()` (parent to child) and `@Output()` (child to parent). | `food-item-card/food-item-card.ts` (`@Input() foodItem`, `@Output() changed`), used in `food-item-list.html` as `<app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />` |
 | 3 | The data between frontend and API is **JSON**. | `Frontend/FoodInventory.NG/src/app/http-common.ts` (the JSON headers), `services/food-item-service.ts`; the same JSON in Swagger |
 | 4 | **Websites are consumed by users, Web APIs are consumed by systems.** The Angular app is the website; the ASP.NET Core API is consumed by the Angular app (and by Swagger). | `Frontend/FoodInventory.NG/` (website), `Backend/FoodInventory.API/Controllers/FoodItemController.cs` (API), `services/` (the consumer) |

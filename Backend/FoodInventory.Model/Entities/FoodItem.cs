@@ -8,7 +8,8 @@ public class FoodItem
 
     public int Id { get; set; }
 
-    // Lecture 7: server-side validation. [ApiController] answers 400 with these messages before the controller method runs.
+    // Lecture 7: server-side validation. [ApiController] answers 400 with these messages
+    // before the controller method runs.
     [Required(ErrorMessage = "Name is required")]
     [StringLength(50, ErrorMessage = "Name can be at most 50 characters")]
     public string Name { get; set; }

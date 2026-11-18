@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { FoodItem } from '../model/food-item';
 import { FoodItemService } from '../services/food-item-service';
 
+// One food item, like student-card (Lecture 5): Edit, Ate one and Delete.
 @Component({
   selector: 'app-food-item-card',
   imports: [DatePipe, MatCardModule, MatButtonModule, MatIconModule],

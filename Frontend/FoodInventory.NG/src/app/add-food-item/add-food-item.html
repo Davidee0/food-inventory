@@ -4,7 +4,7 @@
   <mat-form-field>
     <mat-label>Name</mat-label>
     <input matInput type="text" formControlName="name" />
-    @if (name.hasError('required')) {
+    @if (name.hasError('required') || name.hasError('pattern')) {
       <mat-error>Name is required</mat-error>
     }
     @if (name.hasError('maxlength')) {

@@ -30,12 +30,19 @@ export class AddFoodItem implements OnInit {
   storageLocations = signal<StorageLocation[]>([]);
   message = signal('');
 
-  // Lecture 7: client-side validation. The API checks the same with [Required] and [Range], the database with not null and check.
-  name: FormControl = new FormControl('', [Validators.required, Validators.maxLength(50)]);
+  // Lecture 7: client-side validation. The API checks the same with [Required] and [Range],
+  // the database with not null and check.
+  // The pattern needs one character that is not a space, so "   " is not a name.
+  name: FormControl = new FormControl('', [
+    Validators.required,
+    Validators.pattern('.*\\S.*'),
+    Validators.maxLength(50),
+  ]);
   quantity: FormControl = new FormControl(1, [Validators.required, Validators.pattern('[1-9][0-9]*')]);
   storageLocationId: FormControl = new FormControl(null, [Validators.required]);
   categoryId: FormControl = new FormControl(null);
-  // Today as the local date. (toISOString() would give the UTC date, which is yesterday or tomorrow in some time zones.)
+  // Today as the local date. (toISOString() would give the UTC date,
+  // which is yesterday or tomorrow in some time zones.)
   purchaseDate: FormControl = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'), [Validators.required]);
   bestBeforeDate: FormControl = new FormControl('');
 

@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Category } from '../model/category';
 import { CategoryService } from '../services/category-service';
 
+// Categories (US9): rename with two-way data binding, add and delete.
 @Component({
   selector: 'app-category-list',
   imports: [FormsModule, MatButtonModule],

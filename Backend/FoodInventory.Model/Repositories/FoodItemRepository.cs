@@ -63,7 +63,8 @@ public class FoodItemRepository : BaseRepository
         var cmd = dbConn.CreateCommand();
         cmd.CommandText = @"
             update food_item set name = @name, quantity = @quantity, purchase_date = @purchase_date,
-                best_before_date = @best_before_date, category_id = @category_id, storage_location_id = @storage_location_id
+                best_before_date = @best_before_date, category_id = @category_id,
+                storage_location_id = @storage_location_id
             where id = @id";
         AddParameters(cmd, f);
         cmd.Parameters.AddWithValue("@id", NpgsqlDbType.Integer, f.Id);

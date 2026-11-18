@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { StorageLocation } from '../model/storage-location';
 import { StorageLocationService } from '../services/storage-location-service';
 
+// Storage locations (US13): the same as the categories.
 @Component({
   selector: 'app-storage-location-list',
   imports: [FormsModule, MatButtonModule],
@@ -21,7 +22,9 @@ export class StorageLocationList implements OnInit {
   }
 
   loadStorageLocations(): void {
-    this.storageLocationService.getStorageLocations().subscribe((storageLocations) => this.storageLocations.set(storageLocations));
+    this.storageLocationService
+      .getStorageLocations()
+      .subscribe((storageLocations) => this.storageLocations.set(storageLocations));
   }
 
   addStorageLocation(): void {
@@ -33,10 +36,13 @@ export class StorageLocationList implements OnInit {
   }
 
   updateStorageLocation(storageLocation: StorageLocation): void {
-    this.storageLocationService.updateStorageLocation(storageLocation).subscribe(() => this.message.set(`${storageLocation.name} saved`));
+    this.storageLocationService
+      .updateStorageLocation(storageLocation)
+      .subscribe(() => this.message.set(`${storageLocation.name} saved`));
   }
 
-  // The API refuses to delete a storage location that still has food in it (409) and says why; the page shows that message.
+  // The API refuses to delete a storage location that still has food in it (409) and says why;
+  // the page shows that message.
   deleteStorageLocation(storageLocation: StorageLocation): void {
     if (confirm(`Delete ${storageLocation.name}?`)) {
       this.storageLocationService.deleteStorageLocation(storageLocation.id).subscribe({

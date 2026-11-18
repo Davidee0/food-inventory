@@ -10,6 +10,7 @@ import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
 import { FoodItemCard } from '../food-item-card/food-item-card';
 
+// The start page (US2, US10): the food from the API, two filters and one card per food item (Lecture 5: list and card).
 @Component({
   selector: 'app-food-item-list',
   imports: [FormsModule, RouterLink, MatButtonModule, FoodItemCard],
@@ -29,6 +30,7 @@ export class FoodItemList implements OnInit {
   categories = signal<Category[]>([]);
   storageLocations = signal<StorageLocation[]>([]);
   message = signal('');
+  loading = signal(true);
 
   // The two filters, two-way bound with [(ngModel)]. 0 means "all".
   categoryId: number = 0;
@@ -47,8 +49,10 @@ export class FoodItemList implements OnInit {
       next: (foodItems) => {
         this.foodItems.set(foodItems);
         this.message.set('');
+        this.loading.set(false);
       },
       error: (error) => {
+        this.loading.set(false);
         this.message.set('Could not load your food. Check that the API is running.');
         console.error('API error fetching food items', error);
       },
