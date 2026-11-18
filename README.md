@@ -8,7 +8,7 @@ Why: in 2022 the world wasted 1.05 billion tonnes of food, and 60% of it in hous
 
 Group project for the CBS course *Designing and Developing Digital Business Applications*: a PostgreSQL database, an ASP.NET Core Web API (C#) and an Angular frontend, built the way the course project CourseAdminSystem is built in the lectures.
 
-![Demo of the app at phone width](docs/demo.gif)
+![A tour of the project: the folders and what each part does, the app on a phone, and one request from the form to PostgreSQL and back](docs/food-inventory-tour.gif)
 
 ## Project documents
 
@@ -182,7 +182,9 @@ ng test --watch=false
 
 ## Screenshots
 
-Taken from the running app at phone width (360 px).
+Taken from the running app at phone width (360 px). The whole walk-through as an animation:
+
+<img src="docs/demo.gif" width="300" alt="The app at phone width: list, filters, add, edit, Ate one, delete, categories, storage locations">
 
 | My food: sorted by best before date, with the expiry warning | Filters by category and storage location |
 |---|---|

@@ -89,6 +89,7 @@ Result column: our own run on 18 November 2026 (Chromium at 360 x 740 for the fr
 | F13 | No food in the database (API answers `[]`) | "You have no food yet. Add your first item." | Pass |
 | F14 | Stop the API, reload the list | "Could not load your food. Check that the API is running." | Pass |
 | F15 | The browser console during F1 to F13 | No errors, apart from the browser's own "Failed to load resource: 409 (Conflict)" line for the two refused deletes | Pass |
+| F16 | Stop the API, then Delete a category | Red snackbar "Failed to delete the category" (the 409 text only comes from the API) | Pass |
 
 ## Known limitations (for the reflection in the report)
 
