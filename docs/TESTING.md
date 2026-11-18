@@ -98,5 +98,5 @@ Result column: our own run on 18 November 2026 (Chromium at 360 x 740 for the fr
 - Category and storage location names can repeat ("Dairy" twice is accepted).
 - The snackbars appear at the top (as in Lecture 10) and cover the toolbar for 3 seconds (5 for errors) on a phone; "Close" hides them earlier.
 - The backend tests mock the repositories, so the SQL itself is tested by CI's API calls and by the manual tests above, not by `dotnet test`.
-- `npm audit` reports high-severity warnings in development tools only (picomatch inside the Angular CLI and Karma); `npm audit --omit=dev` finds none in what the browser loads.
+- `npm audit` found 0 vulnerabilities on 18 November 2026. Earlier it warned about picomatch inside the Angular CLI and Karma (development tools only), so run it again before the hand-in.
 - The `@angular-devkit/build-angular:karma` builder from Lecture 9's helper slide prints a deprecation note in Angular 22; it still works.
