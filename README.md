@@ -6,7 +6,7 @@ Households waste the most food: 60% of the 1.05 billion tonnes wasted in 2022 ([
 
 Group project for the CBS course *Designing and Developing Digital Business Applications*. It uses PostgreSQL, an ASP.NET Core Web API (.NET 10) and Angular 22, and is built like the course project CourseAdminSystem.
 
-<img src="docs/screenshots/01-food-list.png" width="250" alt="The food list with Expired and Eat soon"> <img src="docs/screenshots/03-add-validation.png" width="250" alt="The add form with its messages"> <img src="docs/screenshots/09-category-refused.png" width="250" alt="A category with food cannot be deleted">
+<img src="docs/screenshots/01-food-list.png" width="250" alt="The food list, expired food first"> <img src="docs/screenshots/03-add-validation.png" width="250" alt="The add form with its messages"> <img src="docs/screenshots/09-category-refused.png" width="250" alt="A category with food cannot be deleted">
 
 ## Features
 
