@@ -16,7 +16,8 @@ public class FoodItem
     [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
     public int Quantity { get; set; }
 
-    public DateOnly PurchaseDate { get; set; }
+    [Required(ErrorMessage = "Purchase date is required")]
+    public DateOnly? PurchaseDate { get; set; }
 
     public DateOnly? BestBeforeDate { get; set; } // optional
 

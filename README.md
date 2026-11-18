@@ -4,6 +4,8 @@
 
 Track the food you have at home: add groceries when you buy them, see what should be eaten first, tap **Ate one** when you eat something. No login: one shared inventory for the household.
 
+Why: in 2022 the world wasted 1.05 billion tonnes of food, and 60% of it in households ([UNEP Food Waste Index Report 2024](https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report)). Seeing what you have, soonest best before date first, helps a household eat it in time. Design (wireframes, UI design, prototype): [Figma](https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9).
+
 Group project for the CBS course *Designing and Developing Digital Business Applications*: a PostgreSQL database, an ASP.NET Core Web API (C#) and an Angular frontend, built the way the course project CourseAdminSystem is built in the lectures.
 
 ![Demo of the app at phone width](docs/demo.gif)
@@ -63,11 +65,11 @@ Not deployed yet. The app runs on your own computer (see [Installation](#install
 
 ```
 food-inventory
-├── database
+├── Database
 │   ├── setup.sql              one command: creates the database if missing, then runs food_inventory.sql
 │   └── food_inventory.sql     the 3 tables and the example rows
 ├── docs                       the pictures of this README
-├── backend
+├── Backend
 │   ├── FoodInventory.slnx
 │   ├── FoodInventory.API      the Web API
 │   │   ├── Controllers        FoodItem, Category, StorageLocation: the endpoints
@@ -78,18 +80,19 @@ food-inventory
 │   │   ├── Entities           one class per table, with the validation rules
 │   │   └── Repositories       BaseRepository and one repository per entity: the SQL
 │   └── FoodInventory.Tests    xUnit + Moq tests of the controllers
-└── frontend                   the Angular project
-    └── src/app
-        ├── http-common.ts          the only place with the address of the API
-        ├── model                   interfaces: FoodItem, Category, StorageLocation
-        ├── services                one service per controller
-        ├── food-item-list          start page: filters and the cards
-        ├── food-item-card          one food item with Edit, Ate one, Delete
-        ├── add-food-item           reactive form with Angular Material
-        ├── edit-food-item          template form with two-way data binding
-        ├── category-list           add, rename, delete categories
-        ├── storage-location-list   add, rename, delete storage locations
-        └── app.ts, app.html, app.routes.ts, app.config.ts   toolbar with the menu, routes
+└── Frontend
+    └── FoodInventory.NG       the Angular project (like the course's CourseAdminSystem.NG)
+        └── src/app
+            ├── http-common.ts          the only place with the address of the API
+            ├── model                   interfaces: FoodItem, Category, StorageLocation
+            ├── services                one service per controller
+            ├── food-item-list          start page: filters and the cards
+            ├── food-item-card          one food item with Edit, Ate one, Delete
+            ├── add-food-item           reactive form with Angular Material
+            ├── edit-food-item          template form with two-way data binding
+            ├── category-list           add, rename, delete categories
+            ├── storage-location-list   add, rename, delete storage locations
+            └── app.ts, app.html, app.routes.ts, app.config.ts   toolbar with the menu, routes
 ```
 
 ## Installation
@@ -115,17 +118,17 @@ cd food-inventory
 One command creates the database `food_inventory`, its tables and the example rows. It asks for the password of the user `postgres`. Running it again changes nothing.
 
 ```shell
-psql -h localhost -U postgres -f database/setup.sql
+psql -h localhost -U postgres -f Database/setup.sql
 ```
 
-Without `psql`: in pgAdmin create a database named `food_inventory`, open the Query Tool on it, open `database/food_inventory.sql` and run it.
+Without `psql`: in pgAdmin create a database named `food_inventory`, open the Query Tool on it, open `Database/food_inventory.sql` and run it.
 
 ### 3. Backend
 
-If your PostgreSQL password is not `postgres`, change it in the connection string `AppProgDb` in `backend/FoodInventory.API/appsettings.json`.
+If your PostgreSQL password is not `postgres`, change it in the connection string `AppProgDb` in `Backend/FoodInventory.API/appsettings.json`.
 
 ```shell
-cd backend
+cd Backend
 dotnet build
 dotnet run --project FoodInventory.API
 ```
@@ -137,7 +140,7 @@ The API runs on `http://localhost:5050`. Its documentation (Swagger) is on `http
 In a second terminal:
 
 ```shell
-cd frontend
+cd Frontend/FoodInventory.NG
 npm install
 ng serve
 ```
@@ -147,12 +150,12 @@ The app runs on `http://localhost:4200`.
 ### Testing
 
 ```shell
-cd backend
+cd Backend
 dotnet test
 ```
 
 ```shell
-cd frontend
+cd Frontend/FoodInventory.NG
 ng test --watch=false
 ```
 
@@ -249,25 +252,25 @@ erDiagram
 
 | # | Concept | Where to see it |
 |---|---|---|
-| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ message() }}`. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `frontend/src/app/food-item-list/food-item-list.ts` and `food-item-list.html` |
+| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ message() }}`. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/food-item-list/food-item-list.ts` and `food-item-list.html` |
 | 2 | Angular is **component based**: one folder per component; small components talk through `@Input()` (parent to child) and `@Output()` (child to parent). | `food-item-card/food-item-card.ts` (`@Input() foodItem`, `@Output() changed`), used in `food-item-list.html` as `<app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />` |
-| 3 | The data between frontend and API is **JSON**. | `frontend/src/app/http-common.ts` (the JSON headers), `services/food-item-service.ts`; the same JSON in Swagger |
-| 4 | **Websites are consumed by users, Web APIs are consumed by systems.** The Angular app is the website; the ASP.NET Core API is consumed by the Angular app (and by Swagger). | `frontend/` (website), `backend/FoodInventory.API/Controllers/FoodItemController.cs` (API), `services/` (the consumer) |
+| 3 | The data between frontend and API is **JSON**. | `Frontend/FoodInventory.NG/src/app/http-common.ts` (the JSON headers), `services/food-item-service.ts`; the same JSON in Swagger |
+| 4 | **Websites are consumed by users, Web APIs are consumed by systems.** The Angular app is the website; the ASP.NET Core API is consumed by the Angular app (and by Swagger). | `Frontend/FoodInventory.NG/` (website), `Backend/FoodInventory.API/Controllers/FoodItemController.cs` (API), `services/` (the consumer) |
 | 5 | **PUT updates a resource**: the whole object in the body. | `UpdateFoodItem` in `FoodItemController.cs`; `updateFoodItem` in `services/food-item-service.ts`; used by `edit-food-item.ts` and by "Ate one" in `food-item-card.ts` |
-| 6 | **The backend manages the database and the business logic.** Validation: `[Required]`, `[Range]` on the entities (400 with a message) and the date rule in the controller. The rule "a category that still has food cannot be deleted": the foreign key refuses, the controller answers 409. | `backend/FoodInventory.Model/Entities/FoodItem.cs`, `Repositories/FoodItemRepository.cs`, `DeleteCategory` in `CategoryController.cs`, `database/food_inventory.sql` |
-| 7 | **Models**: the data classes, the same fields on both sides. | `frontend/src/app/model/food-item.ts` and `backend/FoodInventory.Model/Entities/FoodItem.cs` |
+| 6 | **The backend manages the database and the business logic.** Validation: `[Required]`, `[Range]` on the entities (400 with a message) and the date rule in the controller. The rule "a category that still has food cannot be deleted": the foreign key refuses, the controller answers 409. | `Backend/FoodInventory.Model/Entities/FoodItem.cs`, `Repositories/FoodItemRepository.cs`, `DeleteCategory` in `CategoryController.cs`, `Database/food_inventory.sql` |
+| 7 | **Models**: the data classes, the same fields on both sides. | `Frontend/FoodInventory.NG/src/app/model/food-item.ts` and `Backend/FoodInventory.Model/Entities/FoodItem.cs` |
 
 More from the lectures:
 
 | Lecture | Topic | Where to see it |
 |---|---|---|
-| 3 | Tables with primary and foreign keys, `check` | `database/food_inventory.sql` |
-| 4 | Web API: controllers, repositories on `BaseRepository`, dependency injection (`AddScoped`), Swagger | `backend/FoodInventory.API`, `backend/FoodInventory.Model` |
+| 3 | Tables with primary and foreign keys, `check` | `Database/food_inventory.sql` |
+| 4 | Web API: controllers, repositories on `BaseRepository`, dependency injection (`AddScoped`), Swagger | `Backend/FoodInventory.API`, `Backend/FoodInventory.Model` |
 | 5 | Components, routing | `app.routes.ts`, `food-item-list`, `food-item-card` |
 | 6 | Services with `HttpClient` and Observables, `ngOnInit` + `subscribe`, `@if`, `@for ... track`, CORS | `services/`, every component, `Program.cs` |
 | 7 | Validation in three layers (form, API, database); template form with `[(ngModel)]`, `required`, `#name="ngModel"`; `@Input() id` from the route | `edit-food-item`, the entities, `food_inventory.sql`, `app.config.ts` |
 | 8 | Angular Material: toolbar, menu, card; reactive form with `FormControl`, `Validators`, `mat-form-field`, `mat-error` | `app.html`, `add-food-item` |
-| 9 | Unit tests with xUnit and Moq | `backend/FoodInventory.Tests` |
+| 9 | Unit tests with xUnit and Moq | `Backend/FoodInventory.Tests` |
 
 ## Credits
 

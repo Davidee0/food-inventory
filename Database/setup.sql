@@ -1,6 +1,6 @@
 -- Food inventory: the whole database with one command (run it from the project folder):
 --
---     psql -h localhost -U postgres -f database/setup.sql
+--     psql -h localhost -U postgres -f Database/setup.sql
 --
 -- It is safe to run again: nothing is created or inserted twice.
 -- Without psql: create the database food_inventory in pgAdmin and run food_inventory.sql in its Query Tool.
