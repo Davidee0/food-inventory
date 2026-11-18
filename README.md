@@ -10,8 +10,18 @@ Group project for the CBS course *Designing and Developing Digital Business Appl
 
 ![Demo of the app at phone width](docs/demo.gif)
 
+## Project documents
+
+| Document | What is in it |
+|---|---|
+| [docs/BACKLOG.md](docs/BACKLOG.md) | Product Goal, personas, user stories US1 to US14 with their status and acceptance criteria, Definition of Done |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, ER model, one request from click to database and back, API, validation layers, security (and what a login would add), strengths and limitations, likely exam questions, where each lecture is in the code |
+| [docs/TESTING.md](docs/TESTING.md) | How to run the tests, the automated tests, the manual tests with their results, known limitations |
+| [docs/REPORT-AND-EXAM.md](docs/REPORT-AND-EXAM.md) | The report structure mapped to this project, the learning objectives, the exam-day checklist and demo script |
+
 ## Table of contents
 
+- [Project documents](#project-documents)
 - [Live demo](#live-demo)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
@@ -22,6 +32,7 @@ Group project for the CBS course *Designing and Developing Digital Business Appl
   - [2. Database](#2-database)
   - [3. Backend](#3-backend)
   - [4. Frontend](#4-frontend)
+  - [If something goes wrong](#if-something-goes-wrong)
   - [Testing](#testing)
 - [Screenshots](#screenshots)
 - [API endpoints](#api-endpoints)
@@ -68,7 +79,8 @@ food-inventory
 ├── Database
 │   ├── setup.sql              one command: creates the database if missing, then runs food_inventory.sql
 │   └── food_inventory.sql     the 3 tables and the example rows
-├── docs                       the pictures of this README
+├── docs                       BACKLOG, ARCHITECTURE, TESTING, REPORT-AND-EXAM and the pictures of this README
+├── .github/workflows          tests.yml: the tests on every pull request (GitHub Actions)
 ├── Backend
 │   ├── FoodInventory.slnx
 │   ├── FoodInventory.API      the Web API
@@ -133,7 +145,7 @@ dotnet build
 dotnet run --project FoodInventory.API
 ```
 
-The API runs on `http://localhost:5050`. Its documentation (Swagger) is on `http://localhost:5050/swagger`.
+The API runs on `http://localhost:5050`. Its documentation (Swagger) is on `http://localhost:5050/swagger` (only while developing: the launch profile sets `Development`).
 
 ### 4. Frontend
 
@@ -147,6 +159,13 @@ ng serve
 
 The app runs on `http://localhost:4200`.
 
+### If something goes wrong
+
+- pgAdmin says the locale provider does not match the template database: in the Definition tab choose `template0` (Lecture 4).
+- "Address already in use" for port 5050: `lsof -i :5050`, then `kill <PID>` (Lecture 4).
+- Swagger answers with a database error: check the user name and password in `AppProgDb`.
+- One database for the whole team (optional, Exercise 2.1): create a PostgreSQL database in the cloud (for example Supabase), run `Database/food_inventory.sql` in its SQL editor, and give the API the connection string in an environment variable, so the password never goes to GitHub: `ConnectionStrings__AppProgDb="<connection string>" dotnet run --project FoodInventory.API` (Windows PowerShell: `$env:ConnectionStrings__AppProgDb="<connection string>"` first).
+
 ### Testing
 
 ```shell
@@ -159,7 +178,7 @@ cd Frontend/FoodInventory.NG
 ng test --watch=false
 ```
 
-`ng test` opens Chrome through Karma (`karma.conf.js`). Without a screen, add `--browsers=ChromeHeadless`.
+`ng test` opens Chrome through Karma (`karma.conf.js`). Without a screen, add `--browsers=ChromeHeadless`. What the tests cover and the manual test results: [docs/TESTING.md](docs/TESTING.md). GitHub Actions runs them on every pull request and push to `main` (`.github/workflows/tests.yml`).
 
 ## Screenshots
 
@@ -191,20 +210,7 @@ Taken from the running app at phone width (360 px).
 
 ## API endpoints
 
-The same five endpoints for each of the three resources: `FoodItem`, `Category` and `StorageLocation`. The data is JSON; dates are `"YYYY-MM-DD"`.
-
-| Method | Address | What it does | Answers |
-|---|---|---|---|
-| GET | `/api/FoodItem` | all food items, soonest best before date first, with the names of category and storage location | 200 |
-| GET | `/api/FoodItem/{id}` | one food item | 200, 404 |
-| POST | `/api/FoodItem` | adds a food item | 200, 400 with a message when the input is wrong |
-| PUT | `/api/FoodItem` | updates a food item: the whole object in the body, id included | 200, 400, 404 |
-| DELETE | `/api/FoodItem/{id}` | deletes a food item | 204, 404 |
-| GET | `/api/Category`, `/api/StorageLocation` | all categories / storage locations | 200 |
-| GET | `/api/Category/{id}`, `/api/StorageLocation/{id}` | one of them | 200, 404 |
-| POST | `/api/Category`, `/api/StorageLocation` | adds one | 200, 400 |
-| PUT | `/api/Category`, `/api/StorageLocation` | renames one | 200, 400, 404 |
-| DELETE | `/api/Category/{id}`, `/api/StorageLocation/{id}` | deletes one | 204, 404, 409 with a message when it still has food in it |
+The same five endpoints for each of the three resources `FoodItem`, `Category` and `StorageLocation`: `GET /api/X` (all), `GET /api/X/{id}` (one), `POST /api/X` (add), `PUT /api/X` (update: the whole object in the body, id included) and `DELETE /api/X/{id}`. The data is JSON; dates are `"YYYY-MM-DD"`. The answers (200, 204, 400, 404, and 409 when a category or storage location still has food) are listed in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#api); try them in Swagger.
 
 Example of a food item:
 
@@ -224,56 +230,21 @@ Example of a food item:
 
 ## Database
 
-Every food item has exactly one storage location and at most one category. The example data: 3 storage locations, 6 categories and 12 food items (21 rows).
-
-```mermaid
-erDiagram
-    storage_location ||--o{ food_item : "holds"
-    category |o--o{ food_item : "groups"
-
-    storage_location {
-        int id PK "serial"
-        varchar name "30, not null, not empty"
-    }
-    category {
-        int id PK "serial"
-        varchar name "30, not null, not empty"
-    }
-    food_item {
-        int id PK "serial"
-        varchar name "50, not null, not empty"
-        int quantity "not null, above 0"
-        date purchase_date "not null"
-        date best_before_date "optional, not before purchase_date"
-        int category_id FK "optional"
-        int storage_location_id FK "not null"
-    }
-```
+Three tables: `storage_location`, `category` and `food_item`. Every food item has exactly one storage location and at most one category (two foreign keys). The example data: 3 storage locations, 6 categories and 12 food items (21 rows). The ER diagram and the rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#database-er-model).
 
 ## Course concepts in this project
 
 | # | Concept | Where to see it |
 |---|---|---|
 | 1 | **Interpolation** with double curly braces, reading **signals**: `{{ title() }}` in the toolbar, `{{ message() }}` on the food list. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/app.ts` and `app.html`; `food-item-list/food-item-list.ts` and `food-item-list.html` |
-| 2 | Angular is **component based**: one folder per component; small components talk through `@Input()` (parent to child) and `@Output()` (child to parent). | `food-item-card/food-item-card.ts` (`@Input() foodItem`, `@Output() changed`), used in `food-item-list.html` as `<app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />` |
+| 2 | Angular is **component based**: one folder per component; small components talk through `@Input()` (parent to child) and `@Output()` (child to parent). | `food-item-card/food-item-card.ts` (`@Input() foodItem`, `@Output() changed`), used in `food-item-list.html` as `<app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()"></app-food-item-card>` |
 | 3 | The data between frontend and API is **JSON**. | `Frontend/FoodInventory.NG/src/app/http-common.ts` (the JSON headers), `services/food-item-service.ts`; the same JSON in Swagger |
 | 4 | **Websites are consumed by users, Web APIs are consumed by systems.** The Angular app is the website; the ASP.NET Core API is consumed by the Angular app (and by Swagger). | `Frontend/FoodInventory.NG/` (website), `Backend/FoodInventory.API/Controllers/FoodItemController.cs` (API), `services/` (the consumer) |
 | 5 | **PUT updates a resource**: the whole object in the body. | `UpdateFoodItem` in `FoodItemController.cs`; `updateFoodItem` in `services/food-item-service.ts`; used by `edit-food-item.ts` and by "Ate one" in `food-item-card.ts` |
 | 6 | **The backend manages the database and the business logic.** Validation: `[Required]`, `[Range]` on the entities (400 with a message) and the date rule in the controller. The rule "a category that still has food cannot be deleted": the foreign key refuses, the controller answers 409. | `Backend/FoodInventory.Model/Entities/FoodItem.cs`, `Repositories/FoodItemRepository.cs`, `DeleteCategory` in `CategoryController.cs`, `Database/food_inventory.sql` |
 | 7 | **Models**: the data classes, the same fields on both sides. | `Frontend/FoodInventory.NG/src/app/model/food-item.ts` and `Backend/FoodInventory.Model/Entities/FoodItem.cs` |
 
-More from the lectures:
-
-| Lecture | Topic | Where to see it |
-|---|---|---|
-| 3 | Tables with primary and foreign keys, `check` | `Database/food_inventory.sql` |
-| 4 | Web API: controllers, repositories on `BaseRepository`, dependency injection (`AddScoped`), Swagger while developing, connection string `AppProgDb` | `Backend/FoodInventory.API`, `Backend/FoodInventory.Model` |
-| 5 | Components, routing, zone.js | `app.routes.ts`, `food-item-list`, `food-item-card`, `main.ts`, `app.config.ts` |
-| 6 | Services with `HttpClient` and Observables, `ngOnInit` + `subscribe`, `@if`, `@for ... track`, CORS | `services/`, every component, `Program.cs` |
-| 7 | Validation in three layers (form, API, database); template form with `[(ngModel)]`, `required`, `#name="ngModel"`; `@Input() id` from the route | `edit-food-item`, the entities, `food_inventory.sql`, `app.config.ts` |
-| 8 | Angular Material: toolbar, menu, card; reactive form with `FormControl`, `Validators`, `mat-form-field`, `mat-error` | `app.html`, `add-food-item` |
-| 9 | Unit tests with xUnit and Moq; Karma and Jasmine with `provideHttpClientTesting` and `HttpTestingController` | `Backend/FoodInventory.Tests`, the `*.spec.ts` files, `karma.conf.js` |
-| 10 | Material cards with icon buttons, confirmation before delete and reload after it, filter with "Showing X of Y", snackbars for feedback, `navigate(["/food-items"])` after Update | `food-item-card`, `food-item-list`, `services/notification-service.ts`, `edit-food-item.ts` |
+Where every lecture from 1 to 10 shows up in the code, and what was kept different on purpose: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#where-each-lecture-shows-up-in-the-code).
 
 ## Credits
 
