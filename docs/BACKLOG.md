@@ -61,9 +61,9 @@ Scope (team roadmap): CRUD for FoodItem and Category is required, StorageLocatio
 
 ## Definition of Done
 
-- The acceptance criteria work in the browser, also at 360 px wide (see the manual tests in [TESTING.md](TESTING.md)).
+- The acceptance criteria work in the browser, also at 360 px wide.
 - `dotnet test` in `Backend/` and `ng test --watch=false` in `Frontend/FoodInventory.NG/` pass; `dotnet build` has no warnings; `ng build` has no errors.
 - The checks of `.github/workflows/tests.yml` are green on the pull request: the tests, `Database/setup.sql` on PostgreSQL 16, the API's answers, the build.
 - The rules and messages are the same in the form, in the entities of the API and in the database (Lecture 7).
-- README.md and the documents in `docs/` are updated when the structure or the behaviour changes; the Figma file when the layout changes.
+- README.md and `docs/BACKLOG.md` are updated when the structure or the behaviour changes; the Figma file when the layout changes.
 - Merged through a pull request that a teammate has read.
