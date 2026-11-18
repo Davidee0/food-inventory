@@ -103,14 +103,14 @@ The controllers follow the course's `TeacherController` (Exercise 6.2): `NotFoun
 | Best before not before purchase (cross-field) | `bestBeforeTooEarly()` | in `FoodItemController` | `check (best_before_date >= purchase_date)` |
 | A category or storage location with food cannot be deleted (business rule) | the snackbar shows the reason | 409 Conflict | foreign key |
 
-The form gives immediate feedback (the weakest layer, not for security); the API enforces the rules for every client (Swagger, Postman); the database is the last line of defense. The messages in `FoodItem.cs`, `Category.cs`, `StorageLocation.cs` and the two forms are kept the same: change them together.
+The form gives immediate feedback (the weakest layer, not for security); the API enforces the rules for every client (Swagger, Postman); the database is the last line of defense. The messages in `FoodItem.cs`, `Category.cs`, `StorageLocation.cs` and the two forms are kept the same (only the forms say "Quantity must be a whole number, at least 1", because a number field also accepts 1.5): change them together.
 
 ## Security
 
 - **SQL injection:** every query uses parameters (`cmd.Parameters.AddWithValue("@name", NpgsqlDbType.Text, ...)`), never text glued into SQL.
 - **XSS:** Angular escapes everything shown with `{{ }}`; the app uses no `innerHTML`.
 - **CORS:** only the Angular app (`http://localhost:4200`) may call the API from a browser. Lecture 6 allows any origin; Lecture 10's security part advises to name the allowed origin.
-- **Input validation** on the server: see above. Errors do not show technical details (the 409 and 400 messages are written for the user).
+- **Input validation** on the server: see above. The messages of the rules and of the 404 and 409 answers are written for the user (a body that is not valid JSON, or a date like 2026-13-45, gets ASP.NET Core's own 400 text, which names .NET types). An unexpected error (for example a wrong database password) shows its stack trace only while developing; outside `Development` ASP.NET Core answers 500 without details.
 - **Swagger** is only switched on while developing (`app.Environment.IsDevelopment()`).
 - **Secrets:** `appsettings.json` has the local course password (`postgres`). A shared or cloud database gets its connection string from an environment variable instead, so the password never goes to GitHub: `ConnectionStrings__AppProgDb="<connection string>" dotnet run --project FoodInventory.API`.
 - **HTTPS:** not used on localhost (Lecture 4 removes `UseHttpsRedirection` to avoid certificate problems); a deployment would need it.

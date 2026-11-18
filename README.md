@@ -218,7 +218,7 @@ Example of a food item:
 
 ```json
 {
-  "id": 2,
+  "id": 3,
   "name": "Milk",
   "quantity": 1,
   "purchaseDate": "2026-11-12",
