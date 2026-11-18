@@ -16,7 +16,14 @@ import { FoodItemCard } from '../food-item-card/food-item-card';
 // (Lecture 5: list and card; Lecture 10: Search/Filter).
 @Component({
   selector: 'app-food-item-list',
-  imports: [FormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatSelectModule, FoodItemCard],
+  imports: [
+    FormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    FoodItemCard,
+  ],
   templateUrl: './food-item-list.html',
   styleUrl: './food-item-list.css',
 })

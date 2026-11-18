@@ -50,13 +50,16 @@ export class FoodItemCard {
   // US7: one less. PUT sends the whole food item (a copy with the new quantity); the last one is deleted instead.
   ateOne(): void {
     if (this.foodItem.quantity > 1) {
-      this.foodItemService.updateFoodItem({ ...this.foodItem, quantity: this.foodItem.quantity - 1 }).subscribe({
-        next: () => {
-          this.notification.showSuccess(`Ate one ${this.foodItem.name}`);
-          this.changed.emit(this.foodItem.id);
-        },
-        error: () => this.notification.showError('Could not save. Check that the API is running.'),
-      });
+      this.foodItemService
+        .updateFoodItem({ ...this.foodItem, quantity: this.foodItem.quantity - 1 })
+        .subscribe({
+          next: () => {
+            this.notification.showSuccess(`Ate one ${this.foodItem.name}`);
+            this.changed.emit(this.foodItem.id);
+          },
+          error: () =>
+            this.notification.showError('Could not save. Check that the API is running.'),
+        });
     } else {
       this.deleteFoodItem();
     }
@@ -70,7 +73,8 @@ export class FoodItemCard {
           this.notification.showSuccess(`${this.foodItem.name} deleted`);
           this.changed.emit(this.foodItem.id);
         },
-        error: () => this.notification.showError('Could not delete. Check that the API is running.'),
+        error: () =>
+          this.notification.showError('Could not delete. Check that the API is running.'),
       });
     }
   }

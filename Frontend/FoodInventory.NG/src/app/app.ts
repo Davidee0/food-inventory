@@ -7,7 +7,14 @@ import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

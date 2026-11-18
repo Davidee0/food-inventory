@@ -16,7 +16,13 @@ import { NotificationService } from '../services/notification-service';
 // Lecture 8: a reactive form with Angular Material, like add-student (with the snackbars of Lecture 10).
 @Component({
   selector: 'app-add-food-item',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+  ],
   templateUrl: './add-food-item.html',
 })
 export class AddFoodItem implements OnInit {
@@ -39,12 +45,17 @@ export class AddFoodItem implements OnInit {
     Validators.pattern('.*\\S.*'),
     Validators.maxLength(50),
   ]);
-  quantity: FormControl = new FormControl(1, [Validators.required, Validators.pattern('[1-9][0-9]*')]);
+  quantity: FormControl = new FormControl(1, [
+    Validators.required,
+    Validators.pattern('[1-9][0-9]*'),
+  ]);
   storageLocationId: FormControl = new FormControl(null, [Validators.required]);
   categoryId: FormControl = new FormControl(null);
   // Today as the local date. (toISOString() would give the UTC date,
   // which is yesterday or tomorrow in some time zones.)
-  purchaseDate: FormControl = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'), [Validators.required]);
+  purchaseDate: FormControl = new FormControl(formatDate(new Date(), 'yyyy-MM-dd', 'en'), [
+    Validators.required,
+  ]);
   bestBeforeDate: FormControl = new FormControl('');
 
   foodItemFormGroup: FormGroup = new FormGroup({
@@ -90,7 +101,9 @@ export class AddFoodItem implements OnInit {
           this.router.navigate(['/food-items']);
         },
         error: (error) => {
-          this.notification.showError('Failed to add the food item. Check that the API is running.');
+          this.notification.showError(
+            'Failed to add the food item. Check that the API is running.',
+          );
           console.error('Something went wrong: ', error);
         },
       });

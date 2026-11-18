@@ -63,7 +63,9 @@ export class EditFoodItem implements OnInit {
         this.router.navigate(['/food-items']);
       },
       error: (error) => {
-        this.notification.showError('The food item could not be saved. Check that the API is running.');
+        this.notification.showError(
+          'The food item could not be saved. Check that the API is running.',
+        );
         console.error('Something went wrong: ', error);
       },
     });

@@ -32,7 +32,10 @@
 } @else if (filteredFoodItems().length === 0) {
   <p>No food matches these filters.</p>
 } @else {
-  <p>Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before date first.</p>
+  <p>
+    Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before
+    date first.
+  </p>
 }
 
 <!-- Lecture 5 and 10: the list (parent) gives each card (child) its food item,

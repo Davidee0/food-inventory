@@ -6,7 +6,14 @@
        #name="ngModel" gives the template the state of the field, so the message sits next to it. -->
   <label>
     Name
-    <input type="text" [(ngModel)]="foodItem.name" required pattern=".*\S.*" maxlength="50" #name="ngModel" />
+    <input
+      type="text"
+      [(ngModel)]="foodItem.name"
+      required
+      pattern=".*\S.*"
+      maxlength="50"
+      #name="ngModel"
+    />
   </label>
   @if (name.invalid) {
     <p class="error">Name is required</p>
@@ -14,7 +21,13 @@
 
   <label>
     Quantity
-    <input type="number" [(ngModel)]="foodItem.quantity" required pattern="[1-9][0-9]*" #quantity="ngModel" />
+    <input
+      type="number"
+      [(ngModel)]="foodItem.quantity"
+      required
+      pattern="[1-9][0-9]*"
+      #quantity="ngModel"
+    />
   </label>
   @if (quantity.invalid) {
     <p class="error">Quantity must be a whole number, at least 1</p>
