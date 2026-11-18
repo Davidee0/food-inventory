@@ -52,15 +52,17 @@ from (values
 	('Milk',		1,  3,    1, 'Dairy',		'Fridge'),
 	('Yogurt',		4,  5,    3, 'Dairy',		'Fridge'),
 	('Carrots',		6,  2,    9, 'Vegetables',	'Fridge'),
-	('Cheese',		1,  6,   20, 'Dairy',		'Fridge'),
 	('Apples',		5,  1,   14, 'Fruit',		'Pantry'),
+	('Cheese',		1,  6,   20, 'Dairy',		'Fridge'),
 	('Orange juice',	2,  5,   30, 'Drinks',		'Pantry'),
+	('Salmon fillet',	2,  7,   90, 'Meat and fish',	'Freezer'),
 	('Frozen peas',		1, 20,  120, 'Vegetables',	'Freezer'),
 	('Frozen berries',	2, 10,  200, 'Fruit',		'Freezer'),
-	('Salmon fillet',	2,  7,   90, 'Meat and fish',	'Freezer'),
 	('Pasta',		3, 15, null, 'Other',		'Pantry'),
 	('Rice',		1, 30, null, null,		'Pantry')
      ) as example (name, quantity, days_ago, days_left, category, storage_location)
      left join category on category.name = example.category
      join storage_location on storage_location.name = example.storage_location
-where not exists (select 1 from food_item);
+where not exists (select 1 from food_item)
+-- The ids follow this order (the order of the list in the app); without it they would follow the joins.
+order by example.days_left, example.name;

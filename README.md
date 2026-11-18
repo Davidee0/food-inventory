@@ -218,11 +218,11 @@ Example of a food item:
 
 ```json
 {
-  "id": 3,
+  "id": 2,
   "name": "Milk",
   "quantity": 1,
-  "purchaseDate": "2026-11-12",
-  "bestBeforeDate": "2026-11-16",
+  "purchaseDate": "2026-11-15",
+  "bestBeforeDate": "2026-11-19",
   "categoryId": 1,
   "storageLocationId": 1,
   "categoryName": "Dairy",

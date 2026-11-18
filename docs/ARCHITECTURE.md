@@ -58,7 +58,7 @@ erDiagram
 - The foreign keys have no `on delete`, so the database refuses to delete a category or storage location that still has food. The API turns that refusal into 409 Conflict with a message, and the page shows it in a snackbar.
 - The checks (not null, not empty, quantity above 0, best before not before purchase) are the database layer of validation (Lecture 7).
 - Dates are plain `date` values (no time, no time zone), `DateOnly` in C# and `"YYYY-MM-DD"` in JSON.
-- `Database/setup.sql` creates the database if it is missing and runs `food_inventory.sql`; tables are created with `if not exists` and the example rows (3 storage locations, 6 categories, 12 food items) only go into empty tables, so running it twice adds nothing. The food dates are counted from the day the script runs, so the list always has expired, soon expiring and fine food.
+- `Database/setup.sql` creates the database if it is missing and runs `food_inventory.sql`; tables are created with `if not exists` and the example rows (3 storage locations, 6 categories, 12 food items) only go into empty tables, so running it twice adds nothing. The food items get their ids in the order the app lists them (`order by`), so Chicken breast is 1 and Milk is 2. The food dates are counted from the day the script runs, so the list always has expired, soon expiring and fine food.
 
 ## One request from click to database and back: adding a food item
 
@@ -159,7 +159,7 @@ Households waste the most food: 60% of the 1.05 billion tonnes wasted in 2022 (U
 - **What is two-way binding?** `[(ngModel)]` keeps a field and a variable equal in both directions (`edit-food-item.html`, the filters, the category names).
 - **Template-driven or reactive form?** The edit form is template-driven (Lecture 7: `required`, `#name="ngModel"`); the add form is reactive (Lecture 8: `FormControl`, `Validators`, `mat-error`).
 - **What is a signal, and what does zone.js do?** A signal is a value the template reads with `()`; when `.set(...)` changes it, Angular updates the page. zone.js tells Angular when something happened (a click, an HTTP answer), so it can check the page.
-- **How does routing work?** `app.routes.ts` maps `/food-items`, `/add-food-item`, `/edit-food-item/:id`, `/categories`, `/storage-locations` to components; `withComponentInputBinding()` puts `:id` into `@Input() id`; the page appears in `<router-outlet />`.
+- **How does routing work?** `app.routes.ts` maps `/food-items`, `/add-food-item`, `/edit-food-item/:id`, `/categories`, `/storage-locations` to components, and `**` sends any other address to the list; `withComponentInputBinding()` puts `:id` into `@Input() id`; the page appears in `<router-outlet />`.
 - **What is CORS?** The browser only lets a page call an API on another origin if the API allows it; `UseCors` allows `http://localhost:4200`.
 - **What would you do differently or next?** Login (JWT, Lecture 10), unique names, a deployment, US14 history.
 
@@ -192,3 +192,4 @@ Kept different on purpose:
 | A table with `border` (Lecture 5) | Material cards (Lecture 10) that fit a 360 px phone |
 | One search field (Lecture 10) | two filters, by category and by storage location (US10 asks for them) |
 | Login (Lecture 10) | not built: the roadmap does not plan it; documented as an extension |
+| Routes without a catch-all (Lecture 5) | `{ path: '**', redirectTo: '/food-items' }`: a wrong address opens the list instead of an empty page |

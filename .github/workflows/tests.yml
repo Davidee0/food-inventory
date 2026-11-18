@@ -50,12 +50,14 @@ jobs:
           check 200 GET $api/FoodItem
           [ "$(jq -r '.[0].name' body.txt)" = "Chicken breast" ] && [ "$(jq -r '.[-1].name' body.txt)" = "Rice" ] || { echo "FAIL sort order"; fail=1; }
           check 200 GET $api/FoodItem/1
+          check 200 GET $api/FoodItem/2
+          [ "$(jq -r '.name' body.txt)" = "Milk" ] || { echo "FAIL the example ids follow the list order"; fail=1; }
           check 404 GET $api/FoodItem/999
           check 200 POST $api/FoodItem "{\"id\":0,\"name\":\"Bread\",\"quantity\":2,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":3}"
           check 400 POST $api/FoodItem "{\"id\":0,\"name\":\"\",\"quantity\":0,\"purchaseDate\":\"$today\",\"storageLocationId\":3}"
           grep -q "Name is required" body.txt || { echo "FAIL 400 message"; fail=1; }
           check 400 POST $api/FoodItem "{\"id\":0,\"name\":\"Bread\",\"quantity\":1,\"purchaseDate\":\"2026-11-10\",\"bestBeforeDate\":\"2026-11-01\",\"storageLocationId\":3}"
-          check 200 PUT $api/FoodItem "{\"id\":3,\"name\":\"Milk\",\"quantity\":3,\"purchaseDate\":\"$today\",\"bestBeforeDate\":\"$today\",\"categoryId\":1,\"storageLocationId\":1}"
+          check 200 PUT $api/FoodItem "{\"id\":2,\"name\":\"Milk\",\"quantity\":3,\"purchaseDate\":\"$today\",\"bestBeforeDate\":\"$today\",\"categoryId\":1,\"storageLocationId\":1}"
           check 404 PUT $api/FoodItem "{\"id\":999,\"name\":\"Milk\",\"quantity\":1,\"purchaseDate\":\"$today\",\"bestBeforeDate\":null,\"categoryId\":null,\"storageLocationId\":1}"
           check 204 DELETE $api/FoodItem/13
           check 404 DELETE $api/FoodItem/13
