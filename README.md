@@ -1,7 +1,5 @@
 # Food inventory
 
-[![Live demo](https://img.shields.io/badge/Live%20demo-coming%20soon-lightgrey)](#live-demo)
-
 Track the food you have at home: add groceries when you buy them, see what should be eaten first, tap **Ate one** when you eat something. No login: one shared inventory for the household.
 
 Why: in 2022 the world wasted 1.05 billion tonnes of food, and 60% of it in households ([UNEP Food Waste Index Report 2024](https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report)). Seeing what you have, soonest best before date first, helps a household eat it in time. Design (wireframes, UI design, prototype): [Figma](https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9).
@@ -15,14 +13,12 @@ Group project for the CBS course *Designing and Developing Digital Business Appl
 | Document | What is in it |
 |---|---|
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Product Goal, personas, user stories US1 to US14 with their status and acceptance criteria, Definition of Done |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, ER model, one request from click to database and back, API, validation layers, security (and what a login would add), strengths and limitations, likely exam questions, where each lecture is in the code |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Layers, ER model, one request from click to database and back, API, validation layers, security (and what a login would add), strengths and limitations, where each lecture is in the code and what is different on purpose |
 | [docs/TESTING.md](docs/TESTING.md) | How to run the tests, the automated tests, the manual tests with their results, known limitations |
-| [docs/REPORT-AND-EXAM.md](docs/REPORT-AND-EXAM.md) | The report structure mapped to this project, the learning objectives, the exam-day checklist and demo script |
 
 ## Table of contents
 
 - [Project documents](#project-documents)
-- [Live demo](#live-demo)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Structure](#structure)
@@ -40,13 +36,7 @@ Group project for the CBS course *Designing and Developing Digital Business Appl
 - [Course concepts in this project](#course-concepts-in-this-project)
 - [Credits](#credits)
 
-## Live demo
-
-Not deployed yet. The app runs on your own computer (see [Installation](#installation)). A deployment (for example with the cloud credits of the GitHub Student Developer Pack) can be linked here later: `https://<to be added>`.
-
 ## Architecture
-
-![Architecture: users, Angular frontend, ASP.NET Core Web API, PostgreSQL](docs/architecture.gif)
 
 ```
             ┌──────────────────────────────────┐  JSON over HTTP  ┌──────────────────────────────┐   SQL   ┌────────────┐
@@ -79,7 +69,7 @@ food-inventory
 ├── Database
 │   ├── setup.sql              one command: creates the database if missing, then runs food_inventory.sql
 │   └── food_inventory.sql     the 3 tables and the example rows
-├── docs                       BACKLOG, ARCHITECTURE, TESTING, REPORT-AND-EXAM and the pictures of this README
+├── docs                       BACKLOG, ARCHITECTURE, TESTING and the pictures of this README
 ├── .github/workflows          tests.yml: the tests on every pull request (GitHub Actions)
 ├── Backend
 │   ├── FoodInventory.slnx
@@ -182,9 +172,7 @@ ng test --watch=false
 
 ## Screenshots
 
-Taken from the running app at phone width (360 px). The whole walk-through as an animation:
-
-<img src="docs/demo.gif" width="300" alt="The app at phone width: list, filters, add, edit, Ate one, delete, categories, storage locations">
+Taken from the running app at phone width (360 px).
 
 | My food: sorted by best before date, with the expiry warning | Filters by category and storage location |
 |---|---|

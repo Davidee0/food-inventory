@@ -145,29 +145,11 @@ Households waste the most food: 60% of the 1.05 billion tonnes wasted in 2022 (U
 - **Mobile:** text 16 px (phones zoom in on smaller form text), buttons and fields at least 44 px, no sideways scrolling at 360 px, one column of at most 430 px.
 - **Less is more:** no library, file or abstraction that a story does not need. No Entity Framework (the course uses plain SQL with Npgsql).
 
-## Likely oral-exam questions
-
-- **What is a Web API, and why REST?** A contract over HTTP: endpoints, methods, JSON in and out, status codes. REST uses the standard methods: GET reads, POST creates, PUT updates, DELETE deletes; it is stateless. See `Controllers/`.
-- **Walk through what happens when you add a food item.** See [One request](#one-request-from-click-to-database-and-back-adding-a-food-item).
-- **What does a repository do?** It holds all the SQL for one table. `BaseRepository` (from the course) opens the connection and runs the command; controllers never write SQL.
-- **Where is dependency injection?** `builder.Services.AddScoped<FoodItemRepository, FoodItemRepository>()` in `Program.cs`. ASP.NET Core creates one repository per request and passes it to the controller's constructor; in the tests Moq passes a fake one.
-- **What do `[ApiController]` and `[Route("api/[controller]")]` do?** An invalid body gets a 400 automatically, and the URL comes from the class name: `FoodItemController` is `/api/FoodItem`.
-- **Why `virtual` in the repositories?** Moq can only replace virtual methods (Lecture 9: the first test fails without it).
-- **What happens when you delete a category that still has food?** The foreign key refuses; the controller catches the PostgreSQL error and answers 409 with "Dairy still has food in it, so it cannot be deleted."; the page shows it in a red snackbar.
-- **Why validate in the form, the API and the database?** The form gives quick feedback but can be skipped (Swagger, Postman); the API enforces the rules for every client; the database is the last guard against a bug or a script.
-- **How do the components talk to each other?** `@Input() foodItem` passes data from the list to the card; `@Output() changed` tells the list to load the food again after Ate one or Delete. The services are shared by all components.
-- **What is two-way binding?** `[(ngModel)]` keeps a field and a variable equal in both directions (`edit-food-item.html`, the filters, the category names).
-- **Template-driven or reactive form?** The edit form is template-driven (Lecture 7: `required`, `#name="ngModel"`); the add form is reactive (Lecture 8: `FormControl`, `Validators`, `mat-error`).
-- **What is a signal, and what does zone.js do?** A signal is a value the template reads with `()`; when `.set(...)` changes it, Angular updates the page. zone.js tells Angular when something happened (a click, an HTTP answer), so it can check the page.
-- **How does routing work?** `app.routes.ts` maps `/food-items`, `/add-food-item`, `/edit-food-item/:id`, `/categories`, `/storage-locations` to components, and `**` sends any other address to the list; `withComponentInputBinding()` puts `:id` into `@Input() id`; the page appears in `<router-outlet />`.
-- **What is CORS?** The browser only lets a page call an API on another origin if the API allows it; `UseCors` allows `http://localhost:4200`.
-- **What would you do differently or next?** Login (JWT, Lecture 10), unique names, a deployment, US14 history.
-
 ## Where each lecture shows up in the code
 
 | Lecture | The course | In this project |
 |---|---|---|
-| L01 | Layered architecture, REST API; Scrum; CI/CD with automated testing; the project (report max 10 pages, oral exam) | [Layers](#layers); [BACKLOG.md](BACKLOG.md); `.github/workflows/tests.yml`; [REPORT-AND-EXAM.md](REPORT-AND-EXAM.md) |
+| L01 | Layered architecture, REST API; Scrum; CI/CD with automated testing | [Layers](#layers); [BACKLOG.md](BACKLOG.md); `.github/workflows/tests.yml` |
 | L02 | User stories, INVEST, acceptance criteria, Definition of Done; wireframes, UI design, prototype; mobile first; loading and error states; privacy, SQL injection, XSS, accessibility | [BACKLOG.md](BACKLOG.md); Figma (link in the README); 360 px layout; "Loading...", empty and error states; [Security](#security) |
 | L03 | Tables with primary and foreign keys, `check` and `on delete` (`CreateTables-DDL.sql` with its test data; the ShoeX dataset) | `Database/food_inventory.sql`, in the same style: the keys and checks inside `create table` |
 | L04 | `dotnet new sln`, `webapi --use-controllers`, `classlib` `.Model`; Npgsql; `AppProgDb` in `appsettings.json`; `BaseRepository`; entity with an `(int id)` constructor and `DateOnly`; repository; controller; `AddScoped`; `<Nullable>disable</Nullable>`; no `UseHttpsRedirection`; Swagger with `Swashbuckle.AspNetCore` and `Swashbuckle.AspNetCore.SwaggerUI`, `launchUrl` swagger; the course database from `SQLScriptForDatabase.sql` in pgAdmin's Query Tool | `Backend/FoodInventory.slnx`, `FoodInventory.API`, `FoodInventory.Model`, `Program.cs`, `Properties/launchSettings.json`; `Database/food_inventory.sql` (runs the same way in pgAdmin's Query Tool) |
