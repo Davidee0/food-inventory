@@ -95,7 +95,7 @@ The controllers follow the course's `TeacherController` (Exercise 6.2): `NotFoun
 
 | Rule | Form (client) | API (server) | Database |
 |---|---|---|---|
-| Name required, not only spaces | `Validators.required` + `pattern('.*\\S.*')` (add), `required pattern=".*\S.*"` (edit) | `[Required]` | `not null check (name <> '')` |
+| Name required, not only spaces | `Validators.required` + `pattern('.*\\S.*')` (add), `required pattern=".*\S.*"` (edit); spaces at the ends are removed with `trim()` before saving | `[Required]` | `not null check (name <> '')` |
 | Name at most 50 / 30 characters | `Validators.maxLength(50)`, `maxlength` | `[StringLength(50)]`, `[StringLength(30)]` | `varchar(50)`, `varchar(30)` |
 | Quantity at least 1 | `pattern('[1-9][0-9]*')` | `[Range(1, int.MaxValue)]` | `check (quantity > 0)` |
 | Purchase date required | `Validators.required`, `required` | `[Required] DateOnly?` | `not null` |

@@ -27,8 +27,8 @@ Before the manual tests: the database from `Database/setup.sql` (on a fresh data
 
 | Command | What it tests | Result (18 November 2026) |
 |---|---|---|
-| `dotnet test` in `Backend/` | 24 xUnit tests with Moq (Lecture 9), 8 per controller: GET found (200) and not found (404), GET all (200), POST without a body (400), POST (200), PUT for an unknown id (404), DELETE (204); plus the date rule (400) for `FoodItemController` and the 409 when a category or storage location still has food | 24 passed |
-| `ng test --watch=false --browsers=ChromeHeadless` in `Frontend/FoodInventory.NG/` | 18 Karma and Jasmine tests: one spec per component and service as `ng generate` makes them, fixed as in Lecture 9 (`provideRouter([])`, `provideHttpClient()`, `provideHttpClientTesting()`, a mock food item for `@Input()`, `HttpTestingController` for the edit form); the toolbar title; the expiry warning (none without a date, "Expired" yesterday, "Eat soon" today and in 3 days, none in 4 days); the edit form shows the food item from the mocked API; `deleteFoodItem` sends DELETE to `/api/fooditem/7` | 18 passed (also with `TZ=Pacific/Auckland`) |
+| `dotnet test` in `Backend/` | 27 xUnit tests with Moq (Lecture 9). For every controller: GET found (200) and not found (404), GET all (200), POST without a body (400), POST (200), PUT for an unknown id (404), DELETE (204). Plus the 409 when a category or storage location still has food, and for `FoodItemController` the date rule on POST and PUT (400), PUT (200) and DELETE for an unknown id (404) | 27 passed |
+| `ng test --watch=false --browsers=ChromeHeadless` in `Frontend/FoodInventory.NG/` | 22 Karma and Jasmine tests: one spec per component and service as `ng generate` makes them, fixed as in Lecture 9 (`provideRouter([])`, `provideHttpClient()`, `provideHttpClientTesting()`, a mock food item for `@Input()`, `HttpTestingController` for the edit form); the toolbar title; the expiry warning (none without a date, "Expired" yesterday, "Eat soon" today and in 3 days, none in 4 days); the edit form shows the food item from the mocked API; `deleteFoodItem` sends DELETE to `/api/fooditem/7`; the two filters together (US10); a name of only spaces and a best before date before the purchase date are refused (US5); Ate one sends PUT with one less (US7) | 22 passed (also with `TZ=Pacific/Auckland`) |
 | `ng build` | the production build compiles | passes |
 | `dotnet build` | the backend compiles | 0 warnings, 0 errors |
 
@@ -91,6 +91,7 @@ Result column: our own run on 18 November 2026 (Chromium at 360 x 740 for the fr
 | F15 | The browser console during F1 to F13 | No errors, apart from the browser's own "Failed to load resource: 409 (Conflict)" line for the two refused deletes | Pass |
 | F16 | Stop the API, then Delete a category | Red snackbar "Failed to delete the category" (the 409 text only comes from the API) | Pass |
 | F17 | Open http://localhost:4200/nothing-here | The list opens (`/food-items`), no console error | Pass |
+| F18 | Add the category "  Snacks  " (spaces before and after), then rename it to " Sweets " | Saved as "Snacks", then "Sweets", without the spaces | Pass |
 
 ## Known limitations (for the reflection in the report)
 
