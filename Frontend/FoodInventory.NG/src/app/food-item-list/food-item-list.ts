@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { FoodItem } from '../model/food-item';
 import { Category } from '../model/category';
 import { StorageLocation } from '../model/storage-location';
@@ -10,10 +12,11 @@ import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
 import { FoodItemCard } from '../food-item-card/food-item-card';
 
-// The start page (US2, US10): the food from the API, two filters and one card per food item (Lecture 5: list and card).
+// The start page (US2, US10): the food from the API, two filters and one card per food item
+// (Lecture 5: list and card; Lecture 10: Search/Filter).
 @Component({
   selector: 'app-food-item-list',
-  imports: [FormsModule, RouterLink, MatButtonModule, FoodItemCard],
+  imports: [FormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatSelectModule, FoodItemCard],
   templateUrl: './food-item-list.html',
   styleUrl: './food-item-list.css',
 })

@@ -5,6 +5,7 @@ using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
+// Like TeacherController (Exercise 6.2): /api/FoodItem
 // Lecture 4: a Web API is consumed by systems (here the Angular app and Swagger). The data travels as JSON.
 [Route("api/[controller]")]
 [ApiController]
@@ -23,7 +24,7 @@ public class FoodItemController : ControllerBase
         FoodItem foodItem = Repository.GetFoodItemById(id);
         if (foodItem == null)
         {
-            return NotFound($"Food item with id {id} not found");
+            return NotFound();
         }
         return Ok(foodItem);
     }
@@ -37,15 +38,23 @@ public class FoodItemController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] FoodItem foodItem)
     {
-        // Business rule that compares two fields (Lecture 7: cross field validation).
+        if (foodItem == null)
+        {
+            return BadRequest("Food item info not correct");
+        }
+        // Business rule that compares two fields (Lecture 7: cross-field validation).
         if (foodItem.BestBeforeDate < foodItem.PurchaseDate)
         {
             return BadRequest("Best before date cannot be before the purchase date");
         }
         try
         {
-            Repository.InsertFoodItem(foodItem);
-            return Ok();
+            bool status = Repository.InsertFoodItem(foodItem);
+            if (status)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {
@@ -57,7 +66,12 @@ public class FoodItemController : ControllerBase
     [HttpPut]
     public ActionResult UpdateFoodItem([FromBody] FoodItem foodItem)
     {
-        if (Repository.GetFoodItemById(foodItem.Id) == null)
+        if (foodItem == null)
+        {
+            return BadRequest("Food item info not correct");
+        }
+        FoodItem existingFoodItem = Repository.GetFoodItemById(foodItem.Id);
+        if (existingFoodItem == null)
         {
             return NotFound($"Food item with id {foodItem.Id} not found");
         }
@@ -67,8 +81,12 @@ public class FoodItemController : ControllerBase
         }
         try
         {
-            Repository.UpdateFoodItem(foodItem);
-            return Ok();
+            bool status = Repository.UpdateFoodItem(foodItem);
+            if (status)
+            {
+                return Ok();
+            }
+            return BadRequest("Something went wrong");
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {
@@ -79,11 +97,16 @@ public class FoodItemController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteFoodItem([FromRoute] int id)
     {
-        if (Repository.GetFoodItemById(id) == null)
+        FoodItem existingFoodItem = Repository.GetFoodItemById(id);
+        if (existingFoodItem == null)
         {
             return NotFound($"Food item with id {id} not found");
         }
-        Repository.DeleteFoodItem(id);
-        return NoContent();
+        bool status = Repository.DeleteFoodItem(id);
+        if (status)
+        {
+            return NoContent();
+        }
+        return BadRequest($"Unable to delete food item with id {id}");
     }
 }

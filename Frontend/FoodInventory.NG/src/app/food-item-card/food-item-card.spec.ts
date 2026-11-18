@@ -1,11 +1,16 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { formatDate } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { FoodItemCard } from './food-item-card';
+import { FoodItem } from '../model/food-item';
 
-// Lecture 9: unit tests for the expiry warning (US11).
+// Lecture 9: the generated test, fixed with the providers and a mock food item for @Input() (slide 46),
+// plus our own tests for the expiry warning (US11).
 describe('FoodItemCard', () => {
-  let card: FoodItemCard;
+  let component: FoodItemCard;
+  let fixture: ComponentFixture<FoodItemCard>;
 
   // The local date, some days from today, as "YYYY-MM-DD".
   function day(daysFromToday: number): string {
@@ -14,38 +19,47 @@ describe('FoodItemCard', () => {
     return formatDate(date, 'yyyy-MM-dd', 'en');
   }
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [FoodItemCard], providers: [provideHttpClient()] });
-    card = TestBed.createComponent(FoodItemCard).componentInstance;
-    card.foodItem = {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FoodItemCard],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FoodItemCard);
+    component = fixture.componentInstance;
+    component.foodItem = {
       id: 1,
       name: 'Milk',
       quantity: 1,
       purchaseDate: day(-5),
       bestBeforeDate: null,
-      categoryId: null,
       storageLocationId: 1,
-    };
+    } as FoodItem;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
   it('should not warn when there is no best before date', () => {
-    expect(card.warning()).toBe('');
+    expect(component.warning()).toBe('');
   });
 
   it('should warn "Expired" when the best before date was yesterday', () => {
-    card.foodItem.bestBeforeDate = day(-1);
-    expect(card.warning()).toBe('Expired');
+    component.foodItem.bestBeforeDate = day(-1);
+    expect(component.warning()).toBe('Expired');
   });
 
   it('should warn "Eat soon" from today up to 3 days ahead', () => {
-    card.foodItem.bestBeforeDate = day(0);
-    expect(card.warning()).toBe('Eat soon');
-    card.foodItem.bestBeforeDate = day(3);
-    expect(card.warning()).toBe('Eat soon');
+    component.foodItem.bestBeforeDate = day(0);
+    expect(component.warning()).toBe('Eat soon');
+    component.foodItem.bestBeforeDate = day(3);
+    expect(component.warning()).toBe('Eat soon');
   });
 
   it('should not warn when the best before date is 4 days ahead', () => {
-    card.foodItem.bestBeforeDate = day(4);
-    expect(card.warning()).toBe('');
+    component.foodItem.bestBeforeDate = day(4);
+    expect(component.warning()).toBe('');
   });
 });

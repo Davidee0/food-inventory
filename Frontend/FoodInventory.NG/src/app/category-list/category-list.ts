@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { Category } from '../model/category';
 import { CategoryService } from '../services/category-service';
+import { NotificationService } from '../services/notification-service';
 
 // Categories (US9): rename with two-way data binding, add and delete.
 @Component({
@@ -11,10 +12,12 @@ import { CategoryService } from '../services/category-service';
   templateUrl: './category-list.html',
 })
 export class CategoryList implements OnInit {
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private notification: NotificationService,
+  ) {}
 
   categories = signal<Category[]>([]);
-  message = signal('');
   newName: string = ''; // two-way bound to the "New category" field
 
   ngOnInit(): void {
@@ -26,26 +29,32 @@ export class CategoryList implements OnInit {
   }
 
   addCategory(): void {
-    this.categoryService.addCategory({ id: 0, name: this.newName }).subscribe(() => {
-      this.message.set(`${this.newName} added`);
-      this.newName = '';
-      this.loadCategories();
+    this.categoryService.addCategory({ id: 0, name: this.newName }).subscribe({
+      next: () => {
+        this.notification.showSuccess(`${this.newName} added`);
+        this.newName = '';
+        this.loadCategories();
+      },
+      error: () => this.notification.showError('Failed to add the category'),
     });
   }
 
   updateCategory(category: Category): void {
-    this.categoryService.updateCategory(category).subscribe(() => this.message.set(`${category.name} saved`));
+    this.categoryService.updateCategory(category).subscribe({
+      next: () => this.notification.showSuccess(`${category.name} saved`),
+      error: () => this.notification.showError('Failed to save the category'),
+    });
   }
 
-  // The API refuses to delete a category that still has food in it (409) and says why; the page shows that message.
+  // The API refuses to delete a category that still has food in it (409) and says why; the snackbar shows that message.
   deleteCategory(category: Category): void {
     if (confirm(`Delete ${category.name}?`)) {
       this.categoryService.deleteCategory(category.id).subscribe({
         next: () => {
-          this.message.set(`${category.name} deleted`);
+          this.notification.showSuccess(`${category.name} deleted`);
           this.loadCategories();
         },
-        error: (error) => this.message.set(error.error),
+        error: (error) => this.notification.showError(error.error),
       });
     }
   }

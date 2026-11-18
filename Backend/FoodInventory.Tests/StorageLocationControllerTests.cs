@@ -4,8 +4,10 @@ using FoodInventory.API.Controllers;
 using FoodInventory.Model.Entities;
 using FoodInventory.Model.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Npgsql;
 
+// Lecture 9: the same tests as for StudentController, plus the 409 when the storage location still has food.
 public class StorageLocationControllerTests
 {
     private readonly Mock<StorageLocationRepository> _repoMock;
@@ -20,7 +22,8 @@ public class StorageLocationControllerTests
     [Fact]
     public void GetStorageLocation_ReturnsOk_WhenStorageLocationExists()
     {
-        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(new StorageLocation(1) { Name = "Fridge" });
+        var storageLocation = new StorageLocation(1) { Name = "Fridge" };
+        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(storageLocation);
         var result = _controller.GetStorageLocation(1);
         Assert.IsType<OkObjectResult>(result.Result);
     }
@@ -30,13 +33,48 @@ public class StorageLocationControllerTests
     {
         _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns((StorageLocation)null);
         var result = _controller.GetStorageLocation(1);
-        Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
-    public void DeleteStorageLocation_ReturnsNoContent_WhenStorageLocationIsEmpty()
+    public void GetStorageLocations_ReturnsOk_WithListOfStorageLocations()
     {
-        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(new StorageLocation(1) { Name = "Fridge" });
+        var storageLocations = new List<StorageLocation> { new StorageLocation(1), new StorageLocation(2) };
+        _repoMock.Setup(r => r.GetStorageLocations()).Returns(storageLocations);
+        var result = _controller.GetStorageLocations();
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public void Post_ReturnsBadRequest_WhenStorageLocationIsNull()
+    {
+        var result = _controller.Post(null);
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
+    public void Post_ReturnsOk_WhenInsertSucceeds()
+    {
+        var storageLocation = new StorageLocation(0) { Name = "Balcony" };
+        _repoMock.Setup(r => r.InsertStorageLocation(storageLocation)).Returns(true);
+        var result = _controller.Post(storageLocation);
+        Assert.IsType<OkResult>(result);
+    }
+
+    [Fact]
+    public void UpdateStorageLocation_ReturnsNotFound_WhenStorageLocationDoesNotExist()
+    {
+        var storageLocation = new StorageLocation(1);
+        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns((StorageLocation)null);
+        var result = _controller.UpdateStorageLocation(storageLocation);
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public void DeleteStorageLocation_ReturnsNoContent_WhenDeleteSucceeds()
+    {
+        var storageLocation = new StorageLocation(1) { Name = "Fridge" };
+        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(storageLocation);
         _repoMock.Setup(r => r.DeleteStorageLocation(1)).Returns(true);
         var result = _controller.DeleteStorageLocation(1);
         Assert.IsType<NoContentResult>(result);
@@ -46,7 +84,8 @@ public class StorageLocationControllerTests
     [Fact]
     public void DeleteStorageLocation_ReturnsConflict_WhenStorageLocationStillHasFood()
     {
-        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(new StorageLocation(1) { Name = "Fridge" });
+        var storageLocation = new StorageLocation(1) { Name = "Fridge" };
+        _repoMock.Setup(r => r.GetStorageLocationById(1)).Returns(storageLocation);
         _repoMock.Setup(r => r.DeleteStorageLocation(1))
             .Throws(new PostgresException("still referenced", "ERROR", "ERROR", "23503"));
         var result = _controller.DeleteStorageLocation(1);

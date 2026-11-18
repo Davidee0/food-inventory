@@ -1,19 +1,18 @@
-<!-- Lecture 8: Angular Material toolbar with a menu of router links. -->
+<!-- Lecture 8 and 10: Angular Material toolbar with a menu of router links. -->
 <mat-toolbar>
-  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Menu">
+  <button mat-icon-button aria-label="Open main menu" [matMenuTriggerFor]="menu">
     <mat-icon>menu</mat-icon>
   </button>
+  <mat-menu #menu="matMenu">
+    <button routerLink="/food-items" mat-menu-item>My food</button>
+    <button routerLink="/add-food-item" mat-menu-item>Add food</button>
+    <button routerLink="/categories" mat-menu-item>Categories</button>
+    <button routerLink="/storage-locations" mat-menu-item>Storage locations</button>
+  </mat-menu>
   <span>{{ title() }}</span>
   <span class="spacer"></span>
-  <a mat-button routerLink="/add-food-item">Add food</a>
+  <button routerLink="/add-food-item" mat-button>Add food</button>
 </mat-toolbar>
-
-<mat-menu #menu="matMenu">
-  <button mat-menu-item routerLink="/food-items">My food</button>
-  <button mat-menu-item routerLink="/add-food-item">Add food</button>
-  <button mat-menu-item routerLink="/categories">Categories</button>
-  <button mat-menu-item routerLink="/storage-locations">Storage locations</button>
-</mat-menu>
 
 <!-- The router shows the component that belongs to the address (app.routes.ts). -->
 <main>

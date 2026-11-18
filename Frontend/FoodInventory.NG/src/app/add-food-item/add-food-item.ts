@@ -11,8 +11,9 @@ import { StorageLocation } from '../model/storage-location';
 import { FoodItemService } from '../services/food-item-service';
 import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
+import { NotificationService } from '../services/notification-service';
 
-// Lecture 8: a reactive form with Angular Material, like add-student.
+// Lecture 8: a reactive form with Angular Material, like add-student (with the snackbars of Lecture 10).
 @Component({
   selector: 'app-add-food-item',
   imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
@@ -24,11 +25,11 @@ export class AddFoodItem implements OnInit {
     private categoryService: CategoryService,
     private storageLocationService: StorageLocationService,
     private router: Router,
+    private notification: NotificationService,
   ) {}
 
   categories = signal<Category[]>([]);
   storageLocations = signal<StorageLocation[]>([]);
-  message = signal('');
 
   // Lecture 7: client-side validation. The API checks the same with [Required] and [Range],
   // the database with not null and check.
@@ -69,6 +70,7 @@ export class AddFoodItem implements OnInit {
 
   addFoodItem(): void {
     if (!this.foodItemFormGroup.valid || this.bestBeforeTooEarly()) {
+      this.notification.showError('Please fill in all required fields');
       console.log('Data not valid');
       return;
     }
@@ -83,9 +85,12 @@ export class AddFoodItem implements OnInit {
         bestBeforeDate: this.bestBeforeDate.value || null, // an empty date field is '', the API wants null
       })
       .subscribe({
-        next: () => this.router.navigate(['food-items']),
+        next: () => {
+          this.notification.showSuccess(`${this.name.value} added`);
+          this.router.navigate(['/food-items']);
+        },
         error: (error) => {
-          this.message.set('The food item could not be saved. Check the fields and that the API is running.');
+          this.notification.showError('Failed to add the food item. Check that the API is running.');
           console.error('Something went wrong: ', error);
         },
       });

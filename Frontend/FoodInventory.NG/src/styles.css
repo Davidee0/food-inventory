@@ -66,3 +66,12 @@ a.mat-mdc-button-base {
   border: 2px solid #242424;
   background: #f5c400;
 }
+
+/* Lecture 10: the colours of the two snackbars of NotificationService (panelClass). */
+.success-snackbar {
+  --mat-snack-bar-container-color: #242424;
+}
+
+.error-snackbar {
+  --mat-snack-bar-container-color: #a3200f;
+}

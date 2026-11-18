@@ -4,6 +4,7 @@ using FoodInventory.API.Controllers;
 using FoodInventory.Model.Entities;
 using FoodInventory.Model.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 // Lecture 9: unit tests with xUnit and Moq, like StudentControllerTests.
 // The repository is mocked, so the tests need no database.
@@ -32,7 +33,7 @@ public class FoodItemControllerTests
     {
         _repoMock.Setup(r => r.GetFoodItemById(1)).Returns((FoodItem)null);
         var result = _controller.GetFoodItem(1);
-        Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.IsType<NotFoundResult>(result.Result);
     }
 
     [Fact]
@@ -45,6 +46,13 @@ public class FoodItemControllerTests
     }
 
     [Fact]
+    public void Post_ReturnsBadRequest_WhenFoodItemIsNull()
+    {
+        var result = _controller.Post(null);
+        Assert.IsType<BadRequestObjectResult>(result);
+    }
+
+    [Fact]
     public void Post_ReturnsOk_WhenInsertSucceeds()
     {
         var foodItem = new FoodItem(0) { Name = "Milk", Quantity = 1 };
@@ -53,6 +61,7 @@ public class FoodItemControllerTests
         Assert.IsType<OkResult>(result);
     }
 
+    // Lecture 7: the cross-field rule in the backend.
     [Fact]
     public void Post_ReturnsBadRequest_WhenBestBeforeDateIsBeforePurchaseDate()
     {

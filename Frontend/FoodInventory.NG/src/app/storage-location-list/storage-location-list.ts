@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { StorageLocation } from '../model/storage-location';
 import { StorageLocationService } from '../services/storage-location-service';
+import { NotificationService } from '../services/notification-service';
 
 // Storage locations (US13): the same as the categories.
 @Component({
@@ -11,10 +12,12 @@ import { StorageLocationService } from '../services/storage-location-service';
   templateUrl: './storage-location-list.html',
 })
 export class StorageLocationList implements OnInit {
-  constructor(private storageLocationService: StorageLocationService) {}
+  constructor(
+    private storageLocationService: StorageLocationService,
+    private notification: NotificationService,
+  ) {}
 
   storageLocations = signal<StorageLocation[]>([]);
-  message = signal('');
   newName: string = ''; // two-way bound to the "New storage location" field
 
   ngOnInit(): void {
@@ -28,29 +31,33 @@ export class StorageLocationList implements OnInit {
   }
 
   addStorageLocation(): void {
-    this.storageLocationService.addStorageLocation({ id: 0, name: this.newName }).subscribe(() => {
-      this.message.set(`${this.newName} added`);
-      this.newName = '';
-      this.loadStorageLocations();
+    this.storageLocationService.addStorageLocation({ id: 0, name: this.newName }).subscribe({
+      next: () => {
+        this.notification.showSuccess(`${this.newName} added`);
+        this.newName = '';
+        this.loadStorageLocations();
+      },
+      error: () => this.notification.showError('Failed to add the storage location'),
     });
   }
 
   updateStorageLocation(storageLocation: StorageLocation): void {
-    this.storageLocationService
-      .updateStorageLocation(storageLocation)
-      .subscribe(() => this.message.set(`${storageLocation.name} saved`));
+    this.storageLocationService.updateStorageLocation(storageLocation).subscribe({
+      next: () => this.notification.showSuccess(`${storageLocation.name} saved`),
+      error: () => this.notification.showError('Failed to save the storage location'),
+    });
   }
 
   // The API refuses to delete a storage location that still has food in it (409) and says why;
-  // the page shows that message.
+  // the snackbar shows that message.
   deleteStorageLocation(storageLocation: StorageLocation): void {
     if (confirm(`Delete ${storageLocation.name}?`)) {
       this.storageLocationService.deleteStorageLocation(storageLocation.id).subscribe({
         next: () => {
-          this.message.set(`${storageLocation.name} deleted`);
+          this.notification.showSuccess(`${storageLocation.name} deleted`);
           this.loadStorageLocations();
         },
-        error: (error) => this.message.set(error.error),
+        error: (error) => this.notification.showError(error.error),
       });
     }
   }

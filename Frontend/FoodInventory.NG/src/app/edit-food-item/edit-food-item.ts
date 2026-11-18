@@ -8,6 +8,7 @@ import { StorageLocation } from '../model/storage-location';
 import { FoodItemService } from '../services/food-item-service';
 import { CategoryService } from '../services/category-service';
 import { StorageLocationService } from '../services/storage-location-service';
+import { NotificationService } from '../services/notification-service';
 
 // Lecture 7: a template-driven form with two-way data binding, like edit-student.
 @Component({
@@ -21,6 +22,7 @@ export class EditFoodItem implements OnInit {
     private categoryService: CategoryService,
     private storageLocationService: StorageLocationService,
     private router: Router,
+    private notification: NotificationService,
   ) {}
 
   @Input() id!: number; // from the route edit-food-item/:id
@@ -29,13 +31,12 @@ export class EditFoodItem implements OnInit {
   foodItem = signal<FoodItem | undefined>(undefined);
   categories = signal<Category[]>([]);
   storageLocations = signal<StorageLocation[]>([]);
-  message = signal('');
 
   ngOnInit(): void {
     this.foodItemService.getFoodItem(this.id).subscribe({
       next: (foodItem) => this.foodItem.set(foodItem),
       error: (error) => {
-        this.message.set('This food item could not be loaded.');
+        this.notification.showError('This food item could not be loaded.');
         console.error('API error fetching food item', error);
       },
     });
@@ -50,15 +51,18 @@ export class EditFoodItem implements OnInit {
     return !!foodItem.bestBeforeDate && foodItem.bestBeforeDate < foodItem.purchaseDate;
   }
 
-  // PUT sends the whole food item, id included.
+  // PUT sends the whole food item, id included. Lecture 10 ("Fix Navigation Bug"): back to the list with "/".
   updateFoodItem(foodItem: FoodItem): void {
     if (!foodItem.bestBeforeDate) {
       foodItem.bestBeforeDate = null; // an emptied date field is '', the API wants null
     }
     this.foodItemService.updateFoodItem(foodItem).subscribe({
-      next: () => this.router.navigate(['food-items']),
+      next: () => {
+        this.notification.showSuccess(`${foodItem.name} saved`);
+        this.router.navigate(['/food-items']);
+      },
       error: (error) => {
-        this.message.set('The food item could not be saved. Check the fields and that the API is running.');
+        this.notification.showError('The food item could not be saved. Check that the API is running.');
         console.error('Something went wrong: ', error);
       },
     });

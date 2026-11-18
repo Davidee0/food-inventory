@@ -1,9 +1,9 @@
+namespace FoodInventory.Model.Repositories;
+
 using Npgsql;
 using Microsoft.Extensions.Configuration;
 
-namespace FoodInventory.Model.Repositories;
-
-// The course's BaseRepository (CourseAdminSystem): every repository inherits the connection string and these helpers.
+// The course's BaseRepository (Lecture 4, slide 34): every repository inherits the connection string and these helpers.
 public class BaseRepository
 {
     protected string ConnectionString { get; }

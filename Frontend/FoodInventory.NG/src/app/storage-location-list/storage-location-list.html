@@ -1,9 +1,5 @@
 <h2>Storage locations</h2>
 
-@if (message()) {
-  <p class="message">{{ message() }}</p>
-}
-
 @for (storageLocation of storageLocations(); track storageLocation.id) {
   <div class="row">
     <input type="text" [(ngModel)]="storageLocation.name" maxlength="30" aria-label="Storage location name" />

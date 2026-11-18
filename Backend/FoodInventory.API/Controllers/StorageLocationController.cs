@@ -5,6 +5,7 @@ using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
+// Like TeacherController (Exercise 6.2): /api/StorageLocation
 [Route("api/[controller]")]
 [ApiController]
 public class StorageLocationController : ControllerBase
@@ -22,7 +23,7 @@ public class StorageLocationController : ControllerBase
         StorageLocation storageLocation = Repository.GetStorageLocationById(id);
         if (storageLocation == null)
         {
-            return NotFound($"Storage location with id {id} not found");
+            return NotFound();
         }
         return Ok(storageLocation);
     }
@@ -36,19 +37,36 @@ public class StorageLocationController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] StorageLocation storageLocation)
     {
-        Repository.InsertStorageLocation(storageLocation);
-        return Ok();
+        if (storageLocation == null)
+        {
+            return BadRequest("Storage location info not correct");
+        }
+        bool status = Repository.InsertStorageLocation(storageLocation);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest();
     }
 
     [HttpPut]
     public ActionResult UpdateStorageLocation([FromBody] StorageLocation storageLocation)
     {
-        if (Repository.GetStorageLocationById(storageLocation.Id) == null)
+        if (storageLocation == null)
+        {
+            return BadRequest("Storage location info not correct");
+        }
+        StorageLocation existingStorageLocation = Repository.GetStorageLocationById(storageLocation.Id);
+        if (existingStorageLocation == null)
         {
             return NotFound($"Storage location with id {storageLocation.Id} not found");
         }
-        Repository.UpdateStorageLocation(storageLocation);
-        return Ok();
+        bool status = Repository.UpdateStorageLocation(storageLocation);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest("Something went wrong");
     }
 
     // Business rule: a storage location that still has food in it cannot be deleted.
@@ -56,19 +74,23 @@ public class StorageLocationController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteStorageLocation([FromRoute] int id)
     {
-        StorageLocation storageLocation = Repository.GetStorageLocationById(id);
-        if (storageLocation == null)
+        StorageLocation existingStorageLocation = Repository.GetStorageLocationById(id);
+        if (existingStorageLocation == null)
         {
             return NotFound($"Storage location with id {id} not found");
         }
         try
         {
-            Repository.DeleteStorageLocation(id);
-            return NoContent();
+            bool status = Repository.DeleteStorageLocation(id);
+            if (status)
+            {
+                return NoContent();
+            }
+            return BadRequest($"Unable to delete storage location with id {id}");
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {
-            return Conflict($"{storageLocation.Name} still has food in it, so it cannot be deleted.");
+            return Conflict($"{existingStorageLocation.Name} still has food in it, so it cannot be deleted.");
         }
     }
 }

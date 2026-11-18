@@ -59,7 +59,7 @@ Not deployed yet. The app runs on your own computer (see [Installation](#install
 | Backend | ASP.NET Core Web API, C#, .NET 10, Npgsql 10, Swagger (Swashbuckle) |
 | Backend tests | xUnit, Moq |
 | Frontend | Angular 22, TypeScript, Angular Material |
-| Frontend tests | Vitest (the Angular default) |
+| Frontend tests | Karma and Jasmine, in Chrome |
 
 ## Structure
 
@@ -85,9 +85,9 @@ food-inventory
         └── src/app
             ├── http-common.ts          the only place with the address of the API
             ├── model                   interfaces: FoodItem, Category, StorageLocation
-            ├── services                one service per controller
+            ├── services                one service per controller, and notification-service (snackbars)
             ├── food-item-list          start page: filters and the cards
-            ├── food-item-card          one food item with Edit, Ate one, Delete
+            ├── food-item-card          one food item (Material card) with Edit, Ate one, Delete
             ├── add-food-item           reactive form with Angular Material
             ├── edit-food-item          template form with two-way data binding
             ├── category-list           add, rename, delete categories
@@ -159,6 +159,8 @@ cd Frontend/FoodInventory.NG
 ng test --watch=false
 ```
 
+`ng test` opens Chrome through Karma (`karma.conf.js`). Without a screen, add `--browsers=ChromeHeadless`.
+
 ## Screenshots
 
 Taken from the running app at phone width (360 px).
@@ -175,11 +177,11 @@ Taken from the running app at phone width (360 px).
 |---|---|
 | <img src="docs/screenshots/05-edit-validation.png" width="300" alt="Edit form with validation messages"> | <img src="docs/screenshots/06-edit.png" width="300" alt="Edit form"> |
 
-| Ate one: the quantity goes down (the last one is deleted, after a question) | The menu |
+| Ate one: the quantity goes down, a snackbar confirms (the last one is deleted, after a question) | The menu |
 |---|---|
 | <img src="docs/screenshots/07-ate-one.png" width="300" alt="Food list after Ate one"> | <img src="docs/screenshots/08-menu.png" width="300" alt="Menu with My food, Add food, Categories, Storage locations"> |
 
-| Categories: a category that still has food cannot be deleted | Storage locations: the same |
+| Categories: a category that still has food cannot be deleted (the API's message in a snackbar) | Storage locations: the same |
 |---|---|
 | <img src="docs/screenshots/09-category-refused.png" width="300" alt="Categories with the refused delete"> | <img src="docs/screenshots/10-storage-locations.png" width="300" alt="Storage locations with the refused delete"> |
 
@@ -252,7 +254,7 @@ erDiagram
 
 | # | Concept | Where to see it |
 |---|---|---|
-| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ title() }}` in the toolbar, `{{ message() }}` on the pages. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/app.ts` and `app.html`; `food-item-list/food-item-list.ts` and `food-item-list.html` |
+| 1 | **Interpolation** with double curly braces, reading **signals**: `{{ title() }}` in the toolbar, `{{ message() }}` on the food list. What arrives from the API is kept in a signal (`foodItems = signal<FoodItem[]>([])`), set in `subscribe` with `.set(...)` and read as `foodItems()`, so the page is drawn again by itself. | `Frontend/FoodInventory.NG/src/app/app.ts` and `app.html`; `food-item-list/food-item-list.ts` and `food-item-list.html` |
 | 2 | Angular is **component based**: one folder per component; small components talk through `@Input()` (parent to child) and `@Output()` (child to parent). | `food-item-card/food-item-card.ts` (`@Input() foodItem`, `@Output() changed`), used in `food-item-list.html` as `<app-food-item-card [foodItem]="foodItem" (changed)="loadFoodItems()" />` |
 | 3 | The data between frontend and API is **JSON**. | `Frontend/FoodInventory.NG/src/app/http-common.ts` (the JSON headers), `services/food-item-service.ts`; the same JSON in Swagger |
 | 4 | **Websites are consumed by users, Web APIs are consumed by systems.** The Angular app is the website; the ASP.NET Core API is consumed by the Angular app (and by Swagger). | `Frontend/FoodInventory.NG/` (website), `Backend/FoodInventory.API/Controllers/FoodItemController.cs` (API), `services/` (the consumer) |
@@ -265,12 +267,13 @@ More from the lectures:
 | Lecture | Topic | Where to see it |
 |---|---|---|
 | 3 | Tables with primary and foreign keys, `check` | `Database/food_inventory.sql` |
-| 4 | Web API: controllers, repositories on `BaseRepository`, dependency injection (`AddScoped`), Swagger | `Backend/FoodInventory.API`, `Backend/FoodInventory.Model` |
-| 5 | Components, routing | `app.routes.ts`, `food-item-list`, `food-item-card` |
+| 4 | Web API: controllers, repositories on `BaseRepository`, dependency injection (`AddScoped`), Swagger while developing, connection string `AppProgDb` | `Backend/FoodInventory.API`, `Backend/FoodInventory.Model` |
+| 5 | Components, routing, zone.js | `app.routes.ts`, `food-item-list`, `food-item-card`, `main.ts`, `app.config.ts` |
 | 6 | Services with `HttpClient` and Observables, `ngOnInit` + `subscribe`, `@if`, `@for ... track`, CORS | `services/`, every component, `Program.cs` |
 | 7 | Validation in three layers (form, API, database); template form with `[(ngModel)]`, `required`, `#name="ngModel"`; `@Input() id` from the route | `edit-food-item`, the entities, `food_inventory.sql`, `app.config.ts` |
 | 8 | Angular Material: toolbar, menu, card; reactive form with `FormControl`, `Validators`, `mat-form-field`, `mat-error` | `app.html`, `add-food-item` |
-| 9 | Unit tests with xUnit and Moq | `Backend/FoodInventory.Tests` |
+| 9 | Unit tests with xUnit and Moq; Karma and Jasmine with `provideHttpClientTesting` and `HttpTestingController` | `Backend/FoodInventory.Tests`, the `*.spec.ts` files, `karma.conf.js` |
+| 10 | Material cards with icon buttons, confirmation before delete and reload after it, filter with "Showing X of Y", snackbars for feedback, `navigate(["/food-items"])` after Update | `food-item-card`, `food-item-list`, `services/notification-service.ts`, `edit-food-item.ts` |
 
 ## Credits
 

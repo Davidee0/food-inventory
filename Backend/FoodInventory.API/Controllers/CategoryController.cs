@@ -5,6 +5,7 @@ using Npgsql;
 
 namespace FoodInventory.API.Controllers;
 
+// Like TeacherController (Exercise 6.2): /api/Category
 [Route("api/[controller]")]
 [ApiController]
 public class CategoryController : ControllerBase
@@ -22,7 +23,7 @@ public class CategoryController : ControllerBase
         Category category = Repository.GetCategoryById(id);
         if (category == null)
         {
-            return NotFound($"Category with id {id} not found");
+            return NotFound();
         }
         return Ok(category);
     }
@@ -36,19 +37,36 @@ public class CategoryController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] Category category)
     {
-        Repository.InsertCategory(category);
-        return Ok();
+        if (category == null)
+        {
+            return BadRequest("Category info not correct");
+        }
+        bool status = Repository.InsertCategory(category);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest();
     }
 
     [HttpPut]
     public ActionResult UpdateCategory([FromBody] Category category)
     {
-        if (Repository.GetCategoryById(category.Id) == null)
+        if (category == null)
+        {
+            return BadRequest("Category info not correct");
+        }
+        Category existingCategory = Repository.GetCategoryById(category.Id);
+        if (existingCategory == null)
         {
             return NotFound($"Category with id {category.Id} not found");
         }
-        Repository.UpdateCategory(category);
-        return Ok();
+        bool status = Repository.UpdateCategory(category);
+        if (status)
+        {
+            return Ok();
+        }
+        return BadRequest("Something went wrong");
     }
 
     // Business rule: a category that still has food in it cannot be deleted.
@@ -56,19 +74,23 @@ public class CategoryController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult DeleteCategory([FromRoute] int id)
     {
-        Category category = Repository.GetCategoryById(id);
-        if (category == null)
+        Category existingCategory = Repository.GetCategoryById(id);
+        if (existingCategory == null)
         {
             return NotFound($"Category with id {id} not found");
         }
         try
         {
-            Repository.DeleteCategory(id);
-            return NoContent();
+            bool status = Repository.DeleteCategory(id);
+            if (status)
+            {
+                return NoContent();
+            }
+            return BadRequest($"Unable to delete category with id {id}");
         }
         catch (PostgresException e) when (e.SqlState == PostgresErrorCodes.ForeignKeyViolation)
         {
-            return Conflict($"{category.Name} still has food in it, so it cannot be deleted.");
+            return Conflict($"{existingCategory.Name} still has food in it, so it cannot be deleted.");
         }
     }
 }
