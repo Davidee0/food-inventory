@@ -1,5 +1,11 @@
 <h2>My food</h2>
 
+<mat-form-field appearance="outline">
+  <mat-label>Search food</mat-label>
+  <input matInput [(ngModel)]="searchTerm" />
+  <mat-icon matPrefix>search</mat-icon>
+</mat-form-field>
+
 <div class="filters">
   <mat-form-field appearance="outline">
     <mat-label>Category</mat-label>

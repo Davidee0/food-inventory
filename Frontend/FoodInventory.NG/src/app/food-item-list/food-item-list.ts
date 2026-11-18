@@ -3,6 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { FoodItem } from '../model/food-item';
 import { Category } from '../model/category';
@@ -19,6 +21,8 @@ import { FoodItemCard } from '../food-item-card/food-item-card';
     RouterLink,
     MatButtonModule,
     MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
     MatSelectModule,
     FoodItemCard,
   ],
@@ -38,6 +42,7 @@ export class FoodItemList implements OnInit {
   message = signal('');
   loading = signal(true);
 
+  searchTerm: string = '';
   // 0 means "all".
   categoryId: number = 0;
   storageLocationId: number = 0;
@@ -68,12 +73,14 @@ export class FoodItemList implements OnInit {
   filteredFoodItems(): FoodItem[] {
     return this.foodItems().filter(
       (foodItem) =>
+        foodItem.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase()) &&
         (this.categoryId === 0 || foodItem.categoryId === this.categoryId) &&
         (this.storageLocationId === 0 || foodItem.storageLocationId === this.storageLocationId),
     );
   }
 
   clearFilters(): void {
+    this.searchTerm = '';
     this.categoryId = 0;
     this.storageLocationId = 0;
   }

@@ -35,4 +35,17 @@ describe('FoodItemList', () => {
     component.clearFilters();
     expect(component.filteredFoodItems().length).toBe(3);
   });
+
+  it('should find food by name, whatever the capital letters', () => {
+    component.foodItems.set([
+      { id: 1, name: 'Milk' },
+      { id: 2, name: 'Oat milk' },
+      { id: 3, name: 'Cheese' },
+    ] as FoodItem[]);
+    component.searchTerm = 'MILK';
+    expect(component.filteredFoodItems().map((foodItem) => foodItem.name)).toEqual([
+      'Milk',
+      'Oat milk',
+    ]);
+  });
 });

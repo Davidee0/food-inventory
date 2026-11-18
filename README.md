@@ -12,7 +12,7 @@ Group project for the CBS course *Designing and Developing Digital Business Appl
 
 - **Food:** add, edit and delete food (name, quantity, purchase date, best before date, category, storage location). The form, the API and the database all check the input.
 - **The list:** the food that goes off first is at the top; "Expired" and "Eat soon" are marked with an icon and text.
-- **Filters:** by category and by storage location.
+- **Search and filters:** search by name; filter by category and by storage location.
 - **Ate one:** lowers the quantity by one; the last one is deleted after a question.
 - **Categories and storage locations:** add, rename and delete them. One that still has food cannot be deleted; the API answers 409 and the page says why.
 
@@ -66,7 +66,7 @@ cd Frontend/FoodInventory.NG
 ng test --watch=false
 ```
 
-There are 27 xUnit tests of the controllers, with a mocked repository, and 22 Karma + Jasmine tests of the components and services. GitHub Actions (`.github/workflows/tests.yml`) runs them on every pull request, together with the database script and checks of the API's answers.
+There are 27 xUnit tests of the controllers, with a mocked repository, and 23 Karma + Jasmine tests of the components and services. GitHub Actions (`.github/workflows/tests.yml`) runs them on every pull request, together with the database script and checks of the API's answers.
 
 ## API
 
