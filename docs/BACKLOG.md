@@ -40,7 +40,7 @@ Scope (team roadmap): CRUD for FoodItem and Category is required, StorageLocatio
 | US11 | As a parent, I want food that has gone off or goes off soon to be marked, so that I eat it first and throw away less. | Later | Done |
 | US12 | As a student, I want the list sorted by best before date, so that I see which food to eat first. | Later | Done |
 | US13 | As a user, I want to add, rename and delete storage locations (for example balcony, cellar), so that the app matches my home. | Later | Done |
-| US14 | As a parent, I want a history of what we ate and threw away, so that we see how much we waste. | Extra | Not built, open pull request #6 |
+| US14 | As a parent, I want a history of what we ate and threw away, so that we see how much we waste. | Extra | Not built |
 
 ## Acceptance criteria
 
@@ -57,7 +57,6 @@ Scope (team roadmap): CRUD for FoodItem and Category is required, StorageLocatio
 - **US11 Expiring food:** "Expired" when the best before date is before today, "Eat soon" from today up to 3 days ahead, each with a warning icon and text, not colour alone. Food without a best before date is never marked.
 - **US12 Sort:** the list is sorted by the database: soonest best before date first, food without a date last, ties by name.
 - **US13 Storage locations** (menu "Storage locations", `/storage-locations`): as US9: "Fridge still has food in it, so it cannot be deleted."
-- **US14 History** (pull request #6, not on `main`): a fourth table `food_log`, "Threw one away" next to "Ate one", and a History page with "Eaten: 16, thrown away: 6, so 27% was wasted." The pull request targets an old branch and the old folder layout, so it needs to be redone on the current `main` if the team wants it.
 
 ## Definition of Done
 
