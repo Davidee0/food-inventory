@@ -1,9 +1,25 @@
+# .NET
 bin/
 obj/
+*.user
+.vs/
+
+# Angular
 node_modules/
 dist/
 .angular/
 coverage/
 out-tsc/
-*.user
+npm-debug.log
+
+# macOS
 .DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Secrets
+.env
+*.env
+appsettings.*.local.json

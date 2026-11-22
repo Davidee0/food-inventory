@@ -1,43 +1,99 @@
 # Food inventory
 
-Track the food you have at home: add groceries when you buy them, tap "Ate it" when you eat them. No login: one shared inventory.
-CBS course project (Designing and Developing Digital Business Applications): PostgreSQL, ASP.NET Core Web API (C#, .NET 8), Angular 22 with Angular Material.
-The code follows the lecture code (CourseAdminSystem, Lectures 4 to 10).
+A web app to keep track of the food at home: add what you buy, see what to eat first, and tap **Ate one** when you eat something. One shared list for the household, no login.
 
-## Run
+Households waste the most food: 60% of the 1.05 billion tonnes wasted in 2022 ([UNEP Food Waste Index Report 2024](https://www.unep.org/news-and-stories/press-release/world-squanders-over-1-billion-meals-day-un-report)). Design: [Figma](https://www.figma.com/design/NcVVu2BWhFgR8RkuFfXbg9).
 
-1. **Database:** in pgAdmin, create the database `food_inventory`, open the Query Tool on it and run `database.sql`.
-2. **Backend:** check the connection string `AppProgDb` in `backend/FoodInventory.API/appsettings.json`, then run `dotnet run --project backend/FoodInventory.API`.
-   The API is on http://localhost:5050 and Swagger on http://localhost:5050/swagger.
-3. **Frontend:** in `frontend/` run `npm install`, then `ng serve`, and open http://localhost:4200 (Angular 22 needs Node.js 22.22.3+ or 24.15+).
+Group project for the CBS course *Designing and Developing Digital Business Applications*. It uses PostgreSQL, an ASP.NET Core Web API (.NET 10) and Angular 22, and is built like the course project CourseAdminSystem.
 
-Tests: `dotnet test backend/FoodInventory.sln` (backend, Lecture 9) and `ng test` in `frontend/`.
+<img src="docs/screenshots/01-food-list.png" width="250" alt="The food list, expired food first"> <img src="docs/screenshots/03-add-validation.png" width="250" alt="The add form with its messages"> <img src="docs/screenshots/09-category-refused.png" width="250" alt="A category with food cannot be deleted">
+
+## Features
+
+- **Food:** add, edit and delete food (name, quantity, purchase date, best before date, category, storage location). The form, the API and the database all check the input.
+- **The list:** the food that goes off first is at the top; "Expired" and "Eat soon" are marked with an icon and text.
+- **Search and filters:** search by name; filter by category and by storage location.
+- **Ate one:** lowers the quantity by one; the last one is deleted after a question.
+- **Categories and storage locations:** add, rename and delete them. One that still has food cannot be deleted; the API answers 409 and the page says why.
+
+The user stories and their acceptance criteria are in [docs/BACKLOG.md](docs/BACKLOG.md).
 
 ## Structure
 
-| Where | What | Lecture |
-|---|---|---|
-| `database.sql` | tables `storage_location`, `category`, `food_item` with primary and foreign keys, and 15 example rows | 3 |
-| `backend/FoodInventory.Model` | `Entities/` (one class per table), `Repositories/` (SQL through Npgsql, on the course's `BaseRepository`) | 4 |
-| `backend/FoodInventory.API` | `Controllers/`: `/api/FoodItem`, `/api/Category`, `/api/StorageLocation` (GET, GET `{id}`, POST, PUT, DELETE `{id}`) | 4 |
-| `backend/FoodInventory.Tests` | xUnit + Moq tests for `FoodItemController` | 9 |
-| `frontend/src/app/model`, `services` | interfaces and one service per controller (HttpClient, Observables); `NotificationService` (snackbar) | 6, 10 |
-| `frontend/src/app` components | `item-list` (inventory with search), `item-form` (add and edit, reactive form with validation), `eat-list` (Ate it), `settings` (categories and storage locations, two-way binding) | 6 to 10 |
+```
+Database/                     setup.sql (one command) and food_inventory.sql (3 tables, 21 example rows)
+Backend/                      FoodInventory.slnx
+  FoodInventory.API/          Controllers, Program.cs, appsettings.json (connection string AppProgDb)
+  FoodInventory.Model/        Entities (one class per table) and Repositories (the SQL, on BaseRepository)
+  FoodInventory.Tests/        xUnit + Moq tests of the controllers
+Frontend/FoodInventory.NG/    the Angular app
+  src/app/                    http-common.ts (the API address), model/, services/, components
+```
 
-How it works:
-- The inventory is sorted by best before date (soonest first, from the API). Food that expires within 3 days or has expired gets a warning sign and text.
-- "Ate it": each tap eats one (5 oranges become 4); the last one deletes the item. The snackbar has Undo.
-- A category or storage location that still has food in it cannot be deleted: the foreign key refuses it and the API answers 409 with a message.
-- Validation in layers (Lecture 7): the form checks the fields, the database checks the rest (not null, quantity > 0, best before not before purchase date, no empty names).
+Angular (port 4200) calls the Web API (port 5050) with JSON; the API runs SQL in PostgreSQL (port 5432).
 
-## Demo script (at phone width)
+## Run it
 
-1. Inventory: the example items, soonest best before date first; Milk has a warning sign. Search for "pantry".
-2. Add: the Save button stays grey until name and storage location are filled in. Try a best before date before the purchase date (message), then save.
-3. Edit an item (change the quantity), then delete it after the confirmation.
-4. Ate it: tap "Ate it" on Pasta (3 → 2), then Undo in the snackbar.
-5. Gear → Settings: add a category, rename it, try to delete Drinks (refused: it still has food), delete the new one. The same for storage locations.
+You need PostgreSQL (with pgAdmin), the .NET 10 SDK, Node.js 24 and the Angular CLI (`npm install -g @angular/cli`).
 
-## Submission zip
+1. Database (asks for the password of the user `postgres`; safe to run again):
+   ```shell
+   psql -h localhost -U postgres -f Database/setup.sql
+   ```
+   Without `psql`: create the database `food_inventory` in pgAdmin and run `Database/food_inventory.sql` in its Query Tool.
+2. Web API, on http://localhost:5050 (Swagger: http://localhost:5050/swagger):
+   ```shell
+   cd Backend
+   dotnet run --project FoodInventory.API
+   ```
+   If your PostgreSQL password is not `postgres`, change it in `Backend/FoodInventory.API/appsettings.json`.
+3. App, on http://localhost:4200 (in a second terminal):
+   ```shell
+   cd Frontend/FoodInventory.NG
+   npm install
+   ng serve
+   ```
 
-`git archive --format=zip -o food-inventory.zip HEAD` packs the code and the SQL script only (no `node_modules`, `bin` or `obj`).
+## Tests
+
+```shell
+cd Backend
+dotnet test
+```
+
+```shell
+cd Frontend/FoodInventory.NG
+ng test --watch=false
+```
+
+There are 27 xUnit tests of the controllers, with a mocked repository, and 23 Karma + Jasmine tests of the components and services. GitHub Actions (`.github/workflows/tests.yml`) runs them on every pull request, together with the database script and checks of the API's answers.
+
+## API
+
+| Resource | Endpoints |
+|---|---|
+| `/api/FoodItem` | `GET` all, `GET /{id}`, `POST`, `PUT` (the whole item, id included), `DELETE /{id}` |
+| `/api/Category` | the same |
+| `/api/StorageLocation` | the same |
+
+The data is JSON; dates are `"YYYY-MM-DD"`. The answers:
+
+| Status | When |
+|---|---|
+| 200 | ok |
+| 204 | deleted |
+| 400 | wrong input, with a message |
+| 404 | unknown id |
+| 409 | a category or storage location still has food |
+
+## Database
+
+Three tables: `storage_location`, `category` and `food_item`.
+
+- Every food item has one storage location and at most one category (two foreign keys).
+- `check` rules refuse an empty name, a quantity below 1 and a best before date before the purchase date.
+
+## Credits
+
+- The course project CourseAdminSystem (CBS).
+- README idea: Giacomo Sanna's [crud-app](https://github.com/Giacomo-Sanna/crud-app).

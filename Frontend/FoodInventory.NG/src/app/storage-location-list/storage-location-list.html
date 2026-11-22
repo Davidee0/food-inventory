@@ -1,0 +1,31 @@
+<h2>Storage locations</h2>
+
+@for (storageLocation of storageLocations(); track storageLocation.id) {
+  <div class="row">
+    <input
+      type="text"
+      [(ngModel)]="storageLocation.name"
+      maxlength="30"
+      aria-label="Storage location name"
+    />
+    <button
+      mat-stroked-button
+      [disabled]="!storageLocation.name.trim()"
+      (click)="updateStorageLocation(storageLocation)"
+    >
+      Save
+    </button>
+    <button mat-stroked-button (click)="deleteStorageLocation(storageLocation)">Delete</button>
+  </div>
+}
+
+<div class="row">
+  <input
+    type="text"
+    [(ngModel)]="newName"
+    maxlength="30"
+    placeholder="New storage location"
+    aria-label="New storage location"
+  />
+  <button mat-flat-button [disabled]="!newName.trim()" (click)="addStorageLocation()">Add</button>
+</div>

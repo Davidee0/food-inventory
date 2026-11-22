@@ -1,0 +1,26 @@
+<h2>Categories</h2>
+
+@for (category of categories(); track category.id) {
+  <div class="row">
+    <input type="text" [(ngModel)]="category.name" maxlength="30" aria-label="Category name" />
+    <button
+      mat-stroked-button
+      [disabled]="!category.name.trim()"
+      (click)="updateCategory(category)"
+    >
+      Save
+    </button>
+    <button mat-stroked-button (click)="deleteCategory(category)">Delete</button>
+  </div>
+}
+
+<div class="row">
+  <input
+    type="text"
+    [(ngModel)]="newName"
+    maxlength="30"
+    placeholder="New category"
+    aria-label="New category"
+  />
+  <button mat-flat-button [disabled]="!newName.trim()" (click)="addCategory()">Add</button>
+</div>
