@@ -26,6 +26,19 @@
     </mat-select>
   </mat-form-field>
 </div>
+<div class="filters">
+  <mat-form-field appearance="outline">
+    <mat-label>Sort by</mat-label>
+    <mat-select [(ngModel)]="sortBy">
+      <mat-option value="bestBeforeDate">Best before date</mat-option>
+      <mat-option value="name">Name</mat-option>
+      <mat-option value="quantity">Quantity</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button mat-icon-button (click)="toggleSortDirection()" aria-label="Change the sort direction">
+    <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+  </button>
+</div>
 <button mat-stroked-button (click)="clearFilters()">Clear filters</button>
 
 @if (loading()) {
@@ -37,10 +50,7 @@
 } @else if (filteredFoodItems().length === 0) {
   <p>No food matches these filters.</p>
 } @else {
-  <p>
-    Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items, soonest best before
-    date first.
-  </p>
+  <p>Showing {{ filteredFoodItems().length }} of {{ foodItems().length }} items</p>
 }
 
 @for (foodItem of filteredFoodItems(); track foodItem.id) {

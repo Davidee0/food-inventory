@@ -43,6 +43,8 @@ export class FoodItemList implements OnInit {
   loading = signal(true);
 
   searchTerm: string = '';
+  sortBy: string = 'bestBeforeDate';
+  sortDirection: 'asc' | 'desc' = 'asc';
   // 0 means "all".
   categoryId: number = 0;
   storageLocationId: number = 0;
@@ -71,12 +73,34 @@ export class FoodItemList implements OnInit {
   }
 
   filteredFoodItems(): FoodItem[] {
-    return this.foodItems().filter(
+    const result = this.foodItems().filter(
       (foodItem) =>
         foodItem.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase()) &&
         (this.categoryId === 0 || foodItem.categoryId === this.categoryId) &&
         (this.storageLocationId === 0 || foodItem.storageLocationId === this.storageLocationId),
     );
+    return result.sort((a, b) => {
+      let aVal: any = a[this.sortBy as keyof FoodItem];
+      let bVal: any = b[this.sortBy as keyof FoodItem];
+
+      // Food without a best before date stays at the end, in both directions.
+      if (aVal === null && bVal === null) return 0;
+      if (aVal === null) return 1;
+      if (bVal === null) return -1;
+
+      if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  toggleSortDirection(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
   }
 
   clearFilters(): void {

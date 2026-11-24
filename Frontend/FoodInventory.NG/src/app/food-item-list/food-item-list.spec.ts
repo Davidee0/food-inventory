@@ -48,4 +48,21 @@ describe('FoodItemList', () => {
       'Oat milk',
     ]);
   });
+  it('should sort by name both ways, and keep food without a date last', () => {
+    component.foodItems.set([
+      { id: 1, name: 'Milk', bestBeforeDate: '2026-11-20' },
+      { id: 2, name: 'apples', bestBeforeDate: null },
+      { id: 3, name: 'Cheese', bestBeforeDate: '2026-11-25' },
+    ] as FoodItem[]);
+    expect(component.filteredFoodItems().map((foodItem) => foodItem.id)).toEqual([1, 3, 2]);
+    component.toggleSortDirection();
+    expect(component.filteredFoodItems().map((foodItem) => foodItem.id)).toEqual([3, 1, 2]);
+    component.sortBy = 'name';
+    component.toggleSortDirection();
+    expect(component.filteredFoodItems().map((foodItem) => foodItem.name)).toEqual([
+      'apples',
+      'Cheese',
+      'Milk',
+    ]);
+  });
 });
